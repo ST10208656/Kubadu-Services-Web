@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubadu Financial Services</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .kubadu {
+            font-size: 36px;
+            color: #001f3f; /* Dark Blue */
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .financial-services {
+            font-size: 24px;
+            color: #001f3f; /* Dark Blue */
+            text-transform: uppercase;
+        }
+
+        .green {
+            color: #007e3a; /* Dark Green */
+        }
+    </style>
+    <script>
+        // JavaScript function to redirect to the "about_us.html" page after a delay
+        window.onload = function() {
+            setTimeout(function() {
+                window.location.href = "about_us.html"; 
+            }, 3000); // Adjust the delay (in milliseconds) as needed, 3000 milliseconds = 3 seconds
+        };
+    </script>
+</head>
+<body>
+    <div class="kubadu">K<span class="green">U</span>BA<span class="green">D</span>U</div>
+    <div class="financial-services">Financial Services</div>
+</body>
+</html>

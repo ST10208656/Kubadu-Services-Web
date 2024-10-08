@@ -1,0 +1,91 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<script type="module">
+      
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+  #chat-container {
+    width: 300px;
+    margin: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  #chat-window {
+    height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  #message {
+    width: 80%;
+  }
+  #send {
+    width: 15%;
+  }
+</style>
+  <body>
+    <div id="chat-window">
+        <div id="output"></div>
+        <div id="feedback"></div>
+    </div>
+    <input id="message" type="text" placeholder="Type a message...">
+    <button id="send">Send</button>
+</div>
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+function sendMessage() {
+const messageInput = document.getElementById("message");
+const output = document.getElementById("output");
+
+console.log("You are here now");
+     const message = messageInput.value;
+	const chatData = {
+	 message: message,
+        timestamp: new Date()
+	};
+	 addDoc(collection(db, 'chat'), chatData);
+  
+      messageInput.value = ""; // Clear input field
+  }
+ window.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('send').addEventListener('click', sendMessage);
+    });
+
+
+
+  // Listen for new messages in Firestore
+  
+          // Auto-scroll to the bottom of the chat window
+          document.getElementById("chat-window").scrollTop = document.getElementById("chat-window").scrollHeight;
+    
+
+
+
+
+</script>
+  </body>
+
+</html>
+

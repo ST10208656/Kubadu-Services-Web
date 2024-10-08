@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            font-weight: bold;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            font-style: italic;
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+
+        .back-button {
+            background-color: #004AAD;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <h2>Requests History</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>RequestID</th>
+                        <th>Request Type</th>
+						<th>Request Date</th>
+						<th>Status</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+            <a href="home.html" class="back-button">Back to Home</a>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+	
+	if(app){
+	console.log("firebase is initialized successfully");
+	if(db){
+	console.log("firestore is initialized successfully");
+	
+const q = query(collection(db, "Requests"));
+
+const querySnapshot = await getDocs(q);
+querySnapshot.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  
+  const data = doc.data();
+  
+  
+  const timestamp = data.timestamp.toDate().toLocaleString();
+  const rowData = [doc.id, data.requestType, timestamp, data.status];
+  
+  const rowElement = document.createElement("tr");
+
+  // Loop through each cell in the rowData array
+  rowData.forEach((cell) => {
+    // Create a new table data (cell) element
+    const cellElement = document.createElement("td");
+    cellElement.textContent = cell;
+
+    // Append the cell to the row
+    rowElement.appendChild(cellElement);
+	// Append the row to the table body
+  tableBody.appendChild(rowElement);
+  });
+
+  
+  
+  console.log(rowData);
+  console.log(doc.id, " => ", doc.data());
+
+});
+
+}
+}
+</script>
+</html>

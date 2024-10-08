@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script type="module">
+      
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+	
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+		
+
+        header {
+            background: linear-gradient(180deg, #000000, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        header nav {
+            float: right;
+            margin-top: 10px;
+        }
+
+        header a {
+            color: #fff;
+			font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+            font-size: 13px; /* Relative font size */
+            margin: 0 20px; /* Adjusted margin */
+        }
+		header a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #fff; /* Line color */
+    transition: width 0.4s ease;
+}
+
+
+header a:hover::before {
+    width: 100%; /* Line expands to full width on hover */
+}
+
+        header ul {
+            list-style: none;
+        }
+
+        header li {
+            display: inline-block;
+            position: relative;
+        }
+
+        header li:hover .dropdown {
+            display: block;
+        }
+
+        header .dropdown {
+            display: none;
+            position: absolute;
+            background: #004AAD;
+            top: 100%;
+            left: 0;
+            width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        header .dropdown a {
+            color: #fff;
+            padding: 10px 20px;
+            display: block;
+            text-align: left;
+        }
+
+        header .dropdown a:hover {
+            background: #00BF63;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        main h2 {
+            margin-bottom: 20px;
+            background: #00BF63;
+            background-size: 21% 21%;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        main p {
+            margin-bottom: 20px;
+        }
+
+        section {
+            padding: 20px 0;
+            border-bottom: #77d667 1px solid;
+        }
+
+        #home {
+            text-align: center;
+            position: relative;
+            min-height: 400px;
+        }
+
+        #home .overlay {
+            
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+			opacity: 0; /* Start with hidden overlay */
+    transition: opacity 0.3s ease-in-out; /* Fade transition */
+        }
+#home .overlay.show {
+    opacity: 1; /* Show overlay */
+}
+        #home .welcome-text {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: rgb(0,42,255);
+background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+        }
+
+
+        #home .cta-button {
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #services .service {
+            margin-bottom: 20px;
+        }
+
+        .service-link {
+            color: #77d667;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .service-link img {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+.service-link {
+    color: #77d667;
+    font-family: 'Montserrat', sans-serif;
+    text-decoration: none;
+    font-size: 16px;
+    position: relative; /* Required for the pseudo-element positioning */
+    padding: 5px 0; /* Adjust padding to create space for the line */
+    transition: color 0.4s ease;
+}
+
+.service-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #00C04B; /* Line color */
+    transition: width 0.4s ease;
+}
+
+.service-link:hover {
+    color: #004AAD;
+}
+
+.service-link:hover::before {
+    width: 100%; /* Line expands to full width on hover */
+}
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+    .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f1f1f1;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        form label {
+            margin-bottom: 5px;
+        }
+
+        form input,
+        form textarea {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        form button {
+            background: #77d667;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+
+        @media (max-width: 768px) {
+            header h1,
+            header nav {
+                float: none;
+                text-align: center;
+            }
+
+            header nav ul {
+                padding: 0;
+            }
+
+            header nav ul li {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            .container {
+                width: 95%;
+            }
+
+            #home .slider .arrow.left {
+                left: 10px;
+            }
+
+            #home .slider .arrow.right {
+                right: 10px;
+            }
+        }
+
+        /* Pop-up form styling */
+        .popup-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+             background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border-radius: 10px;
+        }
+
+        .popup-form h3 {
+            margin-bottom: 10px;
+            color: #004AAD;
+        }
+
+        .popup-form .close-button {
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border-radius: 50%;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .notification {
+            margin-top: 10px;
+            font-size: 1em;
+            color: red;
+        }
+
+        .document-chooser {
+            margin-bottom: 20px;
+        }
+	
+		button {
+    position: relative; /* Required for the pseudo-element positioning */
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+    background-color: #00C04B;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px; /* Optional: for rounded corners */
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%; /* Start from the middle */
+    width: 0;
+    height: 2px;
+    background-color: #fff; /* Line color */
+    transition: width 0.4s ease, left 0.4s ease; /* Animate width and position */
+}
+
+button:hover {
+    background-color: #fff;
+    color: #00C04B;
+}
+
+button:hover::before {
+    width: 100%; /* Expand line to full width */
+    left: 0; /* Move line to start from the left */
+}
+/* Chat Button Styling */
+#chatButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+ background: rgb(0,74,173);
+background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#chatButton:hover {
+    background-color: #00BF63;
+}
+
+/* Chat Window Styling */
+.chat-window {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none; /* Hidden by default */
+    flex-direction: column;
+}
+
+.chat-header {
+    background-color: #004AAD;
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-body {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.chat-footer {
+    display: flex;
+    padding: 10px;
+}
+
+.chat-footer input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.chat-footer button {
+    margin-left: 10px;
+    padding: 8px 15px;
+    background-color: #004AAD;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-chat {
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+}
+.responsive {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Kubadu Services</h1>
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="#services">Make a Request</a></li>
+                    <li><a href="requestHistory.html">View Requests</a></li>
+						<li><a href="Loans.html">View Loans</a></li>
+					<li><a href="Policies.html">View Policies</a></li>
+                   <li><a href="Policies.html">Edit Profile</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <section id="home" style="max-width:80%;">
+            <div class="overlay">
+			 <img src="https://images.pexels.com/photos/4629634/pexels-photo-4629634.jpeg" class="responsive" style="box-shadow:2px 2px 5px black; border-radius:8px;">
+                <h2 class="welcome-text">Welcome to Kubadu Services</h2>
+              
+            </div>
+        </section>
+        <section id="services">
+            <div class="container">
+                <h2>Make a Request</h2>
+                <div class="service">
+                    <h3>Loans</h3>
+                    <p>Flexible loan options to meet your financial needs.</p>
+                    <a href="javascript:void(0);" class="service-link" onclick="openForm('loan')"><img src="icons/loan.png" alt="Loan Icon">Apply for a loan</a>
+                </div>
+                <div class="service">
+                    <h3>Funeral Policies</h3>
+                    <p>Comprehensive funeral policies to ensure peace of mind.</p>
+                    <a href="javascript:void(0);" id="open-policy-popup" class="service-link" onclick="openForm('funeral')"><img src="icons/policy.png" alt="Funeral Policy Icon"/>Request for funeral Policies</a>
+                </div>
+             
+            </div>
+        </section>
+		
+		
+ <!-- Chat Icon/Button -->
+<button id="chatButton" onclick="toggleChatWindow()">
+    💬
+</button>
+
+
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Pop-up Form -->
+    <div class="popup-overlay" id="popup-overlay"></div>
+
+    <!-- Loan Form -->
+    <div class="popup-form" id="loan-form">
+        <button class="close-button" onclick="closeForm('loan')">X</button>
+        <h3>Apply for a Loan</h3>
+        <form id="loanform">
+        <label for="loan-type">Loan Type:</label>
+        <select id="loan-type" name="loan-type">
+            <option value="personalLoan">Personal Loan</option>
+            <option value="businessLoan">Business Loan</option>
+            <option value="homeLoan">Home Loan</option>
+        </select><br><br>
+        <div id="loan-details">
+            <p>Please select a loan type to view details.</p>
+        </div>
+        <button type="submit">Add Loan</button>
+    </form>
+        <div id="loan-notification" class="notification"></div>
+    </div>
+
+    <!-- Funeral Policy Form -->
+    <div class="popup-form" id="funeral-form">
+        <button class="close-button" onclick="closeForm('funeral')">X</button>
+        <h3>Request for Funeral Policies</h3>
+        <form id="funeralForm">
+             <label for="policy-type">Select Policy Plan:</label>
+            <select id="policy-type" name="policy-type">
+                <option value="basic">Basic Funeral Policy</option>
+                <option value="premium">Premium Funeral Policy</option>
+            </select><br><br>
+            <div id="policy-details">
+                <!-- Policy details will be displayed dynamically here -->
+            </div>
+            <button type="submit">Add Policy</button> 
+        </form>
+        <div id="funeral-policy-notification" class="notification"></div>
+    </div>
+	<!-- Chat Window -->
+<div id="chatWindow" class="chat-window">
+    <div class="chat-header">
+        <h3>Chat</h3>
+        <span class="close-chat" onclick="toggleChatWindow()">×</span>
+    </div>
+    <div id="chat-window" class="chat-body">
+        <ul id="messages-list"></ul>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="message" placeholder="Type your message...">
+        <button id="send">Send</button>
+    </div>
+</div>
+  
+<script>
+function showOverlay() {
+    const overlay = document.querySelector('#home .overlay');
+    overlay.classList.add('show'); // Add class to show overlay
+}
+
+// Show overlay automatically after 1 second
+setTimeout(showOverlay, 1000); // Show overlay after 1 second
+
+// Toggle chat window visibility
+function toggleChatWindow() {
+    const chatWindow = document.getElementById("chatWindow");
+    if (chatWindow.style.display === "none" || chatWindow.style.display === "") {
+        chatWindow.style.display = "flex"; // Show the chat window
+    } else {
+        chatWindow.style.display = "none"; // Hide the chat window
+    }
+}
+
+</script>
+	<script type="module">
+	
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+   let app;
+if (!initializeApp.length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = initializeApp(firebaseConfig);
+}
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
+let userID = null;
+let userDocRef = null;
+let userDocSnap = null;
+ function checkUserLogin() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User is logged in:", user);
+                userID = user.uid; // Store user ID
+                userDocRef = doc(db, 'Customers', userID); // Reference to the user document
+
+                try {
+                    const userDocSnap = await getDoc(userDocRef); // Await the document snapshot
+                    if (userDocSnap.exists()) {
+                        console.log("User data:", userDocSnap.data()); // Successfully retrieved user data
+                        loadLoans(userDocSnap); // Load loan options and setup form
+						loadPolicies(userDocSnap);
+                    } else {
+                        console.error("No such user document!");
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error); // Handle errors
+                }
+            } else {
+                console.log("No user is signed in.");
+                alert("You must log in");
+                window.location.href = "login.html"; // Redirect to login page
+            }
+        });
+    }
+
+    // Function to load loans from Firestore
+    async function loadLoans(userDocSnap) {
+        const loanTypeDropdown = document.getElementById("loan-type");
+        const loanDetails = document.getElementById("loan-details");
+        const notificationDiv = document.getElementById("loan-notification");
+
+        // Fetch loan data from Firestore
+        const querySnapshot = await getDocs(collection(db, "loans"));
+        loanTypeDropdown.innerHTML = ''; // Clear existing options
+
+        querySnapshot.forEach((doc) => {
+            const loan = doc.data();
+            const option = document.createElement("option");
+            option.value = loan.loanType;
+            option.textContent = loan.loanType;
+            option.setAttribute('data-amount', loan.loanAmount);
+            option.setAttribute('data-rate', loan.loanInterestRate);
+            loanTypeDropdown.appendChild(option);
+        });
+
+        // Listen for change event to display loan details
+        loanTypeDropdown.addEventListener('change', function() {
+            const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
+            const loanAmount = selectedOption.getAttribute('data-amount');
+            const loanRate = selectedOption.getAttribute('data-rate');
+            
+            if (loanAmount && loanRate) {
+                loanDetails.innerHTML = `<strong>Loan Amount:</strong> ${loanAmount} <br> <strong>Interest Rate:</strong> ${loanRate}%`;
+            } else {
+                loanDetails.innerHTML = 'Please select a loan type to view details.';
+            }
+        });
+
+        // Handle loan form submission
+        const loanForm = document.getElementById('loanform');
+        if (loanForm) {
+            loanForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
+                const loanType = selectedOption.value;
+                const loanAmount = selectedOption.getAttribute('data-amount');
+                const loanRate = selectedOption.getAttribute('data-rate');
+
+                if (!loanType || !loanAmount || !loanRate) {
+                    notificationDiv.textContent = 'Please select a valid loan type.';
+                    notificationDiv.style.display = 'block';
+                    return;
+                }
+
+                const loanRequestData = {
+                    userEmail: userDocSnap.data().Email,  // Use the actual user's email from Firestore
+					userName: userDocSnap.data().Name,
+					userSurname: userDocSnap.data().Surname,
+                    type: loanType,
+                    amount: loanAmount,
+                    interestRate: loanRate,
+                    requestType: 'Loan',
+                    timestamp: new Date(),
+                    status: 'pending'
+                };
+
+                try {
+                    // Add the loan request to Firestore in the "Requests" collection
+                    await addDoc(collection(db, 'Requests'), loanRequestData);
+                    notificationDiv.textContent = 'Loan request submitted successfully.';
+                    notificationDiv.style.display = 'block';
+                    console.log('Loan request submitted successfully:', loanRequestData);
+
+                    // Reset the form after submission
+                    loanForm.reset();
+                    loanDetails.innerHTML = '<p>Please select a loan type to view details.</p>';
+                } catch (error) {
+                    notificationDiv.textContent = `Error submitting loan request: ${error.message}`;
+                    notificationDiv.style.display = 'block';
+                    console.error('Error submitting loan request:', error);
+                }
+            });
+        } else {
+            console.log("Loan form not found");
+        }
+    }
+	
+	    async function loadPolicies(userDocSnap) {
+        const policyTypeDropdown = document.getElementById("policy-type");
+        const policyDetails = document.getElementById("policy-details");
+        const notificationDiv = document.getElementById("funeral-policy-notification");
+
+        // Fetch loan data from Firestore
+        const querySnapshot = await getDocs(collection(db, "policies"));
+        policyTypeDropdown.innerHTML = ''; // Clear existing options
+
+        querySnapshot.forEach((doc) => {
+            const policy = doc.data();
+            const option = document.createElement("option");
+            option.value = policy.policyType;
+            option.textContent = policy.policyType;
+            option.setAttribute('coverage', policy.coverage);
+            option.setAttribute('payment', policy.payment);
+            policyTypeDropdown.appendChild(option);
+        });
+
+        // Listen for change event to display loan details
+        policyTypeDropdown.addEventListener('change', function() {
+            const selectedOption = policyTypeDropdown.options[policyTypeDropdown.selectedIndex];
+            const policyCoverage = selectedOption.getAttribute('coverage');
+            const payment = selectedOption.getAttribute('payment');
+            
+            if (policyCoverage && payment) {
+                policyDetails.innerHTML = `<strong>Coverage:</strong> ${policyCoverage} <br> <strong>Payment:</strong> ${payment}`;
+            } else {
+                policyDetails.innerHTML = 'Please select a policy type to view details.';
+            }
+        });
+
+        // Handle loan form submission
+        const policyForm = document.getElementById('funeral-form');
+        if (policyForm) {
+            policyForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const selectedOption = policyTypeDropdown.options[policyTypeDropdown.selectedIndex];
+                const policyType = selectedOption.value;
+                const policyCoverage = selectedOption.getAttribute('coverage');
+                const payment = selectedOption.getAttribute('payment');
+
+                if (!policyType || !policyCoverage || !payment) {
+                    notificationDiv.textContent = 'Please select a valid policy type.';
+                    notificationDiv.style.display = 'block';
+                    return;
+                }
+
+                const policyRequestData = {
+                    userEmail: userDocSnap.data().Email,  // Use the actual user's email from Firestore
+					userName: userDocSnap.data().Name,
+					userSurname: userDocSnap.data().Surname,
+                    policyType: policyType,
+                    coverage: policyCoverage,
+                    payment: payment,
+                    requestType: 'Funeral Policy',
+                    timestamp: new Date(),
+                    status: 'pending'
+                };
+
+                try {
+                    // Add the loan request to Firestore in the "Requests" collection
+                    await addDoc(collection(db, 'Requests'), policyRequestData);
+                    notificationDiv.textContent = 'Policy request submitted successfully.';
+                    notificationDiv.style.display = 'block';
+                    console.log('Policy request submitted successfully:', policyRequestData);
+
+                    // Reset the form after submission
+                    policyForm.reset();
+                    policyDetails.innerHTML = '<p>Please select a policy type to view details.</p>';
+                } catch (error) {
+                    notificationDiv.textContent = `Error submitting policy request: ${error.message}`;
+                    notificationDiv.style.display = 'block';
+                    console.error('Error submitting policy request:', error);
+                }
+            });
+        } else {
+            console.log("policy form not found");
+        }
+    }
+
+    // Call the function to check if the user is logged in when the page loads
+    window.onload = checkUserLogin;
+
+if(auth){
+ window.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('send').addEventListener('click', sendMessage);
+    });
+// Function to send a message
+async function sendMessage() {
+    const user = auth.currentUser;  // Get the current user
+    const messageInput = document.getElementById("message");
+
+    if (user) {
+        const message = messageInput.value.trim();
+
+        if (message) {  // Ensure the message isn't empty
+            try {
+                // Check for existing chat or create new chat
+           
+                let chatId;
+        
+                // Get user data for the message
+                const userDocRef = doc(db, 'Customers', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+   // Create a new chat if none exists
+                    const chatData = {
+                        customerID: user.uid,
+                        clerk_assigned: null, // No clerk assigned initially
+						 name: userData.Name,  // Assuming 'Name' exists in Firestore document
+                        surname: userData.Surname,  // Assuming 'Surname' exists in Firestore document
+                        status: "unassigned", // Set status to unassigned
+                        timestamp: new Date()
+                    };
+
+                    const chatDocRef = await addDoc(collection(db, "chats"), chatData);
+                    chatId = chatDocRef.id;  // Get the new chat ID
+                    const messageData = {
+                        userID: user.uid,
+                        message: message,
+                        timestamp: new Date()
+                    };
+
+                    // Add the message to the corresponding chat's messages subcollection
+                    await addDoc(collection(db, `chats/${chatId}/messages`), messageData);
+                    console.log("Message sent successfully!");
+
+                    messageInput.value = "";  // Clear input field after sending
+					loadChatMessages(chatId);
+                } else {
+                    console.error("No user document found for this user.");
+                }
+            } catch (error) {
+                console.error("Error sending message: ", error);
+            }
+        } else {
+            console.log("Message is empty.");
+        }
+    } else {
+        console.log("User is not authenticated.");
+    }
+}
+async function loadChatMessages(chatId) {
+   
+    const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); // Load messages from subcollection
+    const messagesList = document.getElementById("messages-list");
+
+    if (!messagesList) {
+       
+        console.error("Messages list element not found!");
+        return; // Exit the function if the element is not found
+    }
+
+    onSnapshot(messagesQuery, (snapshot) => {
+          console.log("Snapshot received:", snapshot); // Debugging line
+           if (snapshot.empty) {
+            console.log("No messages found for this chat."); // Log if no messages found
+            return; // Exit if no messages
+        }
+
+        messagesList.innerHTML = ''; // Clear existing messages
+        snapshot.forEach(doc => {
+            console.log("we're here" + chatId);
+          
+            const messageData = doc.data();
+            const messageItem = document.createElement("li");
+            messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.Name} ${messageData.Surname}: ${messageData.message}`;
+            messagesList.appendChild(messageItem);
+        });
+    });
+}
+
+
+
+
+
+}
+
+
+  // Listen for new messages in Firestore
+  
+          // Auto-scroll to the bottom of the chat window
+          document.getElementById("chat-window").scrollTop = document.getElementById("chat-window").scrollHeight;
+    // Slider functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll(".slider-text");
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove("active");
+            if (i === index) {
+                slide.classList.add("active");
+            }
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Auto change slides every 3 seconds
+    setInterval(nextSlide, 2000);
+</script>
+
+	
+	  <script>
+       
+     
+	 const openPolicyPopupButton = document.getElementById('open-policy-popup');
+	 
+		 function openForm(type) {
+            document.getElementById('popup-overlay').style.display = 'block';
+            document.getElementById(type + '-form').style.display = 'block';
+        }
+   function closeForm(type) {
+            document.getElementById('popup-overlay').style.display = 'none';
+            document.getElementById(type + '-form').style.display = 'none';
+        }
+
+            openPolicyPopupButton.addEventListener('click', () => openForm('funeral'));
+		
+            // Object to store policy details
+         
+           
+        
+    </script>
+
+</body>
+</html>

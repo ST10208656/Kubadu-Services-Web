@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Kubadu Financial Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+/* Basic CSS reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(90deg, #004AAD, #00BF63);
+    color: #fff;
+    padding-top: 30px;
+    min-height: 70px;
+    border-bottom: #77d667 3px solid;
+   
+}
+
+header h1 {
+    float: left;
+font-size:28px;
+}
+
+header nav {
+    float: right;
+    margin-top: 10px;
+    
+}
+
+header a {
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 10px; /* Relative font size */
+    margin: 0 20px; /* Adjusted margin */
+}
+header ul {
+    list-style: none;
+}
+
+header li {
+    display: inline-block;
+  
+}
+
+header li:hover .dropdown {
+    display: block;
+}
+
+header .dropdown {
+    display: none;
+    position: absolute;
+    background: #004AAD;
+    top: 100%;
+    left: 0;
+    width: 200px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+header .dropdown a {
+    color: #fff;
+    padding: 10px 20px;
+    display: block;
+    text-align: left;
+}
+
+header .dropdown a:hover {
+    background: #00BF63;
+}
+
+main {
+    padding: 20px 0;
+}
+
+main h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+main p {
+    margin-bottom: 20px;
+}
+
+section {
+    padding: 20px 0;
+    border-bottom: #77d667 1px solid;
+}
+
+#home {
+    background: url('images/landingimage.jpg') no-repeat center center/cover;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    min-height: 400px;
+}
+
+#home .overlay {
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#home h2 {
+    margin-bottom: 10px;
+}
+
+#home p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+#home .cta-button {
+    background: #77d667;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#services .service {
+    margin-bottom: 20px;
+}
+
+.service-link {
+    color: #77d667;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.service-link img {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+}
+
+.service-link:hover {
+    text-decoration: underline;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-bottom: 5px;
+}
+
+form input, form textarea {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1em;
+}
+
+form button {
+    background: #77d667;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 30px 0;
+    border-top: #77d667 3px solid;
+}
+
+@media (max-width: 768px) {
+    header h1, header nav {
+        float: none;
+        text-align: center;
+    }
+
+    header nav ul {
+        padding: 0;
+    }
+
+    header nav ul li {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .container {
+        width: 95%;
+    }
+}
+    </style>
+</head>
+<body>
+ <header>
+        <div class="container">
+            <h1>Kubadu Services</h1>
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="about_us.html">About Us</a></li>
+                    
+                    <li>
+                        <a href="inquiries.html">Make a Request</a>
+                        
+                    </li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <h1>About Us</h1>
+        <p>Kubadu Financial Services is dedicated to providing financial solutions tailored to meet your needs. Our mission is to offer reliable financial assistance and services to individuals and businesses.</p>
+        
+        <h2>Our Services</h2>
+        <h3>Small Loans</h3>
+        <p>We offer small loans to help you cover unexpected expenses or bridge financial gaps. Our loan process is quick and hassle-free, with flexible repayment options.</p>
+        
+        <h3>Funeral Policy</h3>
+        <p>Our funeral policy provides peace of mind by offering financial assistance to cover funeral expenses. With our policy, you can ensure that your loved ones are taken care of during difficult times.</p>
+        
+        <!-- Redirect link to "Our Work" page -->
+        <p>Learn more about our services on <a href="Our Work.html">Our Work</a> page.</p>
+    </div>
+</main>
+  <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
