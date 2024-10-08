@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Loans - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+
+        .card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #004AAD;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter-container label, .filter-container select {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            font-weight: bold;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            font-style: italic;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .add-loan-form {
+            text-align: center;
+        }
+
+        .add-loan-form input[type="text"],
+        .add-loan-form input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        .add-loan-form button {
+            background-color: #004AAD;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-loan-form button:hover {
+            background-color: #00BF63;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Manage Loans - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <a href="index.html" class="back-btn">Back to Dashboard</a>
+            <div class="card">
+                <h2>Add New Loan</h2>
+                <form id="add-loan-form" class="add-loan-form">
+                    <label for="loan-type">Loan Type:</label>
+                    <input type="text" id="loan-type" name="loan-type" required><br><br>
+                    <label for="loan-amount">Loan Amount:</label>
+                    <input type="number" id="loan-amount" name="loan-amount" required><br><br>
+                    <label for="loan-interest-rate">Interest Rate:</label>
+                    <input type="number" step="0.01" id="loan-interest-rate" name="loan-interest-rate" required><br><br>
+                    <button type="submit">Add Loan</button>
+                </form>
+            </div>
+            <div class="card">
+                <h2>Existing Loans</h2>
+                <div id="loans-list">
+                    <!-- Data will be dynamically populated here -->
+                </div>
+            </div>
+            <div class="card">
+                <h2>Users with Active Loans</h2>
+                <div class="filter-container">
+                    <label for="search-input">Search:</label>
+                    <input type="text" id="search-input" placeholder="Search by user name...">
+                    <label for="filter-select">Filter by Loan Plan:</label>
+                    <select id="filter-select">
+                        <option value="all">All</option>
+                        <option value="Personal Loan">Personal Loan</option>
+                        <option value="Business Loan">Business Loan</option>
+                        <option value="Home Loan">Home Loan</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Loan Plan</th>
+                            <th>Loan Amount</th>
+                            <th>Remaining Balance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersLoansList">
+                        <!-- Data will be dynamically populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+	
+	
+	
+    <script>
+        // Dummy data for demonstration
+        const existingLoans = [
+            { name: 'Personal Loan', amount: 'R5000', interestRate: '5%' },
+            { name: 'Business Loan', amount: 'R20000', interestRate: '7%' },
+            { name: 'Home Loan', amount: 'R100000', interestRate: '4%' }
+        ];
+
+        const usersLoans = [
+            { user: 'John Doe', plan: 'Personal Loan', amount: 'R5000', remaining: 2500, status: 'Active', progress: 50 },
+            { user: 'Jane Smith', plan: 'Business Loan', amount: 'R20000', remaining: 4000, status: 'Active', progress: 80 },
+            { user: 'Bob Johnson', plan: 'Home Loan', amount: 'R100000', remaining: 0, status: 'Completed', progress: 100 }
+        ];
+
+        // Function to populate existing loans
+        function populateLoans() {
+            const loansList = document.getElementById('loans-list');
+            existingLoans.forEach(loan => {
+                const loanElement = document.createElement('div');
+                loanElement.className = 'loan';
+                loanElement.innerHTML = `
+                    <h3>${loan.name}</h3>
+                    <p>Amount: ${loan.amount}</p>
+                    <p>Interest Rate: ${loan.interestRate}</p>`;
+                loansList.appendChild(loanElement);
+            });
+        }
+
+        // Function to populate users loans table
+        function populateUsersLoans() {
+            const usersLoansList = document.getElementById('usersLoansList');
+            usersLoansList.innerHTML = ''; // Clear existing data
+            usersLoans.forEach(loan => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${loan.user}</td>
+                    <td>${loan.plan}</td>
+                    <td>${loan.amount}</td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
+                        </div>
+                        R${loan.remaining} remaining
+                    </td>
+                    <td>${loan.status}</td>`;
+                usersLoansList.appendChild(row);
+            });
+        }
+
+        // Function to filter users loans
+        function filterUsersLoans() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filterType = document.getElementById('filter-select').value;
+            const filteredLoans = usersLoans.filter(loan => {
+                const matchesSearchTerm = loan.user.toLowerCase().includes(searchTerm);
+                const matchesFilterType = filterType === 'all' || loan.plan === filterType;
+                return matchesSearchTerm && matchesFilterType;
+            });
+
+            const usersLoansList = document.getElementById('users-loans-list');
+            usersLoansList.innerHTML = ''; // Clear existing data
+            filteredLoans.forEach(loan => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${loan.user}</td>
+                    <td>${loan.plan}</td>
+                    <td>${loan.amount}</td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
+                        </div>
+                        R${loan.remaining} remaining
+                    </td>
+                    <td>${loan.status}</td>`;
+                usersLoansList.appendChild(row);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateLoans();
+            populateUsersLoans();
+
+            document.getElementById('search-input').addEventListener('input', filterUsersLoans);
+            document.getElementById('filter-select').addEventListener('change', filterUsersLoans);
+        });
+
+       
+    </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+    authDomain: "login-b62bd.firebaseapp.com",
+    projectId: "login-b62bd",
+    storageBucket: "login-b62bd.appspot.com",
+    messagingSenderId: "861930818449",
+    appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+    measurementId: "G-KHJSX85R56"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  if (app) {
+    console.log("Firebase is initialized successfully");
+
+    if (db) {
+      console.log("Firestore is initialized successfully");
+ 
+        const loansCollection = collection(db, 'loans');
+     
+             
+document.addEventListener("DOMContentLoaded", function() {
+    // Now the DOM is fully loaded, we can safely add event listeners
+    document.getElementById("add-loan-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const loanType = document.getElementById("loan-type").value;
+        const loanAmount = document.getElementById("loan-amount").value;
+        const loanInterestRate = document.getElementById("loan-interest-rate").value;
+
+        try {
+            // Add loan to Firestore
+            await addDoc(loansCollection, {
+                loanType: loanType,
+                loanAmount: parseFloat(loanAmount),
+                loanInterestRate: parseFloat(loanInterestRate),
+                timestamp: new Date()
+            });
+            alert("Loan added successfully!");
+            loadLoans(); // Refresh the loan list
+        } catch (error) {
+            console.error("Error adding loan: ", error);
+        }
+    });
+    
+    // Load loans when the page is loaded
+    loadLoans();
+});
+
+   
+        
+            
+        
+      
+      
+        // Function to load existing loans
+        async function loadLoans() {
+            const loansList = document.getElementById("loans-list");
+            loansList.innerHTML = "";  // Clear existing loans
+
+            const querySnapshot = await getDocs(loansCollection);
+
+            querySnapshot.forEach((doc) => {
+                const loanData = doc.data();
+                const loanItem = document.createElement("div");
+                loanItem.innerHTML = `
+                    <strong>${loanData.loanType}</strong><br>
+                    Amount: R${loanData.loanAmount}<br>
+                    Interest Rate: ${loanData.loanInterestRate}%<br><br>
+                `;
+                loansList.appendChild(loanItem);
+            });
+        }
+
+        // Load loans when the page is loaded
+        window.onload = loadLoans;
+      const q = query(collection(db, "User Loans"));
+      const querySnapshot = await getDocs(q);
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const rowElement = document.createElement("tr");
+
+        rowElement.innerHTML = `
+          <td>${doc.id}</td>
+          <td>${data.type}</td>
+          <td>${data.dataAmount}</td>
+                
+          <td>Paid: <input class="amountInput" type="number">
+          <button class="submitButton" data-amount="${data.dataAmount}" original-amount="${data.originalAmount}" data-doc-id="${doc.id}">Submit</button></td>
+        `;
+
+        document.getElementById("usersLoansList").appendChild(rowElement);
+      });
+
+      document.getElementById("usersLoansList").addEventListener("click", async (e) => {
+        if (e.target.classList.contains("submitButton")) {
+          const docId = e.target.getAttribute("data-doc-id");
+          const originalAmount = e.target.getAttribute("original-amount");
+          const inputElement = e.target.previousElementSibling;
+          const amount = parseFloat(inputElement.value);
+
+          console.log("Amount entered:", amount);
+
+          if (!isNaN(amount) && amount > 0) {
+            await addDoc(collection(db, "User Loans", docId, "Payments"), {
+              Paid: amount
+            });
+            console.log("Payment added for doc ID:", docId);
+
+            const paymentsQuery = query(collection(db, "User Loans", docId, "Payments"));
+            const paymentsSnapshot = await getDocs(paymentsQuery);
+            let totalPayments = 0;
+
+            paymentsSnapshot.forEach((paymentDoc) => {
+              const paymentData = paymentDoc.data();
+              totalPayments = totalPayments + parseFloat(paymentData.Paid);
+			  console.log(totalPayments);
+			  if(originalAmount){
+			  console.log("original amount is: " + originalAmount);
+			  }
+			 
+            });
+ const remainingBalance = originalAmount - totalPayments;
+			   console.log("Remaining balance:", remainingBalance);
+              await updateDoc(doc(db, "User Loans", docId), {
+              dataAmount: remainingBalance
+            });
+           
+          } else {
+            console.log("Invalid amount entered.");
+          }
+        }
+      });
+    }
+  }
+</script>
+
+</body>
+</html>
+

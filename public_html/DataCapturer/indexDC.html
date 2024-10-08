@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .admin-menu {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .admin-menu a {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+
+        .admin-menu a:hover {
+            background-color: #00BF63;
+        }
+
+        footer {
+        
+            color: black;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+
+        /* Dashboard Overview Styles */
+        #dashboard-overview {
+            margin-top: 20px;
+        }
+
+        .overview-cards {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 30%;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #004AAD;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Admin Dashboard - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="admin-menu">
+                <a href="manageFuneralPoliciesDC.html" id="manage-funeral-policies-btn">Manage Funeral Policies</a>
+                <a href="manageLoansDC.html" id="manage-loans-btn">Manage Loans</a>
+                
+ <a href="manageRequestDC.html" id="manage-claims-btn">Manage Requests</a>
+            </div>
+     
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+       
+
+        // Example data fetching and updating the dashboard counts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch the data (dummy data for demonstration)
+            const activeUsers = 123;
+            const pendingRequests = 45;
+            const completedPayments = 67;
+            const activeFuneralPolicies = 12;
+            const pendingLoans = 8;
+            const claimsToProcess = 5;
+
+            // Update the dashboard counts
+            document.getElementById('active-users-count').textContent = activeUsers;
+            document.getElementById('pending-requests-count').textContent = pendingRequests;
+            document.getElementById('completed-payments-count').textContent = completedPayments;
+            document.getElementById('active-funeral-policies-count').textContent = activeFuneralPolicies;
+            document.getElementById('pending-loans-count').textContent = pendingLoans;
+            document.getElementById('claims-to-process-count').textContent = claimsToProcess;
+        });
+    </script>
+</body>
+</html>

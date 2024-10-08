@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Claims - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            background: #004AAD;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        main {
+            margin-top: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+
+        .card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #004AAD;
+        }
+
+        .claim {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .claim h3 {
+            color: #004AAD;
+        }
+
+        .claim p {
+            margin: 5px 0;
+        }
+
+        .back-button {
+            display: block;
+            width: 150px;
+            margin: 20px 0;
+            padding: 10px;
+            text-align: center;
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #003580;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Manage Claims</h1>
+    </header>
+    <main>
+        <div class="container">
+            <a href="adminDashboard.html" class="back-button">Back to Dashboard</a>
+            <div class="card">
+                <h2>Add New Claim</h2>
+                <form id="add-claim-form">
+                    <label for="claim-name">Claim Name:</label>
+                    <input type="text" id="claim-name" name="claim-name" required><br><br>
+                    <label for="claim-amount">Claim Amount:</label>
+                    <input type="number" id="claim-amount" name="claim-amount" required><br><br>
+                    <label for="claim-status">Claim Status:</label>
+                    <input type="text" id="claim-status" name="claim-status" required><br><br>
+                    <button type="submit">Add Claim</button>
+                </form>
+            </div>
+            <div class="card">
+                <h2>Existing Claims</h2>
+                <div id="claims-list">
+                    <!-- Dummy data for demonstration -->
+                    <div class="claim">
+                        <h3>John Doe</h3>
+                        <p>Amount: R10000</p>
+                        <p>Status: Pending</p>
+                    </div>
+                    <div class="claim">
+                        <h3>Jane Smith</h3>
+                        <p>Amount: R15000</p>
+                        <p>Status: Approved</p>
+                    </div>
+                    <div class="claim">
+                        <h3>Bob Johnson</h3>
+                        <p>Amount: R5000</p>
+                        <p>Status: Denied</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Claims to Process</h2>
+                <label for="search-input">Search:</label>
+                <input type="text" id="search-input" placeholder="Search by user name...">
+                <label for="filter-select">Filter by Status:</label>
+                <select id="filter-select">
+                    <option value="all">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Denied">Denied</option>
+                </select>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Claim Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-claims-list">
+                        <!-- Dummy data for demonstration -->
+                        <tr>
+                            <td>John Doe</td>
+                            <td>R10000</td>
+                            <td>Pending</td>
+                        </tr>
+                        <tr>
+                            <td>Jane Smith</td>
+                            <td>R15000</td>
+                            <td>Approved</td>
+                        </tr>
+                        <tr>
+                            <td>Bob Johnson</td>
+                            <td>R5000</td>
+                            <td>Denied</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>
+        // Dummy data for demonstration
+        const existingClaims = [
+            { user: 'John Doe', amount: 'R10000', status: 'Pending' },
+            { user: 'Jane Smith', amount: 'R15000', status: 'Approved' },
+            { user: 'Bob Johnson', amount: 'R5000', status: 'Denied' }
+        ];
+
+        // Function to populate existing claims
+        function populateClaims() {
+            const claimsList = document.getElementById('claims-list');
+            existingClaims.forEach(claim => {
+                const claimElement = document.createElement('div');
+                claimElement.className = 'claim';
+                claimElement.innerHTML = `
+                    <h3>${claim.user}</h3>
+                    <p>Amount: ${claim.amount}</p>
+                    <p>Status: ${claim.status}</p>`;
+                claimsList.appendChild(claimElement);
+            });
+        }
+
+        // Function to populate users claims table
+        function populateUsersClaims() {
+            const usersClaimsList = document.getElementById('users-claims-list');
+            usersClaimsList.innerHTML = ''; // Clear existing data
+            existingClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${claim.user}</td>
+                    <td>${claim.amount}</td>
+                    <td>${claim.status}</td>`;
+                usersClaimsList.appendChild(row);
+            });
+        }
+
+        // Function to filter users claims
+        function filterUsersClaims() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filterType = document.getElementById('filter-select').value;
+            const filteredClaims = existingClaims.filter(claim => {
+                const matchesSearchTerm = claim.user.toLowerCase().includes(searchTerm);
+                const matchesFilterType = filterType === 'all' || claim.status === filterType;
+                return matchesSearchTerm && matchesFilterType;
+            });
+
+            const usersClaimsList = document.getElementById('users-claims-list');
+            usersClaimsList.innerHTML = ''; // Clear existing data
+            filteredClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${claim.user}</td>
+                    <td>${claim.amount}</td>
+                    <td>${claim.status}</td>`;
+                usersClaimsList.appendChild(row);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateClaims();
+            populateUsersClaims();
+
+            document.getElementById('search-input').addEventListener('input', filterUsersClaims);
+            document.getElementById('filter-select').addEventListener('change', filterUsersClaims);
+        });
+
+        document.getElementById('add-claim-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const claimName = document.getElementById('claim-name').value;
+            const claimAmount = document.getElementById('claim-amount').value;
+            const claimStatus = document.getElementById('claim-status').value;
+            const claimElement = document.createElement('div');
+            claimElement.className = 'claim';
+            claimElement.innerHTML = `
+                <h3>${claimName}</h3>
+                <p>Amount: R${claimAmount}</p>
+                <p>Status: ${claimStatus}</p>`;
+            document.getElementById('claims-list').appendChild(claimElement);
+            alert('New claim added');
+        });
+    </script>
+</body>
+</html>

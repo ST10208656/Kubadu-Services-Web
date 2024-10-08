@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Montserrat, sans-serif;
+            background-color: #fff; /* White background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 400px; /* Adjust width */
+            padding: 40px; /* Increase padding */
+           background: linear-gradient(60deg, #004AAD, #00BF63);
+            color: #fff; /* White text */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center text horizontally */
+        }
+        h2 {
+            color: #007e3a; /* Dark Green */
+            font-size: 24px; /* Increase font size */
+            margin-bottom: 30px; /* Increase bottom margin */
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 15px; /* Increase padding */
+            margin-top: 15px; /* Increase top margin */
+            margin-bottom: 15px; /* Increase bottom margin */
+            border: 1px solid #007e3a; /* Dark Green border */
+            border-radius: 8px; /* Increase border radius */
+            box-sizing: border-box;
+            background-color: #fff; /* White background */
+            color: #001f3f; /* Dark Blue text */
+            font-size: 18px; /* Increase font size */
+        }
+        input[type="submit"] {
+            background-color: #007e3a; /* Dark Green button */
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #005129; /* Darker Green on hover */
+        }
+        .register-link {
+            color: #007e3a; /* Dark Green text */
+        }
+        .register-link a {
+            color: #007e3a; /* Dark Green link */
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color:#fff">Admin Login</h2>
+        <form id="loginForm" action="inquiries.html" method="GET">
+
+            <input type="text" name="Admin ID" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+</body>
+
+
+<script type="module">
+     import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    if(app){
+	console.log("firebase is initialized successfully");
+	if(db){
+	console.log("firestore is initialized successfully");
+    
+    }
+    } 
+
+function login(email, password){
+  firebase.auth().signInWithEmailAndPassword(email,password)  
+    
+    
+}
+</script>
+</html>

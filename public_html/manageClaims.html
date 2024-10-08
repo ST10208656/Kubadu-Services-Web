@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Claims - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+
+        .card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #004AAD;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter-container label, .filter-container select {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            font-weight: bold;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            font-style: italic;
+        }
+
+        .back-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #003580;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Manage Claims - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <a href="index.html" class="back-btn">Back to Dashboard</a>
+            <div class="card">
+                <h2>Claims to Process</h2>
+                <div class="filter-container">
+                    <label for="search-input">Search:</label>
+                    <input type="text" id="search-input" placeholder="Search by user name...">
+                    <label for="filter-select">Filter by Status:</label>
+                    <select id="filter-select">
+                        <option value="all">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Denied">Denied</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Claim Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-claims-list">
+                        <!-- Data will be dynamically populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        // Dummy data for demonstration
+        const existingClaims = [
+            { user: 'John Doe', amount: 'R10000', status: 'Pending' },
+            { user: 'Jane Smith', amount: 'R15000', status: 'Approved' },
+            { user: 'Bob Johnson', amount: 'R5000', status: 'Denied' }
+        ];
+
+        // Function to populate users claims table
+        function populateUsersClaims() {
+            const usersClaimsList = document.getElementById('users-claims-list');
+            usersClaimsList.innerHTML = ''; // Clear existing data
+            existingClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${claim.user}</td>
+                    <td>${claim.amount}</td>
+                    <td>${claim.status}</td>`;
+                usersClaimsList.appendChild(row);
+            });
+        }
+
+        // Function to filter users claims
+        function filterUsersClaims() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filterType = document.getElementById('filter-select').value;
+            const filteredClaims = existingClaims.filter(claim => {
+                const matchesSearchTerm = claim.user.toLowerCase().includes(searchTerm);
+                const matchesFilterType = filterType === 'all' || claim.status === filterType;
+                return matchesSearchTerm && matchesFilterType;
+            });
+
+            const usersClaimsList = document.getElementById('users-claims-list');
+            usersClaimsList.innerHTML = ''; // Clear existing data
+            filteredClaims.forEach(claim => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${claim.user}</td>
+                    <td>${claim.amount}</td>
+                    <td>${claim.status}</td>`;
+                usersClaimsList.appendChild(row);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateUsersClaims();
+
+            document.getElementById('search-input').addEventListener('input', filterUsersClaims);
+            document.getElementById('filter-select').addEventListener('change', filterUsersClaims);
+        });
+    </script>
+</body>
+</html>

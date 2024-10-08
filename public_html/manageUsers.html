@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+
+        .add-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .add-btn:hover {
+            background-color: #00BF63;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            font-weight: bold;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            font-style: italic;
+        }
+
+        .edit-btn, .delete-btn {
+            background-color: #77d667;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            background-color: #5fb84e;
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="email"],
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .modal-content button {
+            background-color: #004AAD;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #00BF63;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Manage Users - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <a href="index.html" class="back-btn">Back to Dashboard</a>
+            <a href="#" class="add-btn" onclick="openEmployeeModal()">Add Employee</a>
+            <a href="#" class="add-btn" onclick="openCustomerModal()">Add Customer</a>
+            <h2>Manage Users</h2>
+            <h3>Employees</h3>
+            <table id="employeeTable">
+                <thead>
+                    <tr>
+                        <th>EmployeeID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Judy</td>
+                        <td>judy@example.com</td>
+                        <td>Admin</td>
+                        <td>Managers</td>
+                        <td>
+                            <button class="edit-btn" onclick="openEditEmployeeModal(1, 'Judy', 'judy@example.com', 'Admin')">Edit</button>
+                            <button class="delete-btn" onclick="deleteEmployee(1)">Delete</button>
+                        </td>
+                    </tr>
+                    <!-- Add more rows for other employees -->
+                </tbody>
+            </table>
+            <h3>Customers</h3>
+            <table id="customerTable">
+                <thead>
+                    <tr>
+                        <th>CustomerID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Vincent</td>
+                        <td>vincent@example.com</td>
+                        <td>
+                            <button class="edit-btn" onclick="openEditCustomerModal(1, 'Vincent', 'vincent@example.com')">Edit</button>
+                            <button class="delete-btn" onclick="deleteCustomer(1)">Delete</button>
+                        </td>
+                    </tr>
+                    <!-- Add more rows for other customers -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addEmployeeModal')">&times;</span>
+            <h2>Add Employee</h2>
+            <form id="addEmployeeForm" onsubmit="addEmployee(document.getElementById('addEmployeeName').value, document.getElementById('addEmployeeEmail').value, document.getElementById('addEmployeeRole').value, document.getElementById('addEmployeeDepartment').value); return false;">
+                <label for="addEmployeeName">Name:</label>
+                <input type="text" id="addEmployeeName" name="name" required>
+                <label for="addEmployeeEmail">Email:</label>
+                <input type="text" id="addEmployeeEmail" name="email" required>
+                <label for="addEmployeePassword">Password:</label>
+                <input type="password" id="addEmployeePassword" name="password" required>
+                <label for="addEmployeeRole">Role:</label>
+                <select id="addEmployeeRole" name="role" required>
+                    <option value="Admin">Admin</option>
+                    <option value="Data Capturer">Data Capturer</option>
+                    <option value="Customer Service Clerk">Customer Service Clerk</option>
+                </select>
+                 <label for="addEmployeeDepartment">Department:</label>
+                <select id="addEmployeeDepartment" name="department" required>
+                    <option value="Managers">Managers</option>
+                    <option value="Employees">Employees</option>
+                </select>
+                <button type="submit">Add Employee</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editEmployeeModal')">&times;</span>
+            <h2>Edit Employee</h2>
+            <form id="editEmployeeForm">
+                <input type="hidden" id="editEmployeeId">
+                <label for="editEmployeeName">Name:</label>
+                <input type="text" id="editEmployeeName" name="name" required>
+                <label for="editEmployeeEmail">Email:</label>
+                <input type="email" id="editEmployeeEmail" name="email" required>
+                <label for="editEmployeeRole">Role:</label>
+                <select id="editEmployeeRole" name="role" required>
+                    <option value="Admin">Admin</option>
+                    <option value="User">User</option>
+                </select>
+                <label for="editEmployeeDepartment">Department:</label>
+                <input type="text" id="editEmployeeDepartment" name="department" required>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addCustomerModal')">&times;</span>
+            <h2>Add Customer</h2>
+            <form id="addCustomerForm">
+                <label for="addCustomerName">Name:</label>
+                <input type="text" id="addCustomerName" name="name" required>
+                <label for="addCustomerEmail">Email:</label>
+                <input type="email" id="addCustomerEmail" name="email" required>
+                <button type="submit">Add Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Customer Modal -->
+    <div id="editCustomerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editCustomerModal')">&times;</span>
+            <h2>Edit Customer</h2>
+            <form id="editCustomerForm">
+                <input type="hidden" id="editCustomerId">
+                <label for="editCustomerName">Name:</label>
+                <input type="text" id="editCustomerName" name="name" required>
+                <label for="editCustomerEmail">Email:</label>
+                <input type="email" id="editCustomerEmail" name="email" required>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+            <h2>Delete Customer</h2>
+            <form id="deleteEmployeeForm">
+                <input type="hidden" id="deleteEmployeeId">
+                <p>Are you sure you want to delete employee?</p>
+          
+                <button type="submit">Yes</button>
+            </form>
+        </div>
+    </div>
+<script type="module">
+        // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+   let app;
+if (!initializeApp.length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = initializeApp(firebaseConfig);
+}
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+        // Function to add an employee
+          document.getElementById('addEmployeeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('addEmployeeName').value;
+            const email = document.getElementById('addEmployeeEmail').value;
+            const password = document.getElementById('addEmployeePassword').value;
+            const role = document.getElementById('addEmployeeRole').value;
+            const department = document.getElementById('addEmployeeDepartment').value;
+           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user; 
+  const userDocRef = doc(db, "employees", user.uid);
+        await setDoc(userDocRef, {
+            name: name,
+            email: email,
+            role: role,
+            department: department,
+            uid: user.uid // Store the uid in the document itself
+        });
+
+                alert("Employee added successfully!");
+                location.reload();  // Reload page after adding employee
+            alert(`New Employee Added.\nName: ${name}\nEmail: ${email}\nRole: ${role}\nDepartment: ${department}`);
+            
+            closeModal('addEmployeeModal');
+        });
+
+        // Function to add a customer
+        async function addCustomer(name, email) {
+            try {
+                await addDoc(collection(db, 'customers'), {
+                    name: name,
+                    email: email
+                });
+                alert("Customer added successfully!");
+                location.reload();  // Reload page after adding customer
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        }
+
+        // Function to edit employee
+          document.getElementById('editEmployeeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const id = document.getElementById('editEmployeeId').value;
+            const name = document.getElementById('editEmployeeName').value;
+            const email = document.getElementById('editEmployeeEmail').value;
+            const role = document.getElementById('editEmployeeRole').value;
+            const department = document.getElementById('editEmployeeDepartment').value;
+ try {
+                const employeeRef = doc(db, 'employees', id);
+                await updateDoc(employeeRef, {
+                    name: name,
+                    email: email,
+                    role: role,
+                    department: department
+                });
+                alert("Employee updated successfully!");
+                location.reload();  // Reload page after updating employee
+            } catch (e) {
+                console.error("Error updating document: ", e);
+            }
+            alert(`Employee with ID: ${id} has been updated.\nName: ${name}\nEmail: ${email}\nRole: ${role}\nDepartment: ${department}`);
+            closeModal('editEmployeeModal');
+        });
+
+        // Function to delete employee
+   document.getElementById('deleteEmployeeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteEmployeeId').value;
+                try {
+                    const employeeRef = doc(db, 'employees', id);
+                    await deleteDoc(employeeRef);
+                    alert("Employee deleted successfully!");
+                    location.reload();  // Reload page after deleting employee
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                }
+            
+        });
+
+        // Function to delete customer
+        async function deleteCustomer(id) {
+            if (confirm("Are you sure you want to delete this customer?")) {
+                try {
+                    const customerRef = doc(db, 'customers', id);
+                    await deleteDoc(customerRef);
+                    alert("Customer deleted successfully!");
+                    location.reload();  // Reload page after deleting customer
+                } catch (e) {
+                    console.error("Error deleting document: ", e);
+                }
+            }
+        }
+
+        // Function to load data from Firestore (employees and customers)
+        async function loadData() {
+            const employeeTableBody = document.querySelector("#employeeTable tbody");
+            const customerTableBody = document.querySelector("#customerTable tbody");
+
+            // Fetch all employees
+            const employeesSnapshot = await getDocs(collection(db, "employees"));
+            employeesSnapshot.forEach((doc) => {
+                const employee = doc.data();
+                const row = `<tr>
+                    <td>${doc.id}</td>
+                    <td>${employee.name}</td>
+                    <td>${employee.email}</td>
+                    <td>${employee.role}</td>
+                    <td>${employee.department}</td>
+                    <td>
+                        <button class="edit-btn" onclick="openEditEmployeeModal('${doc.id}', '${employee.name}', '${employee.email}', '${employee.role}', '${employee.department}')">Edit</button>
+                        <button class="delete-btn" onclick="openDeleteModal('${doc.id}')">Delete</button>
+                    </td>
+                </tr>`;
+                employeeTableBody.innerHTML += row;
+            });
+
+            // Fetch all customers
+            const customersSnapshot = await getDocs(collection(db, "Customers"));
+            customersSnapshot.forEach((doc) => {
+                const customer = doc.data();
+                const row = `<tr>
+                    <td>${doc.id}</td>
+                    <td>${customer.Name}</td>
+                    <td>${customer.Email}</td>
+                    <td>
+                        <button class="edit-btn" onclick="openEditCustomerModal('${doc.id}', '${customer.Name}', '${customer.Email}')">Edit</button>
+                        <button class="delete-btn" onclick="deleteCustomer('${doc.id}')">Delete</button>
+                    </td>
+                </tr>`;
+                customerTableBody.innerHTML += row;
+            });
+        }
+
+        window.addEventListener("load", loadData);
+        
+    </script>
+    <script>
+        // Open Modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Handle form submission for adding an employee
+      
+
+        // Handle form submission for editing an employee
+  
+
+        // Handle form submission for adding a customer
+        document.getElementById('addCustomerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('addCustomerName').value;
+            const email = document.getElementById('addCustomerEmail').value;
+
+            alert(`New Customer Added.\nName: ${name}\nEmail: ${email}`);
+            closeModal('addCustomerModal');
+        });
+
+        // Handle form submission for editing a customer
+        document.getElementById('editCustomerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('editCustomerId').value;
+            const name = document.getElementById('editCustomerName').value;
+            const email = document.getElementById('editCustomerEmail').value;
+
+            alert(`Customer with ID: ${id} has been updated.\nName: ${name}\nEmail: ${email}`);
+            closeModal('editCustomerModal');
+        });
+
+        // Delete employee function
+         
+
+        // Delete customer function
+        function deleteCustomer(customerId) {
+            if (confirm('Are you sure you want to delete customer with ID: ' + customerId + '?')) {
+                alert('Customer with ID: ' + customerId + ' has been deleted.');
+                // Implement the delete customer functionality
+            }
+        }
+    
+        // Open Add Employee Modal
+        function openEmployeeModal() {
+            openModal('addEmployeeModal');
+        }
+
+        // Open Add Customer Modal
+        function openDeleteModal(id) {
+            document.getElementById('deleteEmployeeId').value = id;
+            openModal('deleteModal');
+        }
+
+        // Open Edit Employee Modal
+        function openEditEmployeeModal(id, name, email, role, department) {
+            document.getElementById('editEmployeeId').value = id;
+            document.getElementById('editEmployeeName').value = name;
+            document.getElementById('editEmployeeEmail').value = email;
+            document.getElementById('editEmployeeRole').value = role;
+            document.getElementById('editEmployeeDepartment').value = department;
+            openModal('editEmployeeModal');
+        }
+
+        // Open Edit Customer Modal
+        function openEditCustomerModal(id, name, email) {
+            document.getElementById('editCustomerId').value = id;
+            document.getElementById('editCustomerName').value = name;
+            document.getElementById('editCustomerEmail').value = email;
+            openModal('editCustomerModal');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .admin-menu {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .admin-menu a {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+        }
+
+        .admin-menu a:hover {
+            background-color: #00BF63;
+        }
+
+        footer {
+        
+            color: black;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+
+        /* Dashboard Overview Styles */
+        #dashboard-overview {
+            margin-top: 20px;
+        }
+
+        .overview-cards {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 30%;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #004AAD;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Admin Dashboard - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <div class="admin-menu">
+                <a href="manageFuneralPolicies.html" id="manage-funeral-policies-btn">Manage Funeral Policies</a>
+                <a href="manageLoans.html" id="manage-loans-btn">Manage Loans</a>
+                
+ <a href="manageRequest.html" id="manage-claims-btn">Manage Requests</a>
+                <a href="manageUsers.html" id="manage-users-btn">Manage Users</a>
+            </div>
+            <!-- Dashboard Overview Section -->
+            <section id="dashboard-overview">
+                <h2>Dashboard Overview</h2>
+                <div class="overview-cards">
+                    <div class="card">
+                        <h3>Active Users</h3>
+                        <p id="active-users-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pending Requests</h3>
+                        <p id="pending-requests-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Completed Payments</h3>
+                        <p id="completed-payments-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Active Funeral Policies</h3>
+                        <p id="active-funeral-policies-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pending Loans</h3>
+                        <p id="pending-loans-count">0</p>
+                    </div>
+                 
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+   let app;
+if (!initializeApp.length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = initializeApp(firebaseConfig);
+}
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
+const userQuery = query(collection(db, "Customers"));
+const userSnapshot = await getDocs(userQuery);
+
+const requestsQuery = query(collection(db, "Requests"));
+const requestsSnapshot = await getDocs(requestsQuery);
+
+const policiesQuery = query(collection(db, "Users Policies"));
+const policiesSnapshot = await getDocs(policiesQuery);
+
+const requestsLoanQuery = query(collection(db, "Requests"), where("status", "==", "pending"), where("requestType", "==", "Loan"));
+
+const requestsLoanSnapshot = await getDocs(requestsLoanQuery);
+if(userSnapshot && requestsSnapshot && policiesSnapshot){
+console.log(userSnapshot);
+
+            // Fetch the data (dummy data for demonstration)
+            const activeUsers = userSnapshot.size;
+            const pendingRequests = requestsSnapshot.size;
+            const completedPayments = 67;
+            const activeFuneralPolicies = policiesSnapshot.size;
+            const pendingLoans = requestsLoanSnapshot.size;
+         
+
+            // Update the dashboard counts
+            document.getElementById('active-users-count').textContent = activeUsers;
+            document.getElementById('pending-requests-count').textContent = pendingRequests;
+            document.getElementById('completed-payments-count').textContent = completedPayments;
+            document.getElementById('active-funeral-policies-count').textContent = activeFuneralPolicies;
+            document.getElementById('pending-loans-count').textContent = pendingLoans;
+            
+      
+    
+}
+        // Example data fetching and updating the dashboard counts
+       
+    </script>
+</body>
+</html>

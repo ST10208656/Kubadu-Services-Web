@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #00C04B 3px solid;
+        }
+
+        header h1 {
+            float: left;
+            font-size: 28px;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004AAD;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            font-weight: bold;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            font-style: italic;
+        }
+
+        .approve-btn, .deny-btn {
+            background-color: #77d667;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .approve-btn:hover, .deny-btn:hover {
+            background-color: #5fb84e;
+        }
+
+        .document-link {
+            color: #004AAD;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            border-top: #77d667 3px solid;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Manage Requests - Kubadu Services</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <a href="index.html" class="back-btn">Back to Dashboard</a>
+            <h2>Manage Requests</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>RequestID</th>
+                        <th>User Name</th>
+                        <th>User Surname</th>
+                        <th>Request Category</th>
+                        <th>Timestamp</th>
+                        <th>Request Type</th>
+                        <th>Request Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="requestList">
+                   
+                  
+                   
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+<script type="module">
+ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+	
+		if(app){
+	console.log("firebase is initialized successfully");
+	if(db){
+	console.log("firestore is initialized successfully");
+	
+const q = query(collection(db, "Requests"), where("status", "==", "pending"));
+
+const querySnapshot = await getDocs(q);
+querySnapshot.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  console.log(doc);
+  const data = doc.data();
+  
+  
+const timestamp = data.timestamp ? data.timestamp.toDate().toLocaleString() : "No Timestamp Available";
+const rowData = [doc.id, data.requestType, timestamp, data.status];
+    const rowElement = document.createElement("tr");
+   rowElement.innerHTML = `
+                <td>${doc.id}</td>
+                <td>${data.userName}</td>
+                <td>${data.userSurame}</td>
+                <td>${data.requestType}</td>
+                 <td>${data.amount}</td>
+                <td>${timestamp}</td>
+        <td>${data.type}</td>
+                <td>${data.status}</td>
+                
+                
+                <td>
+                    <button class="approve-btn" data-amount="${data.amount}" data-coverage="${data.coverage}" data-id="${doc.id}" data-type="${data.type}" data-requestType="${data.requestType}">Approve</button>
+                    <button class="deny-btn" data-id="${doc.id}">Deny</button>
+                </td>
+            `;
+requestList.appendChild(rowElement);
+  // Loop through each cell in the rowData array
+
+
+  
+  
+  console.log(rowData);
+  console.log(doc.id, " => ", doc.data());
+
+});
+         document.getElementById("requestList").addEventListener("click", async (e) => {
+            console.log("you are here now 1");
+
+            if (e.target.classList.contains("approve-btn")) {
+                const requestId = e.target.getAttribute("data-id");
+                const dataAmount1 = e.target.getAttribute("data-amount");
+                const requestType = e.target.getAttribute("data-requestType");
+                const type = e.target.getAttribute("data-type");
+                console.log("request type is: " + requestType);
+                await updateDoc(doc(db, "Requests", requestId), {
+                    status: "Approved"
+                });
+
+                if (requestType === "Loan") {
+                    await addDoc(collection(db, "User Loans"), {
+                        requestId: requestId,
+                        type: type,
+                        dataAmount: dataAmount1,
+                        originalAmount: dataAmount1, 
+                        status: "Approved"
+                        // Add other relevant fields here
+                    });
+                } else if (requestType === "Funeral Policy") {
+                    await addDoc(collection(db, "Users Policies"), {
+                        requestId: requestId,
+                        type: type,
+                        status: "Approved"
+                        // Add other relevant fields here
+                    });
+                }
+                
+                // Optional: Refresh the page or update the row
+                e.target.parentElement.parentElement.querySelector("td:nth-child(5)").textContent = "Approved";
+            }
+
+            if (e.target.classList.contains("deny-btn")) {
+                const requestId = e.target.getAttribute("data-id");
+
+                await updateDoc(doc(db, "Requests", requestId), {
+                    status: "Denied"
+                });
+
+                // Optional: Refresh the page or update the row
+                e.target.parentElement.parentElement.querySelector("td:nth-child(5)").textContent = "Denied";
+            }
+        });
+}
+} 
+</script>
+</html>
