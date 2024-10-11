@@ -201,97 +201,7 @@
             <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
         </div>
     </footer>
-	
-	
-	
-    <script>
-        // Dummy data for demonstration
-        const existingLoans = [
-            { name: 'Personal Loan', amount: 'R5000', interestRate: '5%' },
-            { name: 'Business Loan', amount: 'R20000', interestRate: '7%' },
-            { name: 'Home Loan', amount: 'R100000', interestRate: '4%' }
-        ];
 
-        const usersLoans = [
-            { user: 'John Doe', plan: 'Personal Loan', amount: 'R5000', remaining: 2500, status: 'Active', progress: 50 },
-            { user: 'Jane Smith', plan: 'Business Loan', amount: 'R20000', remaining: 4000, status: 'Active', progress: 80 },
-            { user: 'Bob Johnson', plan: 'Home Loan', amount: 'R100000', remaining: 0, status: 'Completed', progress: 100 }
-        ];
-
-        // Function to populate existing loans
-        function populateLoans() {
-            const loansList = document.getElementById('loans-list');
-            existingLoans.forEach(loan => {
-                const loanElement = document.createElement('div');
-                loanElement.className = 'loan';
-                loanElement.innerHTML = `
-                    <h3>${loan.name}</h3>
-                    <p>Amount: ${loan.amount}</p>
-                    <p>Interest Rate: ${loan.interestRate}</p>`;
-                loansList.appendChild(loanElement);
-            });
-        }
-
-        // Function to populate users loans table
-        function populateUsersLoans() {
-            const usersLoansList = document.getElementById('usersLoansList');
-            usersLoansList.innerHTML = ''; // Clear existing data
-            usersLoans.forEach(loan => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${loan.user}</td>
-                    <td>${loan.plan}</td>
-                    <td>${loan.amount}</td>
-                    <td>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
-                        </div>
-                        R${loan.remaining} remaining
-                    </td>
-                    <td>${loan.status}</td>`;
-                usersLoansList.appendChild(row);
-            });
-        }
-
-        // Function to filter users loans
-        function filterUsersLoans() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filterType = document.getElementById('filter-select').value;
-            const filteredLoans = usersLoans.filter(loan => {
-                const matchesSearchTerm = loan.user.toLowerCase().includes(searchTerm);
-                const matchesFilterType = filterType === 'all' || loan.plan === filterType;
-                return matchesSearchTerm && matchesFilterType;
-            });
-
-            const usersLoansList = document.getElementById('users-loans-list');
-            usersLoansList.innerHTML = ''; // Clear existing data
-            filteredLoans.forEach(loan => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${loan.user}</td>
-                    <td>${loan.plan}</td>
-                    <td>${loan.amount}</td>
-                    <td>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
-                        </div>
-                        R${loan.remaining} remaining
-                    </td>
-                    <td>${loan.status}</td>`;
-                usersLoansList.appendChild(row);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            populateLoans();
-            populateUsersLoans();
-
-            document.getElementById('search-input').addEventListener('input', filterUsersLoans);
-            document.getElementById('filter-select').addEventListener('change', filterUsersLoans);
-        });
-
-       
-    </script>
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, query, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -319,7 +229,7 @@
  
         const loansCollection = collection(db, 'loans');
      
-             
+       
 document.addEventListener("DOMContentLoaded", function() {
     // Now the DOM is fully loaded, we can safely add event listeners
     document.getElementById("add-loan-form").addEventListener("submit", async (e) => {
@@ -372,68 +282,138 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
 
-        // Load loans when the page is loaded
-        window.onload = loadLoans;
-      const q = query(collection(db, "User Loans"));
-      const querySnapshot = await getDocs(q);
       
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const rowElement = document.createElement("tr");
+const usersLoans = []; // Array to store loans fetched from Firebase
+     
+window.onload = function() {
+    loadLoansFromFirebase(); // Call your function when the window finishes loading
+    loadLoans();
+};
 
-        rowElement.innerHTML = `
-          <td>${doc.id}</td>
-          <td>${data.type}</td>
-          <td>${data.dataAmount}</td>
-                
-          <td>Paid: <input class="amountInput" type="number">
-          <button class="submitButton" data-amount="${data.dataAmount}" original-amount="${data.originalAmount}" data-doc-id="${doc.id}">Submit</button></td>
-        `;
-
-        document.getElementById("usersLoansList").appendChild(rowElement);
-      });
-
-      document.getElementById("usersLoansList").addEventListener("click", async (e) => {
-        if (e.target.classList.contains("submitButton")) {
-          const docId = e.target.getAttribute("data-doc-id");
-          const originalAmount = e.target.getAttribute("original-amount");
-          const inputElement = e.target.previousElementSibling;
-          const amount = parseFloat(inputElement.value);
-
-          console.log("Amount entered:", amount);
-
-          if (!isNaN(amount) && amount > 0) {
-            await addDoc(collection(db, "User Loans", docId, "Payments"), {
-              Paid: amount
-            });
-            console.log("Payment added for doc ID:", docId);
-
-            const paymentsQuery = query(collection(db, "User Loans", docId, "Payments"));
-            const paymentsSnapshot = await getDocs(paymentsQuery);
-            let totalPayments = 0;
-
-            paymentsSnapshot.forEach((paymentDoc) => {
-              const paymentData = paymentDoc.data();
-              totalPayments = totalPayments + parseFloat(paymentData.Paid);
-			  console.log(totalPayments);
-			  if(originalAmount){
-			  console.log("original amount is: " + originalAmount);
-			  }
-			 
-            });
- const remainingBalance = originalAmount - totalPayments;
-			   console.log("Remaining balance:", remainingBalance);
-              await updateDoc(doc(db, "User Loans", docId), {
-              dataAmount: remainingBalance
-            });
-           
-          } else {
-            console.log("Invalid amount entered.");
-          }
+// Function to load loans from Firebase and display progress
+async function loadLoansFromFirebase() {
+    console.log("Starting to load loans from Firebase...");
+    const q = query(collection(db, "User Loans"));
+    const querySnapshot = await getDocs(q);
+    usersLoans.length = 0; // Clear existing loans array
+ if (querySnapshot.empty) {
+            console.log("No documents found in 'User Loans'");
         }
-      });
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log(data);
+        const totalAmount = parseFloat(data.originalAmount);
+        const remainingAmount = parseFloat(data.dataAmount);
+        const progress = ((totalAmount - remainingAmount) / totalAmount) * 100;
+
+        usersLoans.push({
+            user: data.name + " " + data.surname|| 'Unknown',
+            plan: data.type,
+            amount: totalAmount,
+            remaining: remainingAmount,
+            status: progress >= 100 ? 'Completed' : 'Active',
+            progress: Math.min(progress, 100), // Ensure progress doesn't exceed 100%
+             docId: doc.id 
+        });
+    });
+
+    populateUsersLoans(usersLoans); // Populate the loans table
+}
+
+// Function to populate the loan table
+function populateUsersLoans(loans) {
+    let docId = null;
+    const usersLoansList = document.getElementById('usersLoansList');
+    usersLoansList.innerHTML = ''; // Clear existing data
+    loans.forEach(loan => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${loan.user}</td>
+            <td>${loan.plan}</td>
+            <td>R${loan.amount}</td>
+            <td>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
+                </div>
+                R${loan.remaining} remaining
+            </td>
+             <td>
+                Paid: <input class="amountInput" type="number" min="0" />
+                <button class="submitButton" data-doc-id="${loan.docId}" data-original-amount="${loan.amount}">Submit</button>
+            </td>
+            <td>${loan.status}</td>`;
+        usersLoansList.appendChild(row);
+        docId = loan.docId;
+    });
+    attachSubmitButtonListeners();
+}
+function attachSubmitButtonListeners() {
+    const submitButtons = document.querySelectorAll('.submitButton');
+
+    submitButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const docId = e.target.getAttribute('data-doc-id');
+            console.log(docId);
+            const originalAmount = parseFloat(e.target.getAttribute('data-original-amount'));
+            const inputElement = e.target.previousElementSibling;
+            const amount = parseFloat(inputElement.value);
+
+            console.log("Amount entered:", amount);
+
+            if (!isNaN(amount) && amount > 0) {
+                await addDoc(collection(db, "User Loans", docId, "Payments"), {
+                    Paid: amount
+                });
+                console.log("Payment added for doc ID:", docId);
+
+                // Calculate total payments
+                const paymentsQuery = query(collection(db, "User Loans", docId, "Payments"));
+                const paymentsSnapshot = await getDocs(paymentsQuery);
+                let totalPayments = 0;
+
+                paymentsSnapshot.forEach((paymentDoc) => {
+                    const paymentData = paymentDoc.data();
+                    totalPayments += parseFloat(paymentData.Paid);
+                });
+
+                const remainingBalance = originalAmount - totalPayments;
+                console.log("Remaining balance:", remainingBalance);
+
+                await updateDoc(doc(db, "User Loans", docId), {
+                    dataAmount: remainingBalance
+                });
+
+                // Reload the loans to reflect the updated amounts
+                loadLoansFromFirebase();
+            } else {
+                console.log("Invalid amount entered.");
+            }
+        });
+    });
+}
+
+// Function to filter loans by search term and loan type
+function filterUsersLoans() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filterType = document.getElementById('filter-select').value;
+
+    const filteredLoans = usersLoans.filter(loan => {
+        const matchesSearchTerm = loan.user.toLowerCase().includes(searchTerm);
+        const matchesFilterType = filterType === 'all' || loan.plan === filterType;
+        return matchesSearchTerm && matchesFilterType;
+    });
+
+    populateUsersLoans(filteredLoans); // Update the displayed table
+}
+
+// Event listener for search and filter functionality
+document.getElementById('search-input').addEventListener('input', filterUsersLoans);
+document.getElementById('filter-select').addEventListener('change', filterUsersLoans);
+
+// Call this function to load loans from Firebase on page load
+loadLoansFromFirebase();
     }
-  }
+}
 </script>
 
 </body>

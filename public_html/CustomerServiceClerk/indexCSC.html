@@ -299,7 +299,7 @@ async function assignChat(chatId) {
 async function loadAssignedChats() {
     console.log("YOU ARE HERE NOEW");
     const user = auth.currentUser;  // Get the currently logged-in user
-    const assignedChatsQuery = query(collection(db, "chats"), where("clerk_assigned", "==", user.uid));
+    const assignedChatsQuery = query(collection(db, "chats"), where("clerk_assigned", "==", user.uid),where("status", "==", "open"));
     const assignedChatList = document.getElementById("assigned-chat-list"); // Make sure this element exists
 
     if (!assignedChatList) {

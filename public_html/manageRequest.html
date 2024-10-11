@@ -148,7 +148,7 @@
 
 <script type="module">
  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -173,9 +173,15 @@
 const q = query(collection(db, "Requests"), where("status", "==", "pending"));
 
 const querySnapshot = await getDocs(q);
-querySnapshot.forEach((doc) => {
+onSnapshot(q, (snapshot) => {
+     requestList.innerHTML = ''; 
+     
+      if (snapshot.empty) {
+       requestList.innerHTML = "No pending requests.";
+        return;
+    }
   // doc.data() is never undefined for query doc snapshots
-  console.log(doc);
+snapshot.forEach(doc => {
   const data = doc.data();
   
   
@@ -185,7 +191,7 @@ const rowData = [doc.id, data.requestType, timestamp, data.status];
    rowElement.innerHTML = `
                 <td>${doc.id}</td>
                 <td>${data.userName}</td>
-                <td>${data.userSurame}</td>
+                <td>${data.userSurname}</td>
                 <td>${data.requestType}</td>
                  <td>${data.amount}</td>
                 <td>${timestamp}</td>
@@ -194,7 +200,7 @@ const rowData = [doc.id, data.requestType, timestamp, data.status];
                 
                 
                 <td>
-                    <button class="approve-btn" data-amount="${data.amount}" data-coverage="${data.coverage}" data-id="${doc.id}" data-type="${data.type}" data-requestType="${data.requestType}">Approve</button>
+                    <button class="approve-btn" data-userName="${data.userName}" data-userSurname="${data.userSurname}" data-amount="${data.amount}" data-coverage="${data.coverage}" data-id="${doc.id}" data-type="${data.type}" data-requestType="${data.requestType}">Approve</button>
                     <button class="deny-btn" data-id="${doc.id}">Deny</button>
                 </td>
             `;
@@ -206,7 +212,7 @@ requestList.appendChild(rowElement);
   
   console.log(rowData);
   console.log(doc.id, " => ", doc.data());
-
+  });
 });
          document.getElementById("requestList").addEventListener("click", async (e) => {
             console.log("you are here now 1");
@@ -216,9 +222,12 @@ requestList.appendChild(rowElement);
                 const dataAmount1 = e.target.getAttribute("data-amount");
                 const requestType = e.target.getAttribute("data-requestType");
                 const type = e.target.getAttribute("data-type");
+                const userName = e.target.getAttribute("data-userName");
+                const userSurname = e.target.getAttribute("data-userSurname");
                 console.log("request type is: " + requestType);
                 await updateDoc(doc(db, "Requests", requestId), {
                     status: "Approved"
+                    
                 });
 
                 if (requestType === "Loan") {
@@ -227,6 +236,8 @@ requestList.appendChild(rowElement);
                         type: type,
                         dataAmount: dataAmount1,
                         originalAmount: dataAmount1, 
+                        name: userName,
+                        surname: userSurname,
                         status: "Approved"
                         // Add other relevant fields here
                     });
@@ -241,6 +252,7 @@ requestList.appendChild(rowElement);
                 
                 // Optional: Refresh the page or update the row
                 e.target.parentElement.parentElement.querySelector("td:nth-child(5)").textContent = "Approved";
+             
             }
 
             if (e.target.classList.contains("deny-btn")) {
