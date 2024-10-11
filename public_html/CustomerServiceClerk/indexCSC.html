@@ -121,6 +121,7 @@
         <ul id="messages-list"></ul> <!-- This is where messages will be listed -->
         <input type="text" id="message" placeholder="Type your message...">
         <button id="send-message-btn">Send</button>
+        <button id="resolve-chat-btn">Resolve</button>
     </div>
 <script>
 
@@ -202,6 +203,12 @@ document.addEventListener('DOMContentLoaded', function() {
             loadChatMessages(chatId);
         }
     });
+    
+        document.getElementById("resolve-chat-btn").addEventListener("click", function(event) {
+            event.preventDefault();
+        // Check if the clicked element is a button with the class "assignChatBtn"
+        resolveChat(currentChatId);
+    });
 });
 // Func
 // chat-list
@@ -257,6 +264,20 @@ async function loadChatMessages(chatId) {
     });
 }
 
+// Function to mark a chat as resolved
+async function resolveChat(chatId) {
+    const chatDocRef = doc(db, "chats", chatId);
+
+    try {
+        await updateDoc(chatDocRef, {
+            status: "resolved",
+            resolvedAt: new Date() // Optionally, add a timestamp of when the chat was resolved
+        });
+        console.log("Chat marked as resolved.");
+    } catch (error) {
+        console.error("Error resolving chat:", error);
+    }
+}
 
 // Function to assign the chat to a clerk
 async function assignChat(chatId) {
@@ -266,7 +287,7 @@ async function assignChat(chatId) {
     try {
         await updateDoc(chatDocRef, {
             clerk_assigned: clerkID,
-            status: "unresolved" // Update status to assigned
+            status: "open" // Update status to assigned
             
         });
         alert("Chat assigned to you. You can now start the conversation.");
