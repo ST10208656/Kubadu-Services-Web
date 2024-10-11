@@ -484,7 +484,7 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
                     <li><a href="requestHistory.html">View Requests</a></li>
 						<li><a href="Loans.html">View Loans</a></li>
 					<li><a href="Policies.html">View Policies</a></li>
-                   <li><a href="Policies.html">Edit Profile</a></li>
+                   <li><a href="EditProfile.html">Edit Profile</a></li>
                 </ul>
             </nav>
         </div>
@@ -579,6 +579,7 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
     <div class="chat-footer">
         <input type="text" id="message" placeholder="Type your message...">
         <button id="send">Send</button>
+         <button id="resolve-chat-button">Resolve</button>
     </div>
 </div>
   
@@ -605,7 +606,7 @@ function toggleChatWindow() {
 	<script type="module">
 	
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
@@ -634,21 +635,35 @@ const analytics = getAnalytics(app);
 let userID = null;
 let userDocRef = null;
 let userDocSnap = null;
+let chatId = null;
  function checkUserLogin() {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 console.log("User is logged in:", user);
                 userID = user.uid; // Store user ID
                 userDocRef = doc(db, 'Customers', userID); // Reference to the user document
+ // Retrieve the chat ID associated with the user
+                const chatId = await findUserChatId(userID);
+                
+                // Load chat messages only if a chat ID is found
+                if (chatId) {
+                    console.log("Loading chat messages for chat ID:", chatId);
+                    await loadChatMessages(chatId); // Load messages for the existing chat
+                } else {
+                    console.log("No existing chat found for this user.");
+                }
 
                 try {
                     const userDocSnap = await getDoc(userDocRef); // Await the document snapshot
                     if (userDocSnap.exists()) {
+                        
                         console.log("User data:", userDocSnap.data()); // Successfully retrieved user data
                         loadLoans(userDocSnap); // Load loan options and setup form
 						loadPolicies(userDocSnap);
+                                                
                     } else {
-                        console.error("No such user document!");
+                        alert("Please login first.");
+                         window.location.href = "login.html"; // Redirect to login page
                     }
                 } catch (error) {
                     console.error("Error fetching user document:", error); // Handle errors
@@ -826,12 +841,25 @@ let userDocSnap = null;
 
     // Call the function to check if the user is logged in when the page loads
     window.onload = checkUserLogin;
+async function findUserChatId(userId) {
+    const chatQuery = query(collection(db, 'chats'), where('customerID', '==', userId));
+    const querySnapshot = await getDocs(chatQuery);
 
-if(auth){
+    if (!querySnapshot.empty) {
+        // Return the ID of the first chat found
+        const chatDoc = querySnapshot.docs[0]; // Get the first chat document
+        return chatDoc.id; // Return the chat ID
+    }
+
+    // Return null if no chat is found
+    return null;
+}
+
+
  window.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById('send').addEventListener('click', sendMessage);
     });
-// Function to send a message
+
 async function sendMessage() {
     const user = auth.currentUser;  // Get the current user
     const messageInput = document.getElementById("message");
@@ -841,42 +869,69 @@ async function sendMessage() {
 
         if (message) {  // Ensure the message isn't empty
             try {
-                // Check for existing chat or create new chat
-           
                 let chatId;
-        
-                // Get user data for the message
-                const userDocRef = doc(db, 'Customers', user.uid);
-                const userDocSnap = await getDoc(userDocRef);
+                let chatStatus = "unassigned";  // Default status for new chats is unassigned
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-   // Create a new chat if none exists
-                    const chatData = {
-                        customerID: user.uid,
-                        clerk_assigned: null, // No clerk assigned initially
-						 name: userData.Name,  // Assuming 'Name' exists in Firestore document
-                        surname: userData.Surname,  // Assuming 'Surname' exists in Firestore document
-                        status: "unassigned", // Set status to unassigned
-                        timestamp: new Date()
-                    };
+                // Step 1: Check if an open (unresolved) or unassigned chat exists for this user
+                const chatQuery = query(collection(db, 'chats'), where('customerID', '==', user.uid), where('status', 'in', ['open', 'unassigned']));
+                const chatQuerySnapshot = await getDocs(chatQuery);
 
-                    const chatDocRef = await addDoc(collection(db, "chats"), chatData);
-                    chatId = chatDocRef.id;  // Get the new chat ID
+                if (!chatQuerySnapshot.empty) {
+                    // Open or unassigned chat exists
+                    const existingChatDoc = chatQuerySnapshot.docs[0];
+                    chatId = existingChatDoc.id;
+                    chatStatus = existingChatDoc.data().status;
+
+                    if (chatStatus === "unassigned") {
+                        console.log("Chat is unassigned, waiting for an admin to take over.");
+                    }
+
+                    // Load existing messages and continue chat
+                    loadChatMessages(chatId);
+                } else {
+                    // No open or unassigned chat exists, create a new unassigned chat
+                    const userDocRef = doc(db, 'Customers', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+
+                    if (userDocSnap.exists()) {
+                        const userData = userDocSnap.data();
+
+                        const chatData = {
+                            customerID: user.uid,
+                            clerk_assigned: null,  // No clerk assigned initially
+                            name: userData.Name,   // Assuming 'Name' exists in Firestore document
+                            surname: userData.Surname,  // Assuming 'Surname' exists in Firestore document
+                            status: "unassigned",  // Set initial chat status to unassigned
+                            timestamp: new Date()
+                        };
+
+                        const chatDocRef = await addDoc(collection(db, "chats"), chatData);
+                        chatId = chatDocRef.id;  // Get the new chat ID
+
+                        console.log("New chat created!");
+                    } else {
+                        console.error("No user document found for this user.");
+                        return;
+                    }
+                }
+
+                // Step 2: Add the message to the chat's messages subcollection
+                if (chatStatus !== "resolved") {
                     const messageData = {
                         userID: user.uid,
                         message: message,
+                        name: user.displayName || 'Anonymous',  // Use 'Anonymous' if displayName is missing
+                        surname: '', // You can replace this if surname data is available elsewhere
                         timestamp: new Date()
                     };
 
-                    // Add the message to the corresponding chat's messages subcollection
                     await addDoc(collection(db, `chats/${chatId}/messages`), messageData);
                     console.log("Message sent successfully!");
 
                     messageInput.value = "";  // Clear input field after sending
-					loadChatMessages(chatId);
+                    loadChatMessages(chatId); // Load chat messages
                 } else {
-                    console.error("No user document found for this user.");
+                    console.log("This chat has been resolved. Please create a new chat.");
                 }
             } catch (error) {
                 console.error("Error sending message: ", error);
@@ -888,41 +943,95 @@ async function sendMessage() {
         console.log("User is not authenticated.");
     }
 }
+
+// Function to load chat messages
 async function loadChatMessages(chatId) {
-   
-    const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); // Load messages from subcollection
-    const messagesList = document.getElementById("messages-list");
-
-    if (!messagesList) {
-       
-        console.error("Messages list element not found!");
-        return; // Exit the function if the element is not found
+    console.log("Loading chat messages for chat ID:", chatId);
+    if (!chatId) {
+        console.error("Chat ID is required to load messages.");
+        return;
     }
+    // Reference to the chat document
+    const chatDocRef = doc(db, "chats", chatId);
+    const chatDocSnap = await getDoc(chatDocRef);
 
-    onSnapshot(messagesQuery, (snapshot) => {
-          console.log("Snapshot received:", snapshot); // Debugging line
-           if (snapshot.empty) {
-            console.log("No messages found for this chat."); // Log if no messages found
-            return; // Exit if no messages
+    if (chatDocSnap.exists()) {
+        const chatData = chatDocSnap.data();
+        
+        // Check if the chat's status is "open"
+        if (chatData.status === "open") {
+            // Now load messages for the chat
+            const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); 
+            const messagesList = document.getElementById("messages-list");
+
+            if (!messagesList) {
+                console.error("Messages list element not found!");
+                return; // Exit the function if the element is not found
+            }
+
+            // Listen for changes in the messages collection
+            onSnapshot(messagesQuery, (snapshot) => {
+                if (snapshot.empty) {
+                    console.log("No messages found for this chat.");
+                    return; // Exit if no messages
+                }
+
+                messagesList.innerHTML = ''; // Clear existing messages
+                snapshot.forEach(doc => {
+                    const messageData = doc.data();
+                    const messageItem = document.createElement("li");
+                    messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.name}: ${messageData.message}`;
+                    messagesList.appendChild(messageItem);
+                });
+            });
+        } else {
+            console.log("Chat is not assigned. Only chats with 'open' status can load messages.");
         }
+    } else {
+        console.error("Chat document does not exist.");
+    }
+}
 
-        messagesList.innerHTML = ''; // Clear existing messages
-        snapshot.forEach(doc => {
-            console.log("we're here" + chatId);
-          
-            const messageData = doc.data();
-            const messageItem = document.createElement("li");
-            messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.Name} ${messageData.Surname}: ${messageData.message}`;
-            messagesList.appendChild(messageItem);
+
+// Function to resolve the chat
+async function resolveChat(chatId) {
+    const chatDocRef = doc(db, "chats", chatId);
+
+    try {
+        await updateDoc(chatDocRef, {
+            status: "resolved",
+            resolvedAt: new Date()  // Optionally, add a timestamp of when the chat was resolved
         });
-    });
+        console.log("Chat marked as resolved.");
+        alert("Chat has been marked as resolved. You can now create a new chat.");
+    } catch (error) {
+        console.error("Error resolving chat:", error);
+    }
 }
 
+// UI: Add a button to resolve the chat
+document.getElementById("resolve-chat-button").addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (user) {
+        // Find open chat
+        const chatQuery = query(collection(db, 'chats'), where('customerID', '==', user.uid), where('status', '==', 'open'));
+        const chatQuerySnapshot = await getDocs(chatQuery);
+
+        if (!chatQuerySnapshot.empty) {
+            const chatId = chatQuerySnapshot.docs[0].id;
+            resolveChat(chatId);
+        } else {
+            console.log("No open chat to resolve.");
+        }
+    }
+});
 
 
 
 
-}
+
+
+
 
 
   // Listen for new messages in Firestore
