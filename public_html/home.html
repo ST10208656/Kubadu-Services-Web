@@ -516,7 +516,7 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
 		
 		
  <!-- Chat Icon/Button -->
-<button id="chatButton" onclick="toggleChatWindow()">
+<button id="chatButton">
     💬
 </button>
 
@@ -596,11 +596,13 @@ setTimeout(showOverlay, 1000); // Show overlay after 1 second
 function toggleChatWindow() {
     const chatWindow = document.getElementById("chatWindow");
     if (chatWindow.style.display === "none" || chatWindow.style.display === "") {
+        
         chatWindow.style.display = "flex"; // Show the chat window
     } else {
         chatWindow.style.display = "none"; // Hide the chat window
     }
 }
+
 
 </script>
 	<script type="module">
@@ -636,6 +638,12 @@ let userID = null;
 let userDocRef = null;
 let userDocSnap = null;
 let chatId = null;
+
+    document.getElementById("chatButton").addEventListener("click", function() {
+        toggleChatWindow();  // First action
+    });
+
+
  function checkUserLogin() {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -643,12 +651,13 @@ let chatId = null;
                 userID = user.uid; // Store user ID
                 userDocRef = doc(db, 'Customers', userID); // Reference to the user document
  // Retrieve the chat ID associated with the user
-                const chatId = await findUserChatId(userID);
+               const chatId = await findUserChatId(userID);
                 
                 // Load chat messages only if a chat ID is found
                 if (chatId) {
                     console.log("Loading chat messages for chat ID:", chatId);
-                    await loadChatMessages(chatId); // Load messages for the existing chat
+                   loadChatMessages(chatId);
+                   
                 } else {
                     console.log("No existing chat found for this user.");
                 }
@@ -842,8 +851,19 @@ let chatId = null;
     // Call the function to check if the user is logged in when the page loads
     window.onload = checkUserLogin;
 async function findUserChatId(userId) {
-    const chatQuery = query(collection(db, 'chats'), where('customerID', '==', userId));
+    const chatQuery = query(
+        collection(db, 'chats'),
+        where('customerID', '==', userId),
+        where("status", "not-in", ["resolved"])
+    );
+
     const querySnapshot = await getDocs(chatQuery);
+
+    // Log the number of documents found and their statuses
+    console.log(`Found ${querySnapshot.size} chats for user ${userId}:`);
+    querySnapshot.forEach(doc => {
+        console.log(`Chat ID: ${doc.id}, Status: ${doc.data().status}`);
+    });
 
     if (!querySnapshot.empty) {
         // Return the ID of the first chat found
@@ -854,6 +874,7 @@ async function findUserChatId(userId) {
     // Return null if no chat is found
     return null;
 }
+
 
 
  window.addEventListener('DOMContentLoaded', (event) => {
@@ -909,6 +930,7 @@ async function sendMessage() {
                         chatId = chatDocRef.id;  // Get the new chat ID
 
                         console.log("New chat created!");
+                        loadChatMessages(chatId);
                     } else {
                         console.error("No user document found for this user.");
                         return;
@@ -932,6 +954,7 @@ async function sendMessage() {
                     loadChatMessages(chatId); // Load chat messages
                 } else {
                     console.log("This chat has been resolved. Please create a new chat.");
+                    loadChatMessages(chatId);
                 }
             } catch (error) {
                 console.error("Error sending message: ", error);
@@ -958,8 +981,7 @@ async function loadChatMessages(chatId) {
     if (chatDocSnap.exists()) {
         const chatData = chatDocSnap.data();
         
-        // Check if the chat's status is "open"
-        if (chatData.status === "open") {
+       
             // Now load messages for the chat
             const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); 
             const messagesList = document.getElementById("messages-list");
@@ -968,6 +990,7 @@ async function loadChatMessages(chatId) {
                 console.error("Messages list element not found!");
                 return; // Exit the function if the element is not found
             }
+
 
             // Listen for changes in the messages collection
             onSnapshot(messagesQuery, (snapshot) => {
@@ -979,14 +1002,13 @@ async function loadChatMessages(chatId) {
                 messagesList.innerHTML = ''; // Clear existing messages
                 snapshot.forEach(doc => {
                     const messageData = doc.data();
+                    console.log(messageData);
                     const messageItem = document.createElement("li");
                     messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.name}: ${messageData.message}`;
                     messagesList.appendChild(messageItem);
                 });
             });
-        } else {
-            console.log("Chat is not assigned. Only chats with 'open' status can load messages.");
-        }
+     
     } else {
         console.error("Chat document does not exist.");
     }
@@ -998,12 +1020,14 @@ async function resolveChat(chatId) {
     const chatDocRef = doc(db, "chats", chatId);
 
     try {
+         const messagesList = document.getElementById("messages-list");
         await updateDoc(chatDocRef, {
             status: "resolved",
             resolvedAt: new Date()  // Optionally, add a timestamp of when the chat was resolved
         });
         console.log("Chat marked as resolved.");
         alert("Chat has been marked as resolved. You can now create a new chat.");
+         messagesList.innerHTML = '';
     } catch (error) {
         console.error("Error resolving chat:", error);
     }
@@ -1014,12 +1038,16 @@ document.getElementById("resolve-chat-button").addEventListener("click", async (
     const user = auth.currentUser;
     if (user) {
         // Find open chat
-        const chatQuery = query(collection(db, 'chats'), where('customerID', '==', user.uid), where('status', '==', 'open'));
+        const chatQuery = query(collection(db, 'chats'), where('customerID', '==', user.uid),where("status", "not-in", ["resolved"]));
         const chatQuerySnapshot = await getDocs(chatQuery);
 
         if (!chatQuerySnapshot.empty) {
             const chatId = chatQuerySnapshot.docs[0].id;
-            resolveChat(chatId);
+            console.log(chatId);
+            if(chatId){
+              resolveChat(chatId);  
+            }
+            
         } else {
             console.log("No open chat to resolve.");
         }
