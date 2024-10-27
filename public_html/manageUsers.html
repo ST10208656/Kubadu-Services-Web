@@ -109,11 +109,11 @@
         }
 
         footer {
-            background: #333;
+            background-color: #004AAD;
             color: #fff;
+            padding: 20px 0;
             text-align: center;
-            padding: 30px 0;
-            border-top: #77d667 3px solid;
+            border-top: #00C04B 3px solid;
         }
 
         /* Modal Styles */
@@ -204,17 +204,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Judy</td>
-                        <td>judy@example.com</td>
-                        <td>Admin</td>
-                        <td>Managers</td>
-                        <td>
-                            <button class="edit-btn" onclick="openEditEmployeeModal(1, 'Judy', 'judy@example.com', 'Admin')">Edit</button>
-                            <button class="delete-btn" onclick="deleteEmployee(1)">Delete</button>
-                        </td>
-                    </tr>
+                   
                     <!-- Add more rows for other employees -->
                 </tbody>
             </table>
@@ -224,23 +214,18 @@
                     <tr>
                         <th>CustomerID</th>
                         <th>Name</th>
+                        <th>Surname</th>
                         <th>Email</th>
-                        <th>Action</th>
+                        <th>Phone number</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Vincent</td>
-                        <td>vincent@example.com</td>
-                        <td>
-                            <button class="edit-btn" onclick="openEditCustomerModal(1, 'Vincent', 'vincent@example.com')">Edit</button>
-                            <button class="delete-btn" onclick="deleteCustomer(1)">Delete</button>
-                        </td>
-                    </tr>
+                   
                     <!-- Add more rows for other customers -->
                 </tbody>
+               
             </table>
+            <div style="font-weight: bold; font-size: 1.5rem;">Customer total is: <span style="color: #004AAD; font-weight: bold;" id="customerTotal"></span></div>
         </div>
     </main>
     <footer>
@@ -345,7 +330,7 @@
 <script type="module">
         // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
@@ -370,31 +355,65 @@ if (!initializeApp.length) {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
-        // Function to add an employee
-          document.getElementById('addEmployeeForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const name = document.getElementById('addEmployeeName').value;
-            const email = document.getElementById('addEmployeeEmail').value;
-            const password = document.getElementById('addEmployeePassword').value;
-            const role = document.getElementById('addEmployeeRole').value;
-            const department = document.getElementById('addEmployeeDepartment').value;
-           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user; 
-  const userDocRef = doc(db, "employees", user.uid);
-        await setDoc(userDocRef, {
-            name: name,
-            email: email,
-            role: role,
-            department: department,
-            uid: user.uid // Store the uid in the document itself
-        });
+  document.getElementById('addEmployeeForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const name = document.getElementById('addEmployeeName').value;
+    const email = document.getElementById('addEmployeeEmail').value;
+    const password = document.getElementById('addEmployeePassword').value;
+    const role = document.getElementById('addEmployeeRole').value;
+    const department = document.getElementById('addEmployeeDepartment').value;
 
-                alert("Employee added successfully!");
-                location.reload();  // Reload page after adding employee
-            alert(`New Employee Added.\nName: ${name}\nEmail: ${email}\nRole: ${role}\nDepartment: ${department}`);
-            
-            closeModal('addEmployeeModal');
-        });
+    try {
+        let user;
+        
+        // Attempt to create a new user in Firebase Authentication
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            user = userCredential.user;  // If successful, we get the new user
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                // If email is already in use, find the existing Auth user by signing them in
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                user = userCredential.user;
+            } else {
+                throw error;  // Re-throw other errors
+            }
+        }
+        
+        // Check if the employee record already exists in Firestore
+        const userDocRef = doc(db, "employees", user.uid);
+        const docSnapshot = await getDoc(userDocRef);
+
+        if (docSnapshot.exists()) {
+            // Update existing Firestore employee document
+            await updateDoc(userDocRef, {
+                name,
+                role,
+                department
+            });
+            alert("Existing employee updated successfully!");
+        } else {
+            // Create new Firestore employee document
+            await setDoc(userDocRef, {
+                name,
+                email,
+                role,
+                department,
+                uid: user.uid
+            });
+            alert("New employee added successfully!");
+        }
+
+        location.reload();  // Reload the page after adding/updating employee
+        closeModal('addEmployeeModal');
+    } catch (error) {
+        console.error("Error adding employee:", error);
+        alert("Error adding employee. Please try again.");
+    }
+});
+
+
+
 
         // Function to add a customer
         async function addCustomer(name, email) {
@@ -486,22 +505,25 @@ const analytics = getAnalytics(app);
                 </tr>`;
                 employeeTableBody.innerHTML += row;
             });
-
+let customerTotal = 0;
             // Fetch all customers
             const customersSnapshot = await getDocs(collection(db, "Customers"));
             customersSnapshot.forEach((doc) => {
                 const customer = doc.data();
+               
                 const row = `<tr>
                     <td>${doc.id}</td>
                     <td>${customer.Name}</td>
+            <td>${customer.Surname}</td>
                     <td>${customer.Email}</td>
-                    <td>
-                        <button class="edit-btn" onclick="openEditCustomerModal('${doc.id}', '${customer.Name}', '${customer.Email}')">Edit</button>
-                        <button class="delete-btn" onclick="deleteCustomer('${doc.id}')">Delete</button>
-                    </td>
+                   <td>${customer.PhoneNr}</td>
                 </tr>`;
                 customerTableBody.innerHTML += row;
             });
+            customerTotal = customersSnapshot.size; 
+            console.log(customerTotal);
+            
+            document.getElementById('customerTotal').textContent = customerTotal;
         }
 
         window.addEventListener("load", loadData);

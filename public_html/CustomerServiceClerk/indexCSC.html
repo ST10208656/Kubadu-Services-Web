@@ -96,19 +96,45 @@
 <body>
     <header>
         <div class="container">
-            <h1>Customer service clerk Dashboard - Kubadu Services</h1>
+            <h1>Customer Service Dashboard - Kubadu Services</h1>
         </div>
     </header>
     <main>
-       <div id="available-chats">
-    <h3>Available Chats</h3>
-    <ul id="chat-list"></ul>
-</div>
-         <div id="Assigned-chats">
-    <h3>Assigned chats</h3>
-    <ul id="assigned-chat-list"></ul>
-</div>
-         
+        <div class="container">
+            <div class="admin-menu">
+                <a href="Chats.html" id="chats-btn">View Chats</a>
+                <a href="Queries.html" id="Queries-btn">View Customer Queries</a>
+                
+
+            </div>
+            <!-- Dashboard Overview Section -->
+            <section id="dashboard-overview">
+                <h2>Dashboard Overview</h2>
+                <div class="overview-cards">
+                    <div class="card">
+                        <h3>Active Users</h3>
+                        <p id="active-users-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pending Requests</h3>
+                        <p id="pending-requests-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Completed Payments</h3>
+                        <p id="completed-payments-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Active Funeral Policies</h3>
+                        <p id="active-funeral-policies-count">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pending Loans</h3>
+                        <p id="pending-loans-count">0</p>
+                    </div>
+                 
+                </div>
+            </section>
+        </div>
     </main>
     <footer>
         <div class="container">
@@ -116,31 +142,10 @@
         </div>
     </footer>
 
-<div id="chat-window">
-        <h2>Chat</h2>
-        <ul id="messages-list"></ul> <!-- This is where messages will be listed -->
-        <input type="text" id="message" placeholder="Type your message...">
-        <button id="send-message-btn">Send</button>
-        <button id="resolve-chat-btn">Resolve</button>
-    </div>
-<script>
-
-// Toggle chat window visibility
-function toggleChatWindow() {
-    console.log("You are here now");
-    const chatWindow = document.getElementById("chat-window");
-    if (chatWindow.style.display === "none" || chatWindow.style.display === "") {
-        chatWindow.style.display = "flex"; // Show the chat window
-    } else {
-        chatWindow.style.display = "none"; // Hide the chat window
-    }
-}
-
-</script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
     // Your web app's Firebase configuration
@@ -164,212 +169,42 @@ if (!initializeApp.length) {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
-var currentChatId = "";
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        loadAssignedChats(); // Load assigned chats for the authenticated user
-    } else {
-        console.log("No user is logged in.");
-        // Handle user not logged in (e.g., redirect to login page)
-    }
-});
-const chatWindow = document.getElementById("chat-window");
-  
-        chatWindow.style.display = "none"; // Hide the chat window
-    
-    // Display all unassigned chats
-   async function displayUnassignedChats() {
-    const chatsQuery = query(collection(db, "chats"), where("status", "==", "unassigned"));
-    const chatList = document.getElementById("chat-list");
 
-    onSnapshot(chatsQuery, (snapshot) => {
-        chatList.innerHTML = '';  // Clear the list
-        snapshot.forEach(doc => {
-            const chatData = doc.data();
-            const chatItem = document.createElement("li");
-            chatItem.innerHTML = `Chat with Customer ${chatData.Name} ${chatData.Surname} <button class="assignChatBtn" data-chat-id="${doc.id}">Assign to Me</button>`;
-            chatList.appendChild(chatItem);
-        });
-    });
-}
+const userQuery = query(collection(db, "Customers"));
+const userSnapshot = await getDocs(userQuery);
 
-// Delegate event handling
-document.addEventListener('DOMContentLoaded', function() {
-    // Listen for clicks on the chat list
-    document.getElementById("assigned-chat-list").addEventListener("click", function(event) {
-        // Check if the clicked element is a button with the class "assignChatBtn"
-        if (event.target.classList.contains("loadMessageBtn")) {
-            const chatId = event.target.getAttribute("data-message-id");
-            loadChatMessages(chatId);
-        }
-    });
-    
-        document.getElementById("resolve-chat-btn").addEventListener("click", function(event) {
-            event.preventDefault();
-        // Check if the clicked element is a button with the class "assignChatBtn"
-        resolveChat(currentChatId);
-    });
-});
-// Func
-// chat-list
-// tion to load messages for the assigned chat
+const requestsQuery = query(collection(db, "Requests"), where("status", "==", "pending"));
+const requestsSnapshot = await getDocs(requestsQuery);
 
-// Event listener for chat assignment and sending messages
-document.addEventListener('click', function(event) {
-    // Check if an "Assign to Me" button was clicked
-    if (event.target.classList.contains("assignChatBtn")) {
-        const chatId = event.target.getAttribute("data-chat-id"); 
-        currentChatId = chatId;// Get the chat ID directly from the clicked button
-        assignChat(chatId);  // Assign the chat
-    }
+const policiesQuery = query(collection(db, "Users Policies"));
+const policiesSnapshot = await getDocs(policiesQuery);
 
-    // Check if the send message button was clicked
-    if (event.target.id === "send-message-btn") {
-        if (currentChatId) {
-            sendMessageToChat(currentChatId);  // Send the message to the currently assigned chat
-        } else {
-            console.log("No chat is currently assigned.");
-        }
-    }
-});
-    
+const requestsLoanQuery = query(collection(db, "Requests"), where("status", "==", "pending"), where("requestType", "==", "Loan"));
 
-async function loadChatMessages(chatId) {
-    
-    const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); // Load messages from subcollection
-    const messagesList = document.getElementById("messages-list");
+const requestsLoanSnapshot = await getDocs(requestsLoanQuery);
+if(userSnapshot && requestsSnapshot && policiesSnapshot){
+console.log(userSnapshot);
 
-    if (!messagesList) {
-       
-        console.error("Messages list element not found!");
-        return; // Exit the function if the element is not found
-    }
+            // Fetch the data (dummy data for demonstration)
+            const activeUsers = userSnapshot.size;
+            const pendingRequests = requestsSnapshot.size;
+            const completedPayments = 67;
+            const activeFuneralPolicies = policiesSnapshot.size;
+            const pendingLoans = requestsLoanSnapshot.size;
+         
 
-    onSnapshot(messagesQuery, (snapshot) => {
-          console.log("Snapshot received:", snapshot); // Debugging line
-           if (snapshot.empty) {
-            console.log("No messages found for this chat."); // Log if no messages found
-            return; // Exit if no messages
-        }
-
-        messagesList.innerHTML = ''; // Clear existing messages
-        snapshot.forEach(doc => {
-            console.log("we're here" + chatId);
-            currentChatId = chatId;
-            const messageData = doc.data();
-            const messageItem = document.createElement("li");
-            messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.Name} ${messageData.Surname}: ${messageData.message}`;
-            messagesList.appendChild(messageItem);
-        });
-    });
-}
-
-// Function to mark a chat as resolved
-async function resolveChat(chatId) {
-    const chatDocRef = doc(db, "chats", chatId);
-
-    try {
-        await updateDoc(chatDocRef, {
-            status: "resolved",
-            resolvedAt: new Date() // Optionally, add a timestamp of when the chat was resolved
-        });
-        console.log("Chat marked as resolved.");
-    } catch (error) {
-        console.error("Error resolving chat:", error);
-    }
-}
-
-// Function to assign the chat to a clerk
-async function assignChat(chatId) {
-    const clerkID = auth.currentUser.uid;  // Get the current clerk's ID
-    const chatDocRef = doc(db, "chats", chatId);
-
-    try {
-        await updateDoc(chatDocRef, {
-            clerk_assigned: clerkID,
-            status: "open" // Update status to assigned
+            // Update the dashboard counts
+            document.getElementById('active-users-count').textContent = activeUsers;
+            document.getElementById('pending-requests-count').textContent = pendingRequests;
+            document.getElementById('completed-payments-count').textContent = completedPayments;
+            document.getElementById('active-funeral-policies-count').textContent = activeFuneralPolicies;
+            document.getElementById('pending-loans-count').textContent = pendingLoans;
             
-        });
-        alert("Chat assigned to you. You can now start the conversation.");
-        loadChatMessages(chatId); // Load messages for this chat after assignment
-    } catch (error) {
-        console.error("Error assigning chat: ", error);
-    }
-}
-async function loadAssignedChats() {
-    console.log("YOU ARE HERE NOEW");
-    const user = auth.currentUser;  // Get the currently logged-in user
-    const assignedChatsQuery = query(collection(db, "chats"), where("clerk_assigned", "==", user.uid),where("status", "==", "open"));
-    const assignedChatList = document.getElementById("assigned-chat-list"); // Make sure this element exists
-
-    if (!assignedChatList) {
-        console.error("Assigned chat list element not found!");
-        return;  // Exit the function if the element is not found
-    }
-
-    onSnapshot(assignedChatsQuery, (snapshot) => {
-        assignedChatList.innerHTML = ''; // Clear existing chats
-        snapshot.forEach(doc => {
-            const chatData = doc.data();
-            const chatItem = document.createElement("li");
-            chatItem.innerHTML = `Chat with Customer: ${chatData.name} ${chatData.surname}  <button class="loadMessageBtn" onclick="toggleChatWindow()" data-message-id="${doc.id}">Open Chat</button>View Messages</button>`;
-           console.log(chatData);
-                assignedChatList.appendChild(chatItem);
-        });
-    });
-}
-
-// Load assigned chats on window load
-window.onload = async function() {
-    const user = auth.currentUser; // Check if the user is logged in
-
-    if (user) {
-        await loadAssignedChats(); // Only call this function if the user is logged in
-    } else {
-        console.log("User is not logged in. Cannot load assigned chats.");
-        // Optionally, redirect to login page or show a message
-    }
-};
-
-
-async function sendMessageToChat(chatId) {
-            const user = auth.currentUser;
-            const messageInput = document.getElementById("message");
-
-            if (user) {
-                const message = messageInput.value.trim();
-
-                if (message !== "") {
-                    const chatDocRef = doc(db, "chats", chatId);
-                    const messageData = {
-                        userID: user.uid,
-                        name: user.displayName || "Anonymous",
-                        message: message,
-                        timestamp: new Date()
-                    };
-
-                    try {
-                        await addDoc(collection(chatDocRef, "messages"), messageData);
-                        messageInput.value = "";  // Clear input field after sending
-                        loadChatMessages(chatId);  // Reload messages after sending
-                    } catch (error) {
-                        console.error("Error sending message: ", error);
-                    }
-                } else {
-                    console.log("Message cannot be empty.");
-                }
-            } else {
-                console.log("No user is currently logged in.");
-            }
-        }
-
-
-
-    window.onload = function() {
-        displayUnassignedChats();
       
-        
-    };
-</script>
+    
+}
+        // Example data fetching and updating the dashboard counts
+       
+    </script>
 </body>
 </html>

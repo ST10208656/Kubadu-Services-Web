@@ -17,7 +17,18 @@
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
         }
+.progress-container {
+    width: 100%;
+    background-color: #f3f3f3; /* Background of the progress bar container */
+    border-radius: 5px;
+    overflow: hidden; /* To round corners of progress bar */
+}
 
+.progress-bar {
+    height: 20px;
+    background-color: #2196F3; /* Default color of progress bar */
+    transition: width 0.4s ease; /* Smooth transition for the progress bar */
+}
         .container {
             width: 80%;
             margin: auto;
@@ -60,6 +71,7 @@
             padding: 20px;
             border-radius: 5px;
             margin-bottom: 20px;
+ 
         }
 
         .card h2 {
@@ -128,7 +140,7 @@
         footer p {
             margin: 0;
         }
-.add-policy-form {
+  .add-policy-form {
             text-align: center;
         }
 
@@ -152,6 +164,17 @@
         .add-policy-form button:hover {
             background-color: #00BF63;
         }
+       
+        .edit-form input, .edit-form textarea {
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+}
+
+.edit-form button {
+    padding: 8px 12px;
+    margin-top: 10px;
+}
     </style>
 </head>
 <body>
@@ -165,13 +188,26 @@
             <a href="index.html" class="back-btn">Back to Dashboard</a>
  <div class="card">
                 <h2>Add New Policy</h2>
-                <form id="add-policy-form">
+                <form id="add-policy-form" class="add-policy-form">
                     <label for="policy-type">Policy Name:</label>
                     <input type="text" id="policy-type" name="policy-type" required><br><br>
                     <label for="coverage">Coverage:</label>
                     <input type="text" id="coverage" name="coverage" required><br><br>
                     <label for="payment">Payment:</label>
                     <input type="number" step="0.01" id="payment" name="payment" required><br><br>
+                    
+          <h3>Select Required User Information:</h3>
+        <input type="checkbox" id="require-id" name="require-id">
+        <label for="require-id">National ID/Passport</label><br>
+
+        <input type="checkbox" id="require-proof-address" name="require-proof-address">
+        <label for="require-proof-address">Proof of Address</label><br>
+
+        <input type="checkbox" id="require-income" name="require-income">
+        <label for="require-income">Proof of Income</label><br>
+
+        <input type="checkbox" id="require-bank-statement" name="require-bank-statement">
+        <label for="require-bank-statement">Bank Statement</label><br><br>
                     <button type="submit">Add Policy</button>
                 </form>
             </div>
@@ -186,7 +222,15 @@
             <div class="card">
                 <h2>Active Users</h2>
                 <div class="filter-container">
-                    <label for="search-input">Search:</label>
+                    <select id="sort-select" onchange="filterUsersPolicies()">
+    <option value="default">Default</option>
+    <option value="asc">Ascending (A-Z)</option>
+    <option value="desc">Descending (Z-A)</option>
+    <option value="newest">Newest</option>
+    <option value="oldest">Oldest</option>
+</select>
+
+                    <label for="search-input">Search by name:</label>
                     <input type="text" id="search-input" placeholder="Search...">
                     <label for="filter-select">Filter by Policy:</label>
                     <select id="filter-select">
@@ -199,8 +243,11 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Active</th>
-                            <th>Funeral Policy</th>
+                            <th>Policy ID</th>
+                            <th>Policy Type</th>
+                            <th>Approved On</th>
+                            <th>Progress</th>
+                            <th>Make Payment</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
@@ -217,7 +264,7 @@
     </footer>
     <script type="module">
         import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, getDoc, setDoc, query, where, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -238,10 +285,7 @@
 	if(db){
 	console.log("firestore is initialized successfully");
         // Dummy data for demonstration
-        const activeFuneralPolicies = [
-            { name: 'Basic Funeral Policy', coverage: 'R5000', premium: 'R50/month'},
-            { name: 'Premium Funeral Policy', coverage: 'R10000', premium: 'R90/month'}
-        ];
+       
 const policiesCollection = collection(db, 'policies');
 document.addEventListener("DOMContentLoaded", function() {
     // Now the DOM is fully loaded, we can safely add event listeners
@@ -250,19 +294,29 @@ document.addEventListener("DOMContentLoaded", function() {
         const policyName = document.getElementById("policy-type").value;
         const coverage = document.getElementById("coverage").value;
         const payment = document.getElementById("payment").value;
-
+        const requireId = document.getElementById("require-id").checked;
+        const requireProofAddress = document.getElementById("require-proof-address").checked;
+        const requireIncome = document.getElementById("require-income").checked;
+        const requireBankStatement = document.getElementById("require-bank-statement").checked;
         try {
             // Add loan to Firestore
             await addDoc(policiesCollection, {
                 policyType: policyName,
                 coverage: coverage,
-                payment: payment + "/month",
+                payment: payment,
+                
+                requirements: {
+                    requireId: requireId,
+                    requireProofAddress: requireProofAddress,
+                    requireIncome: requireIncome,
+                    requireBankStatement: requireBankStatement
+                },
                 timestamp: new Date()
             });
-            alert("Policies added successfully!");
+            alert("Policy added successfully!");
             loadPolicies(); // Refresh the loan list
         } catch (error) {
-            console.error("Error adding loan: ", error);
+            console.error("Error adding policy: ", error);
         }
     });
     
@@ -278,120 +332,541 @@ document.addEventListener("DOMContentLoaded", function() {
 
             querySnapshot.forEach((doc) => {
                 const policiesData = doc.data();
+                const policyId = doc.id;
                 const policiesItem = document.createElement("div");
                 policiesItem.innerHTML = `
                     <strong>${policiesData.policyType}</strong><br>
                     Coverage: R${policiesData.coverage}<br>
-                     Payment: ${policiesData.payment}%<br><br>
+                     Payment: R${policiesData.payment}<br>
+            Requirements: ${getRequirementsText(policiesData.requirements)}<br><br>
+            <button onclick="editPolicy('${policyId}')">Edit</button>
+                    <button onclick="deletePolicy('${policyId}')">Delete</button><br><br>
                 `;
                 policiesList.appendChild(policiesItem);
             });
         }
-        // Function to populate active funeral policies
-        function populateFuneralPolicies() {
-            const funeralPoliciesList = document.getElementById('funeral-policies-list');
-          activeFuneralPolicies.forEach(policy => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${policy.name}</td>
-                    <td>${policy.coverage}</td>
-                    <td>${policy.premium}</td>`;
-                funeralPoliciesList.appendChild(row);
-            });
-        }
-        const addPolicy=document.getElementById('add-policy-form');
-        if(addPolicy){
-            console.log("Policy add found");
-  addPolicy.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const policyName = document.getElementById('policy-name').value;
-                const coverage = document.getElementById('coverage').value;
-                const payment = document.getElementById('payment').value;
+        window.editPolicy = async function (policyId) {
+    const policyDoc = await getDoc(doc(policiesCollection, policyId));
+    if (policyDoc.exists()) {
+        const policyData = policyDoc.data();
+  // Process requirements data
+          const requirementsText = Object.entries(policyData.requirements)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join("\n");
 
-                db.collection("funeral-policies").add({
-                    name: policyName,
-                    coverage: coverage,
-                    payment: payment
-                }).then(() => {
-                    alert("Policy added successfully!");
-                    populateFuneralPolicies(); // Refresh the policy list
-                }).catch((error) => {
-                    console.error("Error adding policy: ", error);
-                });
-            });
-        }
+        // Create a form with current loan values pre-filled
+        const editForm = document.createElement("div");
+        editForm.classList.add("edit-form");
+        editForm.innerHTML = `
+            <input type="text" id="edit-policyType" value="${policyData.policyType}" placeholder="Policy Type">
+            <input type="number" id="edit-coverage" value="${policyData.coverage}" placeholder="Coverage">
+            <input type="number" id="edit-payment" value="${policyData.payment}" placeholder="Payment">
+            <textarea id="edit-requirements">${requirementsText}</textarea>
+            <button onclick="savePolicy('${policyId}')">Save</button>
+        `;
+
+        document.getElementById("funeral-policies-list").appendChild(editForm); // Append form to loansList
+    }
+};
+window.savePolicy = async function (policyId) {
+    const updatedPolicy = {
+        policyType: document.getElementById("edit-policyType").value,
+        coverage: parseFloat(document.getElementById("edit-coverage").value),
+        payment: parseInt(document.getElementById("edit-payment").value),
+        requirements: document.getElementById("edit-requirements").value.split("\n").reduce((acc, line) => {
+            const [key, value] = line.split(":").map(item => item.trim());
+            acc[key] = value === "true";
+            return acc;
+        }, {})
+    };
+  try {
+        await updateDoc(doc(policiesCollection, policyId), updatedPolicy);
+        alert("Policy updated successfully!");
+        loadPolicies();  // Refresh the loans list
+    } catch (error) {
+        console.error("Error updating policy: ", error);
+    }
+};
+window.deletePolicy = async function (policyId) {
+    try {
+        await deleteDoc(doc(policiesCollection, policyId));
+        alert("Loan deleted successfully!");
+        loadPolicies(); // Refresh the loan list
+    } catch (error) {
+        console.error("Error deleting policy: ", error);
+    }
+};
+
+        function getRequirementsText(requirements) {
+    let requirementList = [];
+
+    if (requirements.requireId) {
+        requirementList.push("National ID/Passport");
+    }
+    if (requirements.requireProofAddress) {
+        requirementList.push("Proof of Address");
+    }
+    if (requirements.requireIncome) {
+        requirementList.push("Proof of Income");
+    }
+    if (requirements.requireBankStatement) {
+        requirementList.push("Bank Statement");
+    }
+
+    return requirementList.length > 0 ? requirementList.join(", ") : "None";
+}
+
+      let activeFuneralPolicies = []; // Global array to hold funeral policies
+
+// Function to load funeral policies from Firebase
+async function loadFuneralPoliciesFromFirebase() {
+    console.log("Loading policies from Firebase...");
+    
+    try {
+        const q = query(collection(db, "Users Policies"));
         
-        const q = query(collection(db, "Users Policies"), where("userEmail", "==", "kp@gmail.com"));
+onSnapshot(q, (querySnapshot) => {
+        activeFuneralPolicies.length = 0; // Clear existing data
+console.log(querySnapshot);
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const timestamp = data.timestamp ? data.timestamp.toDate().toLocaleString() : "No Timestamp Available";
+            const totalAmount = parseFloat(data.payment);
+var remainingAmount = parseFloat(data.remaining);
+const payment = data.payment || 0;
+const progress = data.progress;
+const currentDate = new Date();
+const date = new Date(data.approvedOn.seconds * 1000);
 
-const querySnapshot = await getDocs(q);
-
-if(querySnapshot){
-   
-const querySnapshot = await getDocs(q);
-querySnapshot.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  
-  const data = doc.data();
-  
-  
-  const timestamp = data.timestamp ? data.timestamp.toDate().toLocaleString() : "No Timestamp Available";
-  const rowData = [doc.id, data.requestId, data.status, data.type];
-  
-  const rowElement = document.createElement("tr");
-
-  // Loop through each cell in the rowData array
-  rowData.forEach((cell) => {
-    // Create a new table data (cell) element
-    const cellElement = document.createElement("td");
-    cellElement.textContent = cell;
-
-    // Append the cell to the row
-    rowElement.appendChild(cellElement);
-	// Append the row to the table body
-  userTableBody.appendChild(rowElement);
-  });
-
-  
-  
-  console.log(rowData);
-  console.log(doc.id, " => ", doc.data());
-
+console.log("Payment:", remainingAmount);
+if (isNaN(remainingAmount)) {
+        remainingAmount = payment;
+    }
+const monthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`; // Format: MM-YYYY
+            activeFuneralPolicies.push({
+                requestId: data.requestId,
+                type: data.type,
+                payment: data.payment,
+                users: data.name + " " + data.surname || [], // Assuming `users` is an array field in your document
+remaining: remainingAmount,
+                monthYear: monthYear,
+                cashValue: data.cashValue,
+                userId: data.userId,
+                approvedOn: date,
+            status: progress >= 100 ? 'Completed' : 'Active',
+            progress: Math.min(progress, 100), // Ensure progress doesn't exceed 100%
+                timestamp: timestamp,
+                 docId: doc.id 
+            });
+        });
+        populateUserTable(activeFuneralPolicies);
+    },(error) => {
+    console.error("Error fetching policies in real-time:", error);
 });
-  }
-        // Function to populate user table
-        function populateUserTable() {
-            const userTableBody = document.getElementById('userTableBody');
-            
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filterType = document.getElementById('filter-select').value;
-
-            activeFuneralPolicies.forEach(policy => {
-                // Filter based on search term and selected type
-                if (filterType === 'all' || policy.name === filterType) {
-                    policy.users.forEach(user => {
-                        if (user.toLowerCase().includes(searchTerm)) {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${user}</td>
-                                <td>Yes</td>
-                                <td>${policy.name}</td>`;
-                            userTableBody.appendChild(row);
-                        }
-                    });
-                }
+        console.log("Policies fetched from Firebase:", activeFuneralPolicies);
+        
+    } catch (error) {
+        console.error("Error loading policies from Firebase:", error);
+    }
+}
+async function resetPayments() {
+    const policiesQuery = query(collection(db, "User Policies"));
+    const querySnapshot = await getDocs(policiesQuery);
+    
+    querySnapshot.forEach(async (doc) => {
+        const policyData = doc.data();
+        const monthYear = getCurrentMonthYear(); // Function to get current month-year string
+        
+        // Check if a payment already exists for this month
+        const paymentDocRef = doc(db, "Users Policies", doc.id, "Payments", monthYear);
+        const paymentDoc = await getDoc(paymentDocRef);
+        
+        if (!paymentDoc.exists()) {
+            // Create a new payment document for this month
+            await setDoc(paymentDocRef, {
+                amount: 0, // Reset amount to 0 for new month
+                date: new Date(),
+                status: 'Pending',
+                amountDue: policyData.amount // Amount due for the policy
             });
         }
+    });
+}
 
-        document.addEventListener('DOMContentLoaded', function() {
-            populateFuneralPolicies();
-            populateUserTable();
+// Helper function to get the current month-year string
+function getCurrentMonthYear() {
+    const date = new Date();
+    const options = { year: 'numeric', month: 'long' };
+    return date.toLocaleString('en-US', options);
+}
 
-            // Add event listeners for search and filter
-            document.getElementById('search-input').addEventListener('input', populateUserTable);
-            document.getElementById('filter-select').addEventListener('change', populateUserTable);
+// Function to populate the user table based on the policies
+function populateUserTable(policies) {
+    const userTableBody = document.getElementById('userTableBody');
+    userTableBody.innerHTML = ''; // Clear existing rows
+
+
+    // Check if there are policies loaded
+    if (policies.length === 0) {
+       userTableBody.innerHTML = 'No Policies available.';
+        return; // Exit if no policies
+    }
+
+    policies.forEach(policy => {
+        
+const date = new Date(policy.approvedOn.seconds * 1000);
+        console.log("Processing Policy: " + policy.user); // Log each policy
+        // Filter based on search term and selected type
+      
+          
+                
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${policy.users}</td>
+                            <td>${policy.docId}</td>
+                            <td>${policy.type}</td>
+                            <td>${policy.approvedOn}</td>
+            <td>
+    <div class="progress-container">
+        <div class="progress-bar" style="width: ${policy.progress}%; ${policy.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
+    </div>
+    R${policy.remaining ?? 0} remaining
+</td>
+            <td>
+                Paid: <input class="amountInput" type="number" min="0" />
+                <button class="submitButton" data-doc-id="${policy.docId}" data-month-year="${policy.monthYear}" data-userId="${policy.userId}" data-original-amount="${policy.payment}">Submit</button>
+            </td>
+            
+                        `;
+                        userTableBody.appendChild(row);
+                
+       console.log(`Progress: ${policy.progress}%`);
+
+        });
+
+    if (userTableBody.innerHTML === '') {
+        console.log("No data to display after filtering.");
+    }
+    attachSubmitButtonListeners();
+    attachResetExtraPaymentListeners();
+}
+function attachResetExtraPaymentListeners() {
+    const resetButtons = document.querySelectorAll('.resetExtraPaymentButton');
+
+    resetButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const docId = e.target.getAttribute('data-doc-id');
+            
+            await updateDoc(doc(db, "Users Policies", docId), {
+                cashValue: 0 // Reset extra payment
+            });
+
+            alert("Extra payment reset.");
+            loadFuneralPoliciesFromFirebase(); // Refresh the policies
+        });
+    });
+}
+
+// Function to populate loan types from Firestore
+async function loadPolicyTypes() {
+    const filterSelect = document.getElementById('filter-select');
+    filterSelect.innerHTML = ''; // Clear existing options
+
+    // Add 'All' as the default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'all';
+    defaultOption.textContent = 'All';
+    filterSelect.appendChild(defaultOption);
+
+    try {
+        const loanTypes = new Set(); // Use a Set to avoid duplicate loan types
+        const querySnapshot = await getDocs(policiesCollection);
+
+        querySnapshot.forEach((doc) => {
+            const policyData = doc.data();
+            if (policyData.policyType) {
+                loanTypes.add(policyData.policyType);
+            }
+        });
+
+        // Add loan types to the select dropdown
+        loanTypes.forEach((type) => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            filterSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error('Error loading policy types:', error);
+    }
+}
+
+// Call this function when the page loads
+loadPolicyTypes();
+
+function attachSubmitButtonListeners() {
+    const submitButtons = document.querySelectorAll('.submitButton');
+
+    submitButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const docId = e.target.getAttribute('data-doc-id');
+            const userId = e.target.getAttribute('data-userId');
+            console.log("Document ID:", docId);
+            const originalAmount = parseFloat(e.target.getAttribute('data-original-amount'));
+            const inputElement = e.target.previousElementSibling;
+            const amount = parseFloat(inputElement.value);
+
+            console.log("Amount entered:", amount);
+
+            if (!isNaN(amount) && amount > 0) {
+                // Get the current date and format it as MM-YYYY
+                const currentDate = new Date();
+                const currentMonthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+
+                // Fetch the policy document to check lastPaymentMonthYear
+                const policyDocRef = doc(db, "Users Policies", docId);
+                const policyDocSnap = await getDoc(policyDocRef);
+
+                if (policyDocSnap.exists()) {
+                    const policyData = policyDocSnap.data();
+                    const lastPaymentMonthYear = policyData.lastPaymentMonthYear;
+
+                    // Only proceed if the payment for the current month hasn't been made yet
+                    if (lastPaymentMonthYear !== currentMonthYear || policyData.remaining > 0) {
+                        // Record the payment
+                        await addDoc(collection(db, "Users Policies", docId, "Payments"), {
+                            amount: amount,
+                            date: new Date(),
+                            status: 'Paid' // Add status to track if payment is completed
+                        });
+                        console.log("Payment added for doc ID:", docId);
+
+                        // Calculate total payments made
+                        const paymentsQuery = query(collection(db, "Users Policies", docId, "Payments"));
+                        const paymentsSnapshot = await getDocs(paymentsQuery);
+                        let totalPayments = 0;
+
+                        paymentsSnapshot.forEach((paymentDoc) => {
+                            const paymentData = paymentDoc.data();
+                            totalPayments += parseFloat(paymentData.amount);
+                        });
+                        console.log("Total payments:", totalPayments);
+
+                        const remainingBalance = originalAmount - totalPayments;
+                        console.log("Remaining balance:", remainingBalance);
+
+                        // Update the policy document with remaining balance, progress, and status
+                        await updateDoc(policyDocRef, {
+                            remaining: Math.max(remainingBalance, 0), // Ensure no negative balance
+                            paid: totalPayments,
+                            progress: (totalPayments / originalAmount) * 100, // Calculate progress based on total payments
+                            lastPaymentMonthYear: currentMonthYear, // Update last payment month/year
+                            status: remainingBalance > 0 ? (totalPayments > 0 ? 'Active' : 'Overdue') : 'Completed' // Update status
+                        });
+
+                        // Handle extra payment by updating wallet balance
+                        if (remainingBalance < 0) {
+                            const extraPayment = Math.abs(remainingBalance); // Convert negative to positive
+                            alert(`Extra payment of R${extraPayment} recorded. This will be added to your wallet.`);
+
+                            // Get the current wallet balance
+                            const userDocRef = doc(db, "Customers", userId);
+                            const userDocSnap = await getDoc(userDocRef);
+                            const currentWalletBalance = userDocSnap.data().walletBalance || 0;
+
+                            // Set remaining to zero in policy doc
+                            await updateDoc(policyDocRef, {
+                                remaining: 0
+                            });
+                        }
+
+                        updateWalletBalance(userId);
+
+                        // Reload the policies to reflect updated amounts
+                        loadFuneralPoliciesFromFirebase();
+                    } else {
+                        console.log("Payment for this month has already been made.");
+                        alert("A payment for this month has already been processed.");
+                    }
+                } else {
+                    console.log("Policy document not found.");
+                    alert("Error: Policy document not found.");
+                }
+            } else {
+                console.log("Invalid amount entered.");
+                alert("Please enter a valid payment amount.");
+            }
+        });
+    });
+}
+
+
+async function updateWalletBalance(userId) {
+    console.log("User ID is: " + userId);
+    let totalRemainingBalance = 0;
+    let remainingBalance = 0; // For loans
+    let remainingBalance1 = 0; // For policies
+
+    // Step 1: Query all loans for the user
+    const loansQuery = query(collection(db, "User Loans"), where("userId", "==", userId));
+    const loansSnapshot = await getDocs(loansQuery);
+
+    // Step 2: Loop through each loan to calculate the remaining balance
+    for (const loanDoc of loansSnapshot.docs) {
+        const loanData = loanDoc.data();
+        const originalAmount = parseFloat(loanData.originalAmount);
+
+        // Step 3: Calculate total payments for each loan
+        const paymentsQuery = query(collection(db, "User Loans", loanDoc.id, "Payments"));
+        const paymentsSnapshot = await getDocs(paymentsQuery);
+        let totalPayments = 0;
+
+        paymentsSnapshot.forEach((paymentDoc) => {
+            const paymentData = paymentDoc.data();
+            if (paymentData.Paid) {
+                totalPayments += parseFloat(paymentData.Paid);
+            }
+        });
+
+        // Calculate remaining balance for this loan
+        remainingBalance = originalAmount - totalPayments;
+        
+
+        // Accumulate the remaining balance for loans
+        totalRemainingBalance += remainingBalance;
+    }
+
+    // Step 4: Query all policies for the user
+    const policiesQuery = query(collection(db, "Users Policies"), where("userId", "==", userId));
+    const policiesSnapshot = await getDocs(policiesQuery);
+
+    // Step 5: Loop through each policy to calculate the remaining balance
+    for (const policyDoc of policiesSnapshot.docs) {
+        const policyData = policyDoc.data();
+        const originalAmount = parseFloat(policyData.payment); // assuming 'payment' is the total original amount
+
+        // Step 6: Calculate total payments for each policy
+        const policyPaymentsQuery = query(collection(db, "Users Policies", policyDoc.id, "Payments"));
+        const policyPaymentsSnapshot = await getDocs(policyPaymentsQuery);
+        let totalPolicyPayments = 0;
+
+        policyPaymentsSnapshot.forEach((paymentDoc) => {
+            const paymentData = paymentDoc.data();
+            if (paymentData.status === "Paid") {
+                totalPolicyPayments += parseFloat(paymentData.amount);
+            }
+        });
+
+        // Calculate remaining balance for this policy
+        remainingBalance1 = originalAmount - totalPolicyPayments;
+        
+
+        // Accumulate the remaining balance for policies
+        totalRemainingBalance += remainingBalance1;
+    }
+    console.log(totalRemainingBalance + "remainging balance");
+
+
+
+    // Step 7: Check if there's an extra payment (negative remaining balance)
+    if (totalRemainingBalance < 0) {
+        const extraPayment = Math.abs(totalRemainingBalance);
+        
+
+        // Step 8: Update the user's wallet with the extra payment
+        const userDocRef = doc(db, "Customers", userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const currentWalletBalance = userDocSnap.data().walletBalance || 0;
+            await updateDoc(userDocRef, {
+                walletBalance: extraPayment // Add to existing wallet balance
+            });
+
+            console.log("Wallet updated with extra payment:", extraPayment);
+        }
+    } else {
+        console.log("No extra payment. Remaining balance is positive or zero.");
+    }
+}
+
+async function handleExtraPayment(docId, amountPaid, originalAmount) {
+    const policyDocRef = doc(db, "Users Policies", docId);
+    const policyDoc = await getDoc(policyDocRef);
+    const data = policyDoc.data();
+    
+    let remainingBalance = originalAmount - amountPaid;
+    
+    // Check if there's an extra payment
+    if (remainingBalance < 0) {
+        const extraPayment = Math.abs(remainingBalance);
+        // Update cash value
+        await updateDoc(policyDocRef, {
+            cashValue: (data.cashValue || 0) + extraPayment, // Add extra payment to cash value
+            remaining: 0 // Set remaining to 0
+        });
+        
+    } else {
+        // Update remaining balance if no extra payment
+        await updateDoc(policyDocRef, {
+            remaining: remainingBalance
         });
     }
 }
+
+
+// Function to filter loans by search term and loan type
+// Function to filter and sort user policies
+ window.filterUsersPolicies = function () {
+    console.log("Filtering and sorting user policies");
+
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filterType = document.getElementById('filter-select').value;
+    const sortOption = document.getElementById('sort-select').value;
+
+    // Step 1: Filter policies by search term and filter type
+    let filteredPolicies = activeFuneralPolicies.filter(policy => {
+        const matchesSearchTerm = policy.users.toLowerCase().includes(searchTerm);
+        const matchesFilterType = filterType === 'all' || policy.type === filterType;
+        return matchesSearchTerm && matchesFilterType;
+    });
+
+    // Step 2: Sort policies based on the selected sorting option
+    filteredPolicies = filteredPolicies.sort((a, b) => {
+        if (sortOption === "asc") {
+            return a.users.localeCompare(b.users);
+        } else if (sortOption === "desc") {
+            return b.users.localeCompare(a.users);
+        } else if (sortOption === "newest") {
+            return new Date(b.approvedOn) - new Date(a.approvedOn); // Assume 'startDate' exists
+        } else if (sortOption === "oldest") {
+            return new Date(a.approvedOn) - new Date(b.approvedOn); // Assume 'startDate' exists
+        } else {
+            return 0; // No sorting
+        }
+    });
+
+    // Step 3: Update the displayed table
+    populateUserTable(filteredPolicies); // Update the displayed table
+};
+
+
+// Function to attach search and filter event listeners
+function attachSearchAndFilterListeners() {
+    document.getElementById('search-input').addEventListener('input', filterUsersPolicies);
+    document.getElementById('filter-select').addEventListener('change', filterUsersPolicies);
+}
+
+// Call this function when the window loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadFuneralPoliciesFromFirebase(); // Load policies from Firebase on window load
+    attachSearchAndFilterListeners(); // Attach search and filter listeners
+});
+
+}
+    }
+    
     </script>
 </body>
 </html>

@@ -100,12 +100,61 @@
         }
 
         footer {
-            background: #333;
+            background-color: #004AAD;
             color: #fff;
+            padding: 20px 0;
             text-align: center;
-            padding: 30px 0;
-            border-top: #77d667 3px solid;
+            border-top: #00C04B 3px solid;
         }
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    margin: 5% auto; /* Adjust top margin to bring modal higher */
+    padding: 20px;
+    width: 80%; /* Could be more or less, depending on screen size */
+    height: 80%; /* Could be more or less */
+    background-color: white; /* Ensure the background is visible */
+    border-radius: 5px; /* Optional: add some rounding to the corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: shadow for depth */
+    position: relative; /* To position close button */
+}
+
+.close {
+    position: absolute;
+    right: 25px;
+    top: 10px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+}
+
+#documentFrame {
+    width: 100%; /* Full width of modal */
+    height: calc(100% - 50px); /* Adjust height to account for close button */
+    border: none; /* Remove border */
+}
+.close {
+    position: absolute;
+    right: 100px;
+    top: 100px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #000000; /* Change this to any color that contrasts with the background */
+    cursor: pointer;
+    z-index: 2; /* Ensure it's above the modal content */
+}
+
     </style>
 </head>
 <body>
@@ -125,10 +174,13 @@
                         <th>User Name</th>
                         <th>User Surname</th>
                         <th>Request Category</th>
-                        <th>Timestamp</th>
+                        <th>Requested On</th>
+                        <th>Amount</th>
                         <th>Request Type</th>
                         <th>Request Status</th>
+                        <th>Beneficiaries</th>
                         <th>Action</th>
+                        <th>Documents</th>
                     </tr>
                 </thead>
                 <tbody id="requestList">
@@ -144,12 +196,30 @@
             <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
         </div>
     </footer>
+    
+   <!-- Modal Structure -->
+<div class="modal" id="documentModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <iframe id="documentFrame" src="" frameborder="0"></iframe>
+                <img id="imageDisplay" style="max-width: 100%; height: auto; display: none;" alt="Image Document" />
+    </div>
+</div>
+<div id="denyReasonModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeDenyReasonModal">&times;</span>
+        <h2>Provide Denial Reason</h2>
+        <textarea id="denialReasonInput" placeholder="Enter reason here..." rows="4" required></textarea>
+        <button id="submitDenialReason">Submit</button>
+    </div>
+</div>
+
 </body>
 
 <script type="module">
  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getStorage, ref, getMetadata } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
     // Your web app's Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
@@ -184,26 +254,95 @@ onSnapshot(q, (snapshot) => {
 snapshot.forEach(doc => {
   const data = doc.data();
   
-  
-const timestamp = data.timestamp ? data.timestamp.toDate().toLocaleString() : "No Timestamp Available";
+
+const timestamp = data.requestedOn ? data.requestedOn.toDate().toLocaleString() : "No Timestamp Available";
 const rowData = [doc.id, data.requestType, timestamp, data.status];
     const rowElement = document.createElement("tr");
+      console.log("userid is: " + data.userId);
    rowElement.innerHTML = `
                 <td>${doc.id}</td>
                 <td>${data.userName}</td>
                 <td>${data.userSurname}</td>
                 <td>${data.requestType}</td>
-                 <td>${data.amount}</td>
-                <td>${timestamp}</td>
+                 <td>${timestamp}</td>
+                <td>${data.amount}</td>
         <td>${data.type}</td>
                 <td>${data.status}</td>
-                
-                
+         
+      <td id="beneficiariesColumn">
+</td>
                 <td>
-                    <button class="approve-btn" data-userName="${data.userName}" data-userSurname="${data.userSurname}" data-amount="${data.amount}" data-coverage="${data.coverage}" data-id="${doc.id}" data-type="${data.type}" data-requestType="${data.requestType}">Approve</button>
-                    <button class="deny-btn" data-id="${doc.id}">Deny</button>
+                    <button class="approve-btn" data-userName="${data.userName}" data-userId="${data.userId}" data-userSurname="${data.userSurname}" data-amount="${data.amount}" data-coverage="${data.coverage}" data-id="${doc.id}" data-type="${data.type}" data-requestType="${data.requestType}">Approve</button>
+                    <button class="deny-btn" data-userId="${data.userId}" data-id="${doc.id}">Deny</button>
                 </td>
+                    
             `;
+        
+    // Populate beneficiariesColumn
+    const beneficiariesCell = rowElement.querySelector("#beneficiariesColumn");
+    beneficiariesCell.innerHTML = ''; // Clear previous contents if any
+
+    if (data.beneficiaries && data.beneficiaries.length > 0) {
+        data.beneficiaries.forEach(beneficiary => {
+            beneficiariesCell.innerHTML += `
+                <div>
+                    <strong>Name:</strong> ${beneficiary.name}<br>
+                    <strong>Relationship:</strong> ${beneficiary.relationship}<br>
+                    <strong>Contact:</strong> ${beneficiary.contact}<br>
+                    <strong>Document:</strong> <button class="view-document" data-url="${beneficiary.documentUrl}">View</button>
+                </div><br>
+            `;
+        });
+
+        // Add event listener to each document button within the beneficiariesCell
+        const viewDocumentButtons = beneficiariesCell.querySelectorAll('.view-document');
+        viewDocumentButtons.forEach(button => {
+            button.addEventListener("click", async () => {
+                const url = button.getAttribute("data-url"); // Get the URL from the button's data attribute
+                const fileType = await getFileType(url); // Get the file type from the URL
+                if (fileType) {
+                    openDocumentModal(url, fileType); // Open modal with the document URL and type
+                } else {
+                    console.error("File type could not be determined.");
+                }
+            });
+        });
+    } else {
+        beneficiariesCell.textContent = 'No Beneficiaries';
+    }
+           if (data.documents) {
+            const documentsCell = document.createElement("td");
+
+            // Loop through the documents object and create clickable links
+            for (const [key, url] of Object.entries(data.documents)) {
+                              
+                const documentLink = document.createElement("button");
+                documentLink.textContent = `${key} (View)`;
+                  const fileType = getFileType(url); // Get file type
+                  console.log("file type is " + getFileType(url).toString());
+                                   
+                documentLink.style.display = "block"; // Make each link display on a new line
+                 documentLink.addEventListener("click", async () => {
+                try {
+                    const fileType = await getFileType(url); // Get file type
+                    if (fileType) {
+                        openDocumentModal(url, fileType); // Open modal
+                    } else {
+                        console.error("File type could not be determined.");
+                    }
+                } catch (error) {
+                    console.error("Error opening document:", error);
+                }
+            });
+                documentsCell.appendChild(documentLink);
+            }
+            
+            // Append the documents cell to the row
+            rowElement.appendChild(documentsCell);
+        } else {
+            rowElement.innerHTML += '<td>No Documents Uploaded</td>';
+        }
+    
 requestList.appendChild(rowElement);
   // Loop through each cell in the rowData array
 
@@ -213,6 +352,65 @@ requestList.appendChild(rowElement);
   console.log(rowData);
   console.log(doc.id, " => ", doc.data());
   });
+});
+
+  async function getFileType(fileUrl) {
+    const storage = getStorage();
+    const fileRef = ref(storage, fileUrl);
+let fileType = null;
+    try {
+        const metadata = await getMetadata(fileRef);
+        fileType = metadata.contentType; // This gives you the file type
+        console.log("File Type:", fileType);
+        
+    
+    return fileType;
+    } catch (error) {
+        console.error("Error fetching metadata:", error);
+    }
+}
+
+function openDocumentModal(url, fileType) {
+    const modal = document.getElementById("documentModal");
+    const iframe = document.getElementById("documentFrame");
+    const imageDisplay = document.getElementById("imageDisplay"); // For images
+
+    if (fileType === 'application/pdf') {
+        // Show the PDF in the iframe
+        iframe.src = url;
+        iframe.style.display = "block"; // Ensure iframe is visible
+        imageDisplay.style.display = "none"; // Hide image display
+    } else if (fileType === 'image/jpeg' || fileType === 'image/png') {
+        // For images, show the image instead of the iframe
+        imageDisplay.src = url;
+        imageDisplay.style.display = "block"; // Ensure image is visible
+        iframe.style.display = "none"; // Hide the iframe
+    } else {
+        // If file type is unsupported, show a download button instead
+        alert('This file type cannot be displayed. Click OK to download the file.');
+        window.open(url, '_blank'); // Force download
+    }
+
+    modal.style.display = "block"; // Show the modal
+}
+
+
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById("documentModal");
+    modal.style.display = "none";
+}
+
+// Add event listener to close the modal when clicking the "X"
+document.querySelector(".close").addEventListener("click", closeModal);
+
+// Add event listener to close the modal when clicking outside of the content
+window.addEventListener("click", function(event) {
+    const modal = document.getElementById("documentModal");
+    if (event.target === modal) {
+        closeModal();
+    }
 });
          document.getElementById("requestList").addEventListener("click", async (e) => {
             console.log("you are here now 1");
@@ -224,11 +422,22 @@ requestList.appendChild(rowElement);
                 const type = e.target.getAttribute("data-type");
                 const userName = e.target.getAttribute("data-userName");
                 const userSurname = e.target.getAttribute("data-userSurname");
+                const userId = e.target.getAttribute("data-userId");
+                const coverage = e.target.getAttribute("data-coverage");
                 console.log("request type is: " + requestType);
                 await updateDoc(doc(db, "Requests", requestId), {
-                    status: "Approved"
+                    status: "Approved",
+                    approvedOn: new Date()
                     
                 });
+const notifyUser = async (userId, requestType) => {
+    await addDoc(collection(db, "notifications"), {
+        userId: userId,
+        message: `Your ${requestType} request has been approved.`,
+        timestamp: new Date(),
+        read: false // Mark as unread initially
+    });
+};
 
                 if (requestType === "Loan") {
                     await addDoc(collection(db, "User Loans"), {
@@ -238,16 +447,35 @@ requestList.appendChild(rowElement);
                         originalAmount: dataAmount1, 
                         name: userName,
                         surname: userSurname,
+                        userId: userId,
+                        approvedOn: new Date(),
                         status: "Approved"
                         // Add other relevant fields here
+                        
                     });
+                    await notifyUser(userId, requestType);
                 } else if (requestType === "Funeral Policy") {
+                     const requestDoc = await getDoc(doc(db, "Requests", requestId)); // Fetch the request document
+    if (requestDoc.exists()) {
+        const requestData = requestDoc.data();
+        const beneficiaries = requestData.beneficiaries;
+        console.log(beneficiaries);
+    // Get beneficiaries from the request
                     await addDoc(collection(db, "Users Policies"), {
                         requestId: requestId,
                         type: type,
-                        status: "Approved"
+                        name: userName,
+                        userId: userId,
+                        surname: userSurname,
+                        payment: dataAmount1,
+                        beneficiaries: beneficiaries,
+                        status: "Approved",
+                        coverage: requestData.coverage,
+                        approvedOn: new Date()
                         // Add other relevant fields here
                     });
+                    await notifyUser(userId, requestType);
+                }
                 }
                 
                 // Optional: Refresh the page or update the row
@@ -255,16 +483,45 @@ requestList.appendChild(rowElement);
              
             }
 
-            if (e.target.classList.contains("deny-btn")) {
-                const requestId = e.target.getAttribute("data-id");
+          if (e.target.classList.contains("deny-btn")) {
+                              const userId = e.target.getAttribute("data-userId");
+        const requestId = e.target.getAttribute("data-id");
+        const modal = document.getElementById("denyReasonModal");
+        const closeModalButton = document.getElementById("closeDenyReasonModal");
+        const denialReasonInput = document.getElementById("denialReasonInput");
+        
+        // Show the modal
+        modal.style.display = "block";
 
+        closeModalButton.onclick = function () {
+            modal.style.display = "none";
+            denialReasonInput.value = ''; // Clear the input
+        };
+
+        document.getElementById("submitDenialReason").onclick = async function () {
+            const denialReason = denialReasonInput.value.trim();
+            if (denialReason) {
                 await updateDoc(doc(db, "Requests", requestId), {
-                    status: "Denied"
+                    status: "Denied",
+                    reason: denialReason, // Store the reason in Firestore
+                    deniedOn: new Date()
                 });
 
-                // Optional: Refresh the page or update the row
+                // Notify the user
+                await addDoc(collection(db, "notifications"), {
+                    userId: userId, // User ID to notify
+                    message: `Your request with ID ${requestId} has been denied. Reason: ${denialReason}`,
+                    timestamp: new Date()
+                });
+console.log("Notifying user with ID:", userId);
+
                 e.target.parentElement.parentElement.querySelector("td:nth-child(5)").textContent = "Denied";
+                modal.style.display = "none"; // Close the modal
+            } else {
+                alert("Denial reason is required.");
             }
+        };
+    }
         });
 }
 } 

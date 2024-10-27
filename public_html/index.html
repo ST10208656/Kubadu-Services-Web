@@ -105,8 +105,9 @@
                 <a href="manageFuneralPolicies.html" id="manage-funeral-policies-btn">Manage Funeral Policies</a>
                 <a href="manageLoans.html" id="manage-loans-btn">Manage Loans</a>
                 
- <a href="manageRequest.html" id="manage-claims-btn">Manage Requests</a>
+ <a href="manageRequest.html" id="manage-request-btn">Manage Requests</a>
                 <a href="manageUsers.html" id="manage-users-btn">Manage Users</a>
+                  <a href="manageClaims.html" id="manage-claims-btn">Manage Claims</a>
             </div>
             <!-- Dashboard Overview Section -->
             <section id="dashboard-overview">
@@ -120,16 +121,13 @@
                         <h3>Pending Requests</h3>
                         <p id="pending-requests-count">0</p>
                     </div>
-                    <div class="card">
-                        <h3>Completed Payments</h3>
-                        <p id="completed-payments-count">0</p>
-                    </div>
+                 
                     <div class="card">
                         <h3>Active Funeral Policies</h3>
                         <p id="active-funeral-policies-count">0</p>
                     </div>
                     <div class="card">
-                        <h3>Pending Loans</h3>
+                        <h3>Active Loans</h3>
                         <p id="pending-loans-count">0</p>
                     </div>
                  
@@ -145,7 +143,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
@@ -171,41 +169,55 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
-const userQuery = query(collection(db, "Customers"));
-const userSnapshot = await getDocs(userQuery);
+// Initialize counts
+let activeUsers = 0;
+let pendingRequests = 0;
+let activeFuneralPolicies = 0;
+let pendingLoans = 0;
 
-const requestsQuery = query(collection(db, "Requests"));
-const requestsSnapshot = await getDocs(requestsQuery);
-
-const policiesQuery = query(collection(db, "Users Policies"));
-const policiesSnapshot = await getDocs(policiesQuery);
-
-const requestsLoanQuery = query(collection(db, "Requests"), where("status", "==", "pending"), where("requestType", "==", "Loan"));
-
-const requestsLoanSnapshot = await getDocs(requestsLoanQuery);
-if(userSnapshot && requestsSnapshot && policiesSnapshot){
-console.log(userSnapshot);
-
-            // Fetch the data (dummy data for demonstration)
-            const activeUsers = userSnapshot.size;
-            const pendingRequests = requestsSnapshot.size;
-            const completedPayments = 67;
-            const activeFuneralPolicies = policiesSnapshot.size;
-            const pendingLoans = requestsLoanSnapshot.size;
-         
-
-            // Update the dashboard counts
-            document.getElementById('active-users-count').textContent = activeUsers;
-            document.getElementById('pending-requests-count').textContent = pendingRequests;
-            document.getElementById('completed-payments-count').textContent = completedPayments;
-            document.getElementById('active-funeral-policies-count').textContent = activeFuneralPolicies;
-            document.getElementById('pending-loans-count').textContent = pendingLoans;
-            
-      
-    
+// Function to update dashboard counts
+function updateDashboardCounts() {
+    document.getElementById('active-users-count').textContent = activeUsers;
+    document.getElementById('pending-requests-count').textContent = pendingRequests;
+    document.getElementById('active-funeral-policies-count').textContent = activeFuneralPolicies;
+    document.getElementById('pending-loans-count').textContent = pendingLoans;
 }
-        // Example data fetching and updating the dashboard counts
-       
+
+// Set up listeners for real-time updates
+function setupDashboardListeners() {
+    const userQuery = query(collection(db, "Customers"));
+    const requestsQuery = query(collection(db, "Requests"), where("status", "==", "Pending"));
+    const policiesQuery = query(collection(db, "Users Policies"), where("status", "==", "Approved"));
+    const requestsLoanQuery = query(collection(db, "Requests"), where("status", "==", "Approved"), where("requestType", "==", "Loan"));
+console.log(requestsLoanQuery);
+    // Listen for user count
+    onSnapshot(userQuery, (userSnapshot) => {
+        activeUsers = userSnapshot.size; // Update activeUsers
+        updateDashboardCounts(); // Call update function
+    });
+
+    // Listen for pending requests count
+    onSnapshot(requestsQuery, (requestsSnapshot) => {
+        pendingRequests = requestsSnapshot.size; // Update pendingRequests
+        updateDashboardCounts(); // Call update function
+    });
+
+    // Listen for active funeral policies count
+    onSnapshot(policiesQuery, (policiesSnapshot) => {
+        activeFuneralPolicies = policiesSnapshot.size; // Update activeFuneralPolicies
+        updateDashboardCounts(); // Call update function
+    });
+
+    // Listen for pending loans count
+    onSnapshot(requestsLoanQuery, (requestsLoanSnapshot) => {
+        pendingLoans = requestsLoanSnapshot.size; // Update pendingLoans
+        updateDashboardCounts(); // Call update function
+    });
+}
+
+// Call the function to set up listeners
+setupDashboardListeners();
+
     </script>
 </body>
 </html>

@@ -133,10 +133,28 @@
             border-radius: 5px;
             cursor: pointer;
         }
+         footer {
+            background-color: #004AAD;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            border-top: #00C04B 3px solid;
+        }
 
         .add-loan-form button:hover {
             background-color: #00BF63;
         }
+        .edit-form input, .edit-form textarea {
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+}
+
+.edit-form button {
+    padding: 8px 12px;
+    margin-top: 10px;
+}
+
     </style>
 </head>
 <body>
@@ -157,6 +175,21 @@
                     <input type="number" id="loan-amount" name="loan-amount" required><br><br>
                     <label for="loan-interest-rate">Interest Rate:</label>
                     <input type="number" step="0.01" id="loan-interest-rate" name="loan-interest-rate" required><br><br>
+                     <label for="loan-duration">Loan Duration (Months):</label>
+        <input type="number" id="loan-duration" name="loan-duration" min="1" max="60" required><br><br>
+
+        <h3>Select Required User Information:</h3>
+        <input type="checkbox" id="require-id" name="require-id">
+        <label for="require-id">National ID/Passport</label><br>
+
+        <input type="checkbox" id="require-proof-address" name="require-proof-address">
+        <label for="require-proof-address">Proof of Address</label><br>
+
+        <input type="checkbox" id="require-income" name="require-income">
+        <label for="require-income">Proof of Income</label><br>
+
+        <input type="checkbox" id="require-bank-statement" name="require-bank-statement">
+        <label for="require-bank-statement">Bank Statement</label><br><br>
                     <button type="submit">Add Loan</button>
                 </form>
             </div>
@@ -166,9 +199,17 @@
                     <!-- Data will be dynamically populated here -->
                 </div>
             </div>
+            
             <div class="card">
                 <h2>Users with Active Loans</h2>
                 <div class="filter-container">
+                         <select id="sort-select" onchange="filterUsersLoans()">
+    <option value="default">Default</option>
+    <option value="asc">Ascending (A-Z)</option>
+    <option value="desc">Descending (Z-A)</option>
+    <option value="newest">Newest</option>
+    <option value="oldest">Oldest</option>
+</select>
                     <label for="search-input">Search:</label>
                     <input type="text" id="search-input" placeholder="Search by user name...">
                     <label for="filter-select">Filter by Loan Plan:</label>
@@ -182,11 +223,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>User</th>
-                            <th>Loan Plan</th>
-                            <th>Loan Amount</th>
-                            <th>Remaining Balance</th>
-                            <th>Status</th>
+                            <th>Name</th>
+                            <th>Loan ID</th>
+                            <th>Loan Type</th>
+                            <th>Approved On</th>
+                            <th>Progress</th>
+                            <th>Make Payment</th>
                         </tr>
                     </thead>
                     <tbody id="usersLoansList">
@@ -204,7 +246,7 @@
 
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, query, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFirestore, onSnapshot, collection, addDoc, getDocs, getDoc, query, updateDoc, doc, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   // Your web app's Firebase configuration
   const firebaseConfig = {
@@ -237,13 +279,24 @@ document.addEventListener("DOMContentLoaded", function() {
         const loanType = document.getElementById("loan-type").value;
         const loanAmount = document.getElementById("loan-amount").value;
         const loanInterestRate = document.getElementById("loan-interest-rate").value;
-
+const loanDuration = document.getElementById("loan-duration").value;
+        const requireId = document.getElementById("require-id").checked;
+        const requireProofAddress = document.getElementById("require-proof-address").checked;
+        const requireIncome = document.getElementById("require-income").checked;
+        const requireBankStatement = document.getElementById("require-bank-statement").checked;
         try {
             // Add loan to Firestore
             await addDoc(loansCollection, {
                 loanType: loanType,
                 loanAmount: parseFloat(loanAmount),
                 loanInterestRate: parseFloat(loanInterestRate),
+                 loanDuration: parseInt(loanDuration),
+                requirements: {
+                    requireId: requireId,
+                    requireProofAddress: requireProofAddress,
+                    requireIncome: requireIncome,
+                    requireBankStatement: requireBankStatement
+                },
                 timestamp: new Date()
             });
             alert("Loan added successfully!");
@@ -252,35 +305,173 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error("Error adding loan: ", error);
         }
     });
-    
-    // Load loans when the page is loaded
-    loadLoans();
+   
 });
 
    
         
             
         
-      
-      
-        // Function to load existing loans
-        async function loadLoans() {
-            const loansList = document.getElementById("loans-list");
-            loansList.innerHTML = "";  // Clear existing loans
 
-            const querySnapshot = await getDocs(loansCollection);
+// Function to load existing loans
+async function loadLoans() {
+    const loansList = document.getElementById("loans-list");
+    loansList.innerHTML = "";  // Clear existing loans
 
+    try {
+        const querySnapshot = await getDocs(loansCollection);  // Fetch documents from Firestore
+
+        if (querySnapshot.empty) {
+            loansList.innerHTML = "<p>No loans available.</p>";
+        } else {
             querySnapshot.forEach((doc) => {
                 const loanData = doc.data();
+                const loanId = doc.id;
+
+                // Create a new div element to hold the loan details
                 const loanItem = document.createElement("div");
+                loanItem.classList.add("loan-item"); // Add a CSS class for styling
+
+                // Populate the div with loan data and Edit/Delete buttons
                 loanItem.innerHTML = `
                     <strong>${loanData.loanType}</strong><br>
                     Amount: R${loanData.loanAmount}<br>
-                    Interest Rate: ${loanData.loanInterestRate}%<br><br>
+                    Interest Rate: ${loanData.loanInterestRate}%<br>
+                    Duration: ${loanData.loanDuration} months<br>
+                    Requirements: ${getRequirementsText(loanData.requirements)}<br>
+                    <button onclick="editLoan('${loanId}')">Edit</button>
+                    <button onclick="deleteLoan('${loanId}')">Delete</button><br><br>
                 `;
+
+                // Append the loanItem to the loansList
                 loansList.appendChild(loanItem);
             });
         }
+    } catch (error) {
+        console.error("Error loading loans: ", error);
+        loansList.innerHTML = "<p>Error loading loans.</p>";
+    }
+}
+
+// Function to edit an existing loan
+// Function to approve a claim
+ window.editLoan = async function (loanId) {
+    const loanDoc = await getDoc(doc(loansCollection, loanId));
+    if (loanDoc.exists()) {
+        const loanData = loanDoc.data();
+  // Process requirements data
+          const requirementsText = Object.entries(loanData.requirements)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join("\n");
+
+        // Create a form with current loan values pre-filled
+        const editForm = document.createElement("div");
+        editForm.classList.add("edit-form");
+        editForm.innerHTML = `
+            <input type="text" id="edit-loanType" value="${loanData.loanType}" placeholder="Loan Type">
+            <input type="number" id="edit-loanAmount" value="${loanData.loanAmount}" placeholder="Loan Amount">
+            <input type="number" id="edit-loanInterestRate" value="${loanData.loanInterestRate}" placeholder="Interest Rate">
+            <input type="number" id="edit-loanDuration" value="${loanData.loanDuration}" placeholder="Duration (months)">
+            <textarea id="edit-requirements">${requirementsText}</textarea>
+            <button onclick="saveLoan('${loanId}')">Save</button>
+        `;
+
+        document.getElementById("loans-list").appendChild(editForm); // Append form to loansList
+    }
+};
+
+// Function to save the edited loan
+window.saveLoan = async function (loanId) {
+    const updatedLoan = {
+        loanType: document.getElementById("edit-loanType").value,
+        loanAmount: parseFloat(document.getElementById("edit-loanAmount").value),
+        loanInterestRate: parseFloat(document.getElementById("edit-loanInterestRate").value),
+        loanDuration: parseInt(document.getElementById("edit-loanDuration").value, 10),
+        requirements: document.getElementById("edit-requirements").value.split("\n").reduce((acc, line) => {
+            const [key, value] = line.split(":").map(item => item.trim());
+            acc[key] = value === "true";
+            return acc;
+        }, {})
+    };
+
+    try {
+        await updateDoc(doc(loansCollection, loanId), updatedLoan);
+        alert("Loan updated successfully!");
+        loadLoans();  // Refresh the loans list
+    } catch (error) {
+        console.error("Error updating loan: ", error);
+    }
+};
+
+// Function to delete a loan
+window.deleteLoan = async function (loanId) {
+    try {
+        await deleteDoc(doc(loansCollection, loanId));
+        alert("Loan deleted successfully!");
+        loadLoans();  // Refresh the loans list
+    } catch (error) {
+        console.error("Error deleting loan: ", error);
+    }
+};
+
+// Function to populate loan types from Firestore
+async function loadLoanTypes() {
+    const filterSelect = document.getElementById('filter-select');
+    filterSelect.innerHTML = ''; // Clear existing options
+
+    // Add 'All' as the default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'all';
+    defaultOption.textContent = 'All';
+    filterSelect.appendChild(defaultOption);
+
+    try {
+        const loanTypes = new Set(); // Use a Set to avoid duplicate loan types
+        const querySnapshot = await getDocs(loansCollection);
+
+        querySnapshot.forEach((doc) => {
+            const loanData = doc.data();
+            if (loanData.loanType) {
+                loanTypes.add(loanData.loanType);
+            }
+        });
+
+        // Add loan types to the select dropdown
+        loanTypes.forEach((type) => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            filterSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error('Error loading loan types:', error);
+    }
+}
+
+// Call this function when the page loads
+loadLoanTypes();
+
+// Helper function to display the user information requirements
+function getRequirementsText(requirements) {
+    let requirementList = [];
+
+    if (requirements.requireId) {
+        requirementList.push("National ID/Passport");
+    }
+    if (requirements.requireProofAddress) {
+        requirementList.push("Proof of Address");
+    }
+    if (requirements.requireIncome) {
+        requirementList.push("Proof of Income");
+    }
+    if (requirements.requireBankStatement) {
+        requirementList.push("Bank Statement");
+    }
+
+    return requirementList.length > 0 ? requirementList.join(", ") : "None";
+}
+
 
       
 const usersLoans = []; // Array to store loans fetched from Firebase
@@ -289,48 +480,67 @@ window.onload = function() {
     loadLoansFromFirebase(); // Call your function when the window finishes loading
     loadLoans();
 };
-
 // Function to load loans from Firebase and display progress
-async function loadLoansFromFirebase() {
+function loadLoansFromFirebase() {
     console.log("Starting to load loans from Firebase...");
     const q = query(collection(db, "User Loans"));
-    const querySnapshot = await getDocs(q);
-    usersLoans.length = 0; // Clear existing loans array
- if (querySnapshot.empty) {
+
+    // Use onSnapshot for real-time updates
+    onSnapshot(q, (querySnapshot) => {
+        usersLoans.length = 0; // Clear existing loans array
+
+        if (querySnapshot.empty) {
             console.log("No documents found in 'User Loans'");
+            populateUsersLoans(usersLoans); // Ensure the table is populated with no loans
+            return; // Exit early if no documents
         }
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        console.log(data);
-        const totalAmount = parseFloat(data.originalAmount);
-        const remainingAmount = parseFloat(data.dataAmount);
-        const progress = ((totalAmount - remainingAmount) / totalAmount) * 100;
 
-        usersLoans.push({
-            user: data.name + " " + data.surname|| 'Unknown',
-            plan: data.type,
-            amount: totalAmount,
-            remaining: remainingAmount,
-            status: progress >= 100 ? 'Completed' : 'Active',
-            progress: Math.min(progress, 100), // Ensure progress doesn't exceed 100%
-             docId: doc.id 
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            console.log(data);
+
+            const totalAmount = parseFloat(data.originalAmount);
+            const remainingAmount = parseFloat(data.dataAmount);
+            const progress = ((totalAmount - remainingAmount) / totalAmount) * 100;
+            const date = new Date(data.approvedOn.seconds * 1000);
+
+            usersLoans.push({
+                user: data.name + " " + data.surname || 'Unknown',
+                userId: data.userId,
+                plan: data.type,
+                amount: totalAmount,
+                approvedOn: date,
+                remaining: remainingAmount,
+                status: progress >= 100 ? 'Completed' : 'Active',
+                progress: Math.min(progress, 100), // Ensure progress doesn't exceed 100%
+                docId: doc.id 
+            });
         });
-    });
 
-    populateUsersLoans(usersLoans); // Populate the loans table
+        populateUsersLoans(usersLoans); // Populate the loans table
+    }, (error) => {
+        console.error("Error loading loans from Firebase: ", error);
+    });
 }
+
 
 // Function to populate the loan table
 function populateUsersLoans(loans) {
     let docId = null;
     const usersLoansList = document.getElementById('usersLoansList');
     usersLoansList.innerHTML = ''; // Clear existing data
+    
+      if (loans.length === 0) {
+       usersLoansList.innerHTML = 'No loans available.';
+        return; // Exit if no policies
+    }
     loans.forEach(loan => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${loan.user}</td>
+            <td>${loan.docId}</td>
             <td>${loan.plan}</td>
-            <td>R${loan.amount}</td>
+             <td>${loan.approvedOn}</td>
             <td>
                 <div class="progress-container">
                     <div class="progress-bar" style="width: ${loan.progress}%; ${loan.progress === 100 ? 'background-color: #00BF63;' : ''}"></div>
@@ -339,9 +549,9 @@ function populateUsersLoans(loans) {
             </td>
              <td>
                 Paid: <input class="amountInput" type="number" min="0" />
-                <button class="submitButton" data-doc-id="${loan.docId}" data-original-amount="${loan.amount}">Submit</button>
+                <button class="submitButton" data-doc-id="${loan.docId}" data-userId="${loan.userId}" data-original-amount="${loan.amount}">Submit</button>
             </td>
-            <td>${loan.status}</td>`;
+            `;
         usersLoansList.appendChild(row);
         docId = loan.docId;
     });
@@ -353,6 +563,7 @@ function attachSubmitButtonListeners() {
     submitButtons.forEach(button => {
         button.addEventListener('click', async (e) => {
             const docId = e.target.getAttribute('data-doc-id');
+            const userId = e.target.getAttribute('data-userId');
             console.log(docId);
             const originalAmount = parseFloat(e.target.getAttribute('data-original-amount'));
             const inputElement = e.target.previousElementSibling;
@@ -374,15 +585,30 @@ function attachSubmitButtonListeners() {
                 paymentsSnapshot.forEach((paymentDoc) => {
                     const paymentData = paymentDoc.data();
                     totalPayments += parseFloat(paymentData.Paid);
+                    
                 });
 
                 const remainingBalance = originalAmount - totalPayments;
                 console.log("Remaining balance:", remainingBalance);
 
-                await updateDoc(doc(db, "User Loans", docId), {
-                    dataAmount: remainingBalance
-                });
+      if (remainingBalance <= 0) {
+                    const extraPayment = Math.abs(remainingBalance);
+                    alert(`Extra payment of R${extraPayment} recorded. This will be added to your wallet.`);
 
+                    // Set the dataAmount to zero since balance cannot be negative
+                    await updateDoc(doc(db, "User Loans", docId), {
+                        dataAmount: 0,
+                        status: 'Completed'                      
+                    });
+                    
+                } else {
+                    await updateDoc(doc(db, "User Loans", docId), {
+                        dataAmount: remainingBalance
+                    });
+                }
+    
+
+ await updateWalletBalance(userId);
                 // Reload the loans to reflect the updated amounts
                 loadLoansFromFirebase();
             } else {
@@ -391,7 +617,128 @@ function attachSubmitButtonListeners() {
         });
     });
 }
+async function updateWalletBalance(userId) {
+    console.log("User ID is: " + userId);
+    let totalRemainingBalance = 0;
+    let remainingBalance = 0; // For loans
+    let remainingBalance1 = 0; // For policies
 
+    // Step 1: Query all loans for the user
+    const loansQuery = query(collection(db, "User Loans"), where("userId", "==", userId));
+    const loansSnapshot = await getDocs(loansQuery);
+
+    // Step 2: Loop through each loan to calculate the remaining balance
+    for (const loanDoc of loansSnapshot.docs) {
+        const loanData = loanDoc.data();
+        const originalAmount = parseFloat(loanData.originalAmount);
+
+        // Step 3: Calculate total payments for each loan
+        const paymentsQuery = query(collection(db, "User Loans", loanDoc.id, "Payments"));
+        const paymentsSnapshot = await getDocs(paymentsQuery);
+        let totalPayments = 0;
+
+        paymentsSnapshot.forEach((paymentDoc) => {
+            const paymentData = paymentDoc.data();
+            if (paymentData.Paid) {
+                totalPayments += parseFloat(paymentData.Paid);
+            }
+        });
+
+        // Calculate remaining balance for this loan
+        remainingBalance = originalAmount - totalPayments;
+        alert("Remaining balance for loan is: " + remainingBalance);
+
+        // Accumulate the remaining balance for loans
+        totalRemainingBalance += remainingBalance;
+    }
+alert("total remaining baalnce 0n is: " + totalRemainingBalance);
+    // Step 4: Query all policies for the user
+    const policiesQuery = query(collection(db, "Users Policies"), where("userId", "==", userId));
+    const policiesSnapshot = await getDocs(policiesQuery);
+
+    // Step 5: Loop through each policy to calculate the remaining balance
+    for (const policyDoc of policiesSnapshot.docs) {
+        const policyData = policyDoc.data();
+        const originalAmount = parseFloat(policyData.payment); // assuming 'payment' is the total original amount
+
+        // Step 6: Calculate total payments for each policy
+        const policyPaymentsQuery = query(collection(db, "Users Policies", policyDoc.id, "Payments"));
+        const policyPaymentsSnapshot = await getDocs(policyPaymentsQuery);
+        let totalPolicyPayments = 0;
+
+        policyPaymentsSnapshot.forEach((paymentDoc) => {
+            const paymentData = paymentDoc.data();
+            if (paymentData.status === "Paid") {
+                totalPolicyPayments += parseFloat(paymentData.amount);
+            }
+        });
+
+        // Calculate remaining balance for this policy
+        remainingBalance1 = originalAmount - totalPolicyPayments;
+        alert("Remaining balance for policy is: " + remainingBalance1);
+
+        // Accumulate the remaining balance for policies
+        totalRemainingBalance += remainingBalance1;
+    }
+    console.log(totalRemainingBalance + "remainging balance");
+
+    alert("Final total remaining balance is: " + totalRemainingBalance);
+
+    // Step 7: Check if there's an extra payment (negative remaining balance)
+    if (totalRemainingBalance < 0) {
+        const extraPayment = Math.abs(totalRemainingBalance);
+        alert('Extra payment is: ' + extraPayment);
+
+        // Step 8: Update the user's wallet with the extra payment
+        const userDocRef = doc(db, "Customers", userId);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const currentWalletBalance = userDocSnap.data().walletBalance || 0;
+            await updateDoc(userDocRef, {
+                walletBalance: extraPayment // Add to existing wallet balance
+            });
+
+            console.log("Wallet updated with extra payment:", extraPayment);
+        }
+    } else {
+        console.log("No extra payment. Remaining balance is positive or zero.");
+    }
+}
+
+// Function to filter and sort user policies
+ window.filterUsersLoans = function () {
+    console.log("Filtering and sorting user policies");
+
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const filterType = document.getElementById('filter-select').value;
+    const sortOption = document.getElementById('sort-select').value;
+
+    // Step 1: Filter policies by search term and filter type
+    let filteredLoans = usersLoans.filter(loan => {
+        const matchesSearchTerm = loan.user.toLowerCase().includes(searchTerm);
+        const matchesFilterType = filterType === 'all' || loan.plan === filterType;
+        return matchesSearchTerm && matchesFilterType;
+    });
+
+    // Step 2: Sort policies based on the selected sorting option
+    filteredLoans = filteredLoans.sort((a, b) => {
+        if (sortOption === "asc") {
+            return a.users.localeCompare(b.users);
+        } else if (sortOption === "desc") {
+            return b.users.localeCompare(a.users);
+        } else if (sortOption === "newest") {
+            return new Date(b.approvedOn) - new Date(a.approvedOn); // Assume 'startDate' exists
+        } else if (sortOption === "oldest") {
+            return new Date(a.approvedOn) - new Date(b.approvedOn); // Assume 'startDate' exists
+        } else {
+            return 0; // No sorting
+        }
+    });
+
+    // Step 3: Update the displayed table
+    populateUsersLoans(filteredLoans); // Update the displayed table
+};
 // Function to filter loans by search term and loan type
 function filterUsersLoans() {
     const searchTerm = document.getElementById('search-input').value.toLowerCase();

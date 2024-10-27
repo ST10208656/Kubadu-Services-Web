@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Claims - Kubadu Services</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <style>
+     <style>
         /* Basic CSS reset */
         * {
             margin: 0;
@@ -116,6 +116,13 @@
         .back-button:hover {
             background-color: #003580;
         }
+        footer {
+            background-color: #004AAD;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            border-top: #00C04B 3px solid;
+        }
     </style>
 </head>
 <body>
@@ -143,9 +150,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>User</th>
+                            <th>Beneficiary</th>
                             <th>Claim Amount</th>
                             <th>Status</th>
+                             <th>Death Certificate</th>
+                            <th>Actions</th> <!-- Added Actions column -->
                         </tr>
                     </thead>
                     <tbody id="users-claims-list">
@@ -160,56 +169,114 @@
             <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
         </div>
     </footer>
-    <script>
-        // Dummy data for demonstration
-        const existingClaims = [
-            { user: 'John Doe', amount: 'R10000', status: 'Pending' },
-            { user: 'Jane Smith', amount: 'R15000', status: 'Approved' },
-            { user: 'Bob Johnson', amount: 'R5000', status: 'Denied' }
-        ];
+  
+<script type="module">
+ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+ import { getFirestore, collection, updateDoc, onSnapshot, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-        // Function to populate users claims table
-        function populateUsersClaims() {
-            const usersClaimsList = document.getElementById('users-claims-list');
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch claims from Firestore
+    async function fetchClaims() {
+        const usersClaimsList = document.getElementById('users-claims-list');
+        usersClaimsList.innerHTML = ''; // Clear existing data
+
+        const unsubscribe = onSnapshot(collection(db, "Claims"), (querySnapshot) => {
+               const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const filterValue = document.getElementById('filter-select').value;
             usersClaimsList.innerHTML = ''; // Clear existing data
-            existingClaims.forEach(claim => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${claim.user}</td>
-                    <td>${claim.amount}</td>
-                    <td>${claim.status}</td>`;
-                usersClaimsList.appendChild(row);
+
+            querySnapshot.forEach(doc => {
+                const claim = doc.data();
+                            const beneficiaryName = claim.beneficiaryName ? claim.beneficiaryName.toLowerCase() : '';
+                const matchesSearch = beneficiaryName.includes(searchInput);
+                const matchesFilter = filterValue === "all" || claim.status === filterValue;
+
+               if (matchesSearch && matchesFilter) {
+                   
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${claim.beneficiaryName}</td>
+                        <td>${claim.coverage}</td>
+                        <td>${claim.status || "Pending"}</td>
+                            <td><a href="${claim.deathCertificate}" target="_blank">View Certificate</a></td>
+                        <td>
+                            <button onclick="approveClaim('${doc.id}', '${claim.userId}')">Approve</button>
+                            <button onclick="rejectClaim('${doc.id}')">Reject</button>
+                        </td>
+                    `;
+                    usersClaimsList.appendChild(row);
+                }
             });
-        }
 
-        // Function to filter users claims
-        function filterUsersClaims() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filterType = document.getElementById('filter-select').value;
-            const filteredClaims = existingClaims.filter(claim => {
-                const matchesSearchTerm = claim.user.toLowerCase().includes(searchTerm);
-                const matchesFilterType = filterType === 'all' || claim.status === filterType;
-                return matchesSearchTerm && matchesFilterType;
+            // Attach event listeners to buttons
+            document.querySelectorAll('.approve-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    approveClaim(button.dataset.id);
+                });
             });
 
-            const usersClaimsList = document.getElementById('users-claims-list');
-            usersClaimsList.innerHTML = ''; // Clear existing data
-            filteredClaims.forEach(claim => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${claim.user}</td>
-                    <td>${claim.amount}</td>
-                    <td>${claim.status}</td>`;
-                usersClaimsList.appendChild(row);
+            document.querySelectorAll('.reject-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    rejectClaim(button.dataset.id);
+                });
             });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            populateUsersClaims();
-
-            document.getElementById('search-input').addEventListener('input', filterUsersClaims);
-            document.getElementById('filter-select').addEventListener('change', filterUsersClaims);
+        }, (error) => {
+            console.error("Error fetching claims: ", error);
         });
-    </script>
+    }
+
+    // Event listener for search input
+    document.getElementById('search-input').addEventListener('input', fetchClaims);
+
+    // Event listener for filter select
+    document.getElementById('filter-select').addEventListener('change', fetchClaims);
+    // Approve a claim
+   window.approveClaim = async function (claimId, userId) {
+        try {
+            const claimRef = doc(db, "Claims", claimId);
+            await updateDoc(claimRef, { status: "Approved" });
+            alert("Claim approved successfully.");
+            notifyUser(userId, "claim");
+            fetchClaims(); // Refresh the claims list
+        } catch (error) {
+            console.error("Error approving claim: ", error);
+        }
+    };
+const notifyUser = async (userId, requestType) => {
+    await addDoc(collection(db, "notifications"), {
+        userId: userId,
+        message: `Your ${requestType} request has been approved.`,
+        timestamp: new Date(),
+        read: false // Mark as unread initially
+    });
+};
+    // Reject a claim
+   window.rejectClaim = async function (claimId) {
+        try {
+            const claimRef = doc(db, "Claims", claimId);
+            await updateDoc(claimRef, { status: "Denied" });
+            alert("Claim rejected successfully.");
+            fetchClaims(); // Refresh the claims list
+        } catch (error) {
+            console.error("Error rejecting claim: ", error);
+        }
+    };
+
+    // Call the function to fetch claims when the page loads
+    document.addEventListener('DOMContentLoaded', fetchClaims);
+</script>
 </body>
 </html>
