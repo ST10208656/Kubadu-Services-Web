@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request History</title>
+    <title>Manage Requests - Kubadu Services</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Basic CSS reset */
-        * {
+    * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -16,100 +15,189 @@
         body {
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
+            background-color: #fff;
         }
 
         .container {
-            width: 80%;
+            width: 90%;
+            max-width: 1200px;
             margin: auto;
             overflow: hidden;
         }
 
         header {
-            background: linear-gradient(90deg, #004AAD, #00BF63);
+            background: #f9f9f9;
             color: #fff;
             padding-top: 30px;
             min-height: 70px;
-            border-bottom: #00C04B 3px solid;
+           
         }
-
+footer {
+            background: #000000;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            width: 100%;
+             bottom: 0;
+            
+        }
         header h1 {
-            float: left;
-            font-size: 28px;
+       margin-left:20px;
+                        background: rgb(0,42,255);
+background: linear-gradient(90deg, #004AAD, #00BF63);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+               display:inline;
+               font-size: 2rem;
         }
-
         main {
             padding: 20px 0;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+
+        h2 {
+            color: #000000;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .request-section {
             margin-bottom: 20px;
         }
 
-        th, td {
+        /* Card layout styling */
+        .request-card {
             border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
 
-        th {
-            background-color: #004AAD;
+        .request-card:hover {
+            transform: scale(1.02);
+        }
+
+        .request-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .request-details {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .approve-btn, .deny-btn {
+            background-color: #77d667;
             color: #fff;
-        }
-
-        th:first-child, td:first-child {
-            font-weight: bold;
-        }
-
-        th:nth-child(2), td:nth-child(2) {
-            font-style: italic;
-        }
-
-        footer {
-            background: #333;
-            color: #fff;
-            text-align: center;
-            padding: 30px 0;
-            border-top: #77d667 3px solid;
-        }
-
-        .back-button {
-            background-color: #004AAD;
-            color: #fff;
+            padding: 5px 10px;
             border: none;
-            padding: 10px 20px;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+            border-radius: 3px;
             cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .approve-btn:hover {
+            background-color: #5fb84e;
+        }
+
+        .deny-btn {
+            background-color: #ff5c5c;
+        }
+
+        .deny-btn:hover {
+            background-color: #ff3333;
+        }
+
+    
+        /* Responsive styling */
+        @media (min-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+
+            .request-card {
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .request-info {
+                flex-basis: 70%;
+            }
+
+            .action-buttons {
+                flex-basis: 30%;
+                justify-content: flex-end;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-btn, .approve-btn, .deny-btn {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+
+            .request-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
+   <header>
         <div class="container">
             <h1>Kubadu Services</h1>
+            
         </div>
     </header>
     <main>
         <div class="container">
-            <h2>Requests History</h2>
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>RequestID</th>
-                        <th>Request Type</th>
-						<th>Request Date</th>
-						<th>Status</th>
-                        
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
+            <a href="home.html" class="back-btn">Back to Dashboard</a>
 
-                </tbody>
-            </table>
-            <a href="home.html" class="back-button">Back to Home</a>
+            <div class="request-section">
+                <h2>Current Pending Request</h2>
+                <div id="pendingRequestList">
+                    <!-- Pending requests will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <div class="request-section">
+                <h2>Approved Requests</h2>
+                <div id="approvedRequestList">
+                    <!-- Approved requests will be dynamically loaded here -->
+                </div>
+            </div>
         </div>
     </main>
     <footer>
@@ -118,11 +206,11 @@
         </div>
     </footer>
 </body>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
         authDomain: "login-b62bd.firebaseapp.com",
@@ -133,49 +221,70 @@
         measurementId: "G-KHJSX85R56"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-	
-	if(app){
-	console.log("firebase is initialized successfully");
-	if(db){
-	console.log("firestore is initialized successfully");
-	
-const q = query(collection(db, "Requests"));
 
-const querySnapshot = await getDocs(q);
-querySnapshot.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  
-  const data = doc.data();
-  
-  
-  const timestamp = data.timestamp.toDate().toLocaleString();
-  const rowData = [doc.id, data.requestType, timestamp, data.status];
-  
-  const rowElement = document.createElement("tr");
+    const pendingRequestList = document.getElementById("pendingRequestList");
+    const approvedRequestList = document.getElementById("approvedRequestList");
 
-  // Loop through each cell in the rowData array
-  rowData.forEach((cell) => {
-    // Create a new table data (cell) element
-    const cellElement = document.createElement("td");
-    cellElement.textContent = cell;
+    const q = query(collection(db, "Requests"));
 
-    // Append the cell to the row
-    rowElement.appendChild(cellElement);
-	// Append the row to the table body
-  tableBody.appendChild(rowElement);
-  });
+    onSnapshot(q, (snapshot) => {
+        pendingRequestList.innerHTML = 'No pending request made.';
+        approvedRequestList.innerHTML = '';
 
-  
-  
-  console.log(rowData);
-  console.log(doc.id, " => ", doc.data());
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const requestedOn = data.requestedOn ? data.requestedOn.toDate().toLocaleString() : "No Timestamp Available";
+            const approvedOn = data.approvedOn ? data.approvedOn.toDate().toLocaleString() : "Not Approved";
 
-});
+            const requestCard = document.createElement("div");
+            requestCard.classList.add("request-card");
+            requestCard.innerHTML = `
+                <div class="request-info">
+                    <div>
+                        <strong>Request ID:</strong> ${doc.id}<br>
+                        <strong>User Name:</strong> ${data.userName} ${data.userSurname}<br>
+                        <strong>Request Type:</strong> ${data.requestType}<br>
+                        <strong>Amount:</strong> ${data.amount}<br>
+                        <strong>Requested On:</strong> ${requestedOn}
+                    </div>
+                    ${data.status === "Approved" ? `<strong>Approved On:</strong> ${approvedOn}` : ""}
+                </div>
+                <div class="request-details">
+                    <p><strong>Details:</strong> ${data.details || "No additional details provided."}</p>
+                </div>
+            `;
 
-}
-}
+            if (data.status === "Approved") {
+                approvedRequestList.appendChild(requestCard);
+            } else {
+                const actionButtons = document.createElement("div");
+                actionButtons.classList.add("action-buttons");
+                actionButtons.innerHTML = `
+                    
+                `;
+                requestCard.appendChild(actionButtons);
+                pendingRequestList.appendChild(requestCard);
+            }
+        });
+    });
+
+    // Approve and Deny actions
+    pendingRequestList.addEventListener("click", async (e) => {
+        if (e.target.classList.contains("approve-btn")) {
+            const requestId = e.target.getAttribute("data-id");
+            await updateDoc(doc(db, "Requests", requestId), {
+                status: "Approved",
+                approvedOn: new Date()
+            });
+        }
+        if (e.target.classList.contains("deny-btn")) {
+            const requestId = e.target.getAttribute("data-id");
+            await updateDoc(doc(db, "Requests", requestId), {
+                status: "Denied"
+            });
+        }
+    });
 </script>
 </html>

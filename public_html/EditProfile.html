@@ -8,30 +8,189 @@ Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/html.html to edit this
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+           <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+         <style>
+        body {
+           font-family: Montserrat, sans-serif;
+        background-image: linear-gradient(120deg, white 0%, #ebedee 100%);
+            margin: 0;
+            padding: 0;
+           
+            
+            height: 100vh;
+        }
+        header h1 {
+       margin-left:20px;
+                        background: rgb(0,42,255);
+background: linear-gradient(90deg, #004AAD, #00BF63);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+               display:inline;
+               font-size: 2rem;
+        }
+        main{
+            padding: 30px;
+             display: flex;
+           justify-content:space-evenly; /* Center horizontally */
+            align-items: center; /* Center vertically */ 
+            
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            font-family: Montserrat, sans-serif;
+           display: inline-block;
+    padding: 10px 15px;
+    background-color: #4158D0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+            font-size: 1em;
+cursor:pointer;
+font-weight: Bold;
+        }
+
+button:hover {
+background-color: #C850C0;
+}
+
+        #notificationDiv {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #ffc107;
+            color: #333;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            form {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 24px;
+                padding-right: 10px;
+            }
+            input[type="text"], input[type="email"], input[type="password"] {
+                font-size: 14px;
+            }
+      
+
+        }
+        header {
+            background: #f9f9f9;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+           
+        }
+        .back-btn {
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background-color: #00BF63;
+        }
+    </style>
     </head>
+   
     <body>
-     
-    <!-- Edit Customer Modal -->
-    <div id="editCustomerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('editCustomerModal')">&times;</span>
-            <h2>Edit Customer</h2>
-            <form id="editCustomerForm">
-                <input type="hidden" id="editCustomerId">
-                <label for="editCustomerName">Name:</label>
-                <input type="text" id="editCustomerName" name="name" required>
-                <label for="editCustomerEmail">Email:</label>
-                <input type="email" id="editCustomerEmail" name="email" required>
-                <button type="submit">Save Changes</button>
-            </form>
+        <header>
+        <div class="container">
+            <h1>Kubadu Services</h1>
+            
         </div>
-    </div>
+    </header>
+                            <a href="home.html" class="back-btn">Back to Dashboard</a>
+
+        <main>
+
+            <h1 style="background-image: linear-gradient(-225deg, grey 0%, black 100%); 
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;">Edit Profile</h1>
+
+    <form id="editProfileForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" name="surname" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">New Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+
+        <button type="submit">Save Changes</button>
+        <div id="notificationDiv"></div>
+    </form>
+        </main>   
+  <footer style="
+            background: #000000;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+            width: 100%;
+             bottom: 0;
+             position: relative;
+            
+        ">
+    
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+       
+    </footer>
     </body>
     <script type="module">
-        // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, updatePassword, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
     // Your web app's Firebase configuration
@@ -52,222 +211,114 @@ if (!initializeApp.length) {
     app = initializeApp(firebaseConfig);
 }
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-const analytics = getAnalytics(app);
-        // Function to add an employee
-          document.getElementById('addEmployeeForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const name = document.getElementById('addEmployeeName').value;
-            const email = document.getElementById('addEmployeeEmail').value;
-            const password = document.getElementById('addEmployeePassword').value;
-            const role = document.getElementById('addEmployeeRole').value;
-            const department = document.getElementById('addEmployeeDepartment').value;
-           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user; 
-  const userDocRef = doc(db, "employees", user.uid);
-        await setDoc(userDocRef, {
-            name: name,
-            email: email,
-            role: role,
-            department: department,
-            uid: user.uid // Store the uid in the document itself
-        });
+const auth = getAuth();
+const db = getFirestore();
+const notificationDiv = document.getElementById('notificationDiv');
+let userID = null;
+let userDocRef = null;
+// Get the current user ID (assuming the user is logged in)
+function checkUserLogin() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User is logged in:", user);
+                userID = user.uid; // Store user ID
+                userDocRef = doc(db, 'Customers', userID); // Reference to the user document
 
-                alert("Employee added successfully!");
-                location.reload();  // Reload page after adding employee
-            alert(`New Employee Added.\nName: ${name}\nEmail: ${email}\nRole: ${role}\nDepartment: ${department}`);
-            
-            closeModal('addEmployeeModal');
-        });
+             
 
-        // Function to add a customer
-        async function addCustomer(name, email) {
-            try {
-                await addDoc(collection(db, 'customers'), {
-                    name: name,
-                    email: email
-                });
-                alert("Customer added successfully!");
-                location.reload();  // Reload page after adding customer
-            } catch (e) {
-                console.error("Error adding document: ", e);
-            }
-        }
-
-        // Function to edit employee
-          document.getElementById('editEmployeeForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const id = document.getElementById('editEmployeeId').value;
-            const name = document.getElementById('editEmployeeName').value;
-            const email = document.getElementById('editEmployeeEmail').value;
-            const role = document.getElementById('editEmployeeRole').value;
-            const department = document.getElementById('editEmployeeDepartment').value;
- try {
-                const employeeRef = doc(db, 'employees', id);
-                await updateDoc(employeeRef, {
-                    name: name,
-                    email: email,
-                    role: role,
-                    department: department
-                });
-                alert("Employee updated successfully!");
-                location.reload();  // Reload page after updating employee
-            } catch (e) {
-                console.error("Error updating document: ", e);
-            }
-            alert(`Employee with ID: ${id} has been updated.\nName: ${name}\nEmail: ${email}\nRole: ${role}\nDepartment: ${department}`);
-            closeModal('editEmployeeModal');
-        });
-
-        // Function to delete employee
-   document.getElementById('deleteEmployeeForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const id = document.getElementById('deleteEmployeeId').value;
                 try {
-                    const employeeRef = doc(db, 'employees', id);
-                    await deleteDoc(employeeRef);
-                    alert("Employee deleted successfully!");
-                    location.reload();  // Reload page after deleting employee
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
+                    const userDocSnap = await getDoc(userDocRef); // Await the document snapshot
+                    if (userDocSnap.exists()) {
+                        
+                        console.log("User data:", userDocSnap.data()); // Successfully retrieved user data
+                       updateUser(userDocSnap.data().UserId);
+                    } else {
+                        alert("Please login first.");
+                         window.location.href = "login.html"; // Redirect to login page
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error); // Handle errors
                 }
-            
-        });
-
-        // Function to delete customer
-        async function deleteCustomer(id) {
-            if (confirm("Are you sure you want to delete this customer?")) {
-                try {
-                    const customerRef = doc(db, 'customers', id);
-                    await deleteDoc(customerRef);
-                    alert("Customer deleted successfully!");
-                    location.reload();  // Reload page after deleting customer
-                } catch (e) {
-                    console.error("Error deleting document: ", e);
-                }
+            } else {
+                console.log("No user is signed in.");
+                alert("You must log in");
+                window.location.href = "login.html"; // Redirect to login page
             }
+        });
+    }
+    window.onload = checkUserLogin;
+    function updateUser(userID){
+       if (userID) {
+    // Fetch user data from Firestore
+    const userDocRef = doc(db, "Customers", userID);
+    getDoc(userDocRef).then((docSnap) => {
+        if (docSnap.exists()) {
+            const userData = docSnap.data();
+            document.getElementById('name').value = userData.Name;
+            document.getElementById('surname').value = userData.Surname;
+            document.getElementById('email').value = userData.Email;
+        } else {
+            notificationDiv.textContent = 'No user data found!';
+            notificationDiv.style.display = 'block';
         }
+    }).catch((error) => {
+        console.error('Error fetching user data:', error);
+        notificationDiv.textContent = `Error fetching user data: ${error.message}`;
+        notificationDiv.style.display = 'block';
+    });
 
-        // Function to load data from Firestore (employees and customers)
-        async function loadData() {
-            const employeeTableBody = document.querySelector("#employeeTable tbody");
-            const customerTableBody = document.querySelector("#customerTable tbody");
+    // Handle form submission
+    document.getElementById('editProfileForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-            // Fetch all employees
-            const employeesSnapshot = await getDocs(collection(db, "employees"));
-            employeesSnapshot.forEach((doc) => {
-                const employee = doc.data();
-                const row = `<tr>
-                    <td>${doc.id}</td>
-                    <td>${employee.name}</td>
-                    <td>${employee.email}</td>
-                    <td>${employee.role}</td>
-                    <td>${employee.department}</td>
-                    <td>
-                        <button class="edit-btn" onclick="openEditEmployeeModal('${doc.id}', '${employee.name}', '${employee.email}', '${employee.role}', '${employee.department}')">Edit</button>
-                        <button class="delete-btn" onclick="openDeleteModal('${doc.id}')">Delete</button>
-                    </td>
-                </tr>`;
-                employeeTableBody.innerHTML += row;
+        // Collect updated data
+        const updatedName = document.getElementById('name').value;
+        const updatedSurname = document.getElementById('surname').value;
+        const updatedEmail = document.getElementById('email').value;
+        const newPassword = document.getElementById('password').value;
+
+        // Update user data in Firestore
+        try {
+            await updateDoc(userDocRef, {
+                Name: updatedName,
+                Surname: updatedSurname,
+                Email: updatedEmail
             });
 
-            // Fetch all customers
-            const customersSnapshot = await getDocs(collection(db, "Customers"));
-            customersSnapshot.forEach((doc) => {
-                const customer = doc.data();
-                const row = `<tr>
-                    <td>${doc.id}</td>
-                    <td>${customer.Name}</td>
-                    <td>${customer.Email}</td>
-                    <td>
-                        <button class="edit-btn" onclick="openEditCustomerModal('${doc.id}', '${customer.Name}', '${customer.Email}')">Edit</button>
-                        <button class="delete-btn" onclick="deleteCustomer('${doc.id}')">Delete</button>
-                    </td>
-                </tr>`;
-                customerTableBody.innerHTML += row;
-            });
-        }
+            // Update email in Firebase Authentication
+            if (auth.currentUser.email !== updatedEmail) {
+                await updateEmail(auth.currentUser, updatedEmail);
+            }
 
-        window.addEventListener("load", loadData);
+            // Update password in Firebase Authentication if a new password is provided
+            if (newPassword) {
+                await updatePassword(auth.currentUser, newPassword);
+            }
+
+            notificationDiv.textContent = 'Profile updated successfully!';
+            notificationDiv.style.display = 'block';
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            notificationDiv.textContent = `Error updating profile: ${error.message}`;
+            notificationDiv.style.display = 'block';
+            
+             if (error.code === 'auth/requires-recent-login') {
+            alert("Your session has expired. Please log in again.");
+            // Redirect to the login page
+            window.location.href = "login.html"; // Change this to your actual login page URL
+        } else {
+            alert("An error occurred while updating your profile. Please try again.");
+        }
+        }
+    });
+} else {
+    notificationDiv.textContent = 'User not logged in!';
+    notificationDiv.style.display = 'block';
+} 
         
-    </script>
-    <script>
-        // Open Modal
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = "block";
-        }
+        
+    }
 
-        // Close Modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-        }
 
-        // Handle form submission for adding an employee
-      
-
-        // Handle form submission for editing an employee
-  
-
-        // Handle form submission for adding a customer
-        document.getElementById('addCustomerForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const name = document.getElementById('addCustomerName').value;
-            const email = document.getElementById('addCustomerEmail').value;
-
-            alert(`New Customer Added.\nName: ${name}\nEmail: ${email}`);
-            closeModal('addCustomerModal');
-        });
-
-        // Handle form submission for editing a customer
-        document.getElementById('editCustomerForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const id = document.getElementById('editCustomerId').value;
-            const name = document.getElementById('editCustomerName').value;
-            const email = document.getElementById('editCustomerEmail').value;
-
-            alert(`Customer with ID: ${id} has been updated.\nName: ${name}\nEmail: ${email}`);
-            closeModal('editCustomerModal');
-        });
-
-        // Delete employee function
-         
-
-        // Delete customer function
-        function deleteCustomer(customerId) {
-            if (confirm('Are you sure you want to delete customer with ID: ' + customerId + '?')) {
-                alert('Customer with ID: ' + customerId + ' has been deleted.');
-                // Implement the delete customer functionality
-            }
-        }
-    
-        // Open Add Employee Modal
-        function openEmployeeModal() {
-            openModal('addEmployeeModal');
-        }
-
-        // Open Add Customer Modal
-        function openDeleteModal(id) {
-            document.getElementById('deleteEmployeeId').value = id;
-            openModal('deleteModal');
-        }
-
-        // Open Edit Employee Modal
-        function openEditEmployeeModal(id, name, email, role, department) {
-            document.getElementById('editEmployeeId').value = id;
-            document.getElementById('editEmployeeName').value = name;
-            document.getElementById('editEmployeeEmail').value = email;
-            document.getElementById('editEmployeeRole').value = role;
-            document.getElementById('editEmployeeDepartment').value = department;
-            openModal('editEmployeeModal');
-        }
-
-        // Open Edit Customer Modal
-        function openEditCustomerModal(id, name, email) {
-            document.getElementById('editCustomerId').value = id;
-            document.getElementById('editCustomerName').value = name;
-            document.getElementById('editCustomerEmail').value = email;
-            openModal('editCustomerModal');
-        }
     </script>
 </html>

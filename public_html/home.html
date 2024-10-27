@@ -11,6 +11,14 @@
 	
     <style>
         /* Basic CSS reset */
+        
+        html{
+         font-size: 16px;   
+           margin: 0;
+    display: flex;
+    flex-direction: column; 
+     overflow-x: hidden;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +28,12 @@
         body {
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
+             overflow-x: hidden; /* Prevent horizontal scrolling */
+             width: 100%;
+               height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
         }
 
         .container {
@@ -30,16 +44,22 @@
 		
 
         header {
-            background: linear-gradient(180deg, #000000, #00BF63);
+            background: #f9f9f9;
             color: #fff;
             padding-top: 30px;
             min-height: 70px;
-            border-bottom: #00C04B 3px solid;
+           
         }
 
         header h1 {
-            float: left;
-            font-size: 28px;
+       margin-left:20px;
+                        background: rgb(0,42,255);
+background: linear-gradient(90deg, #004AAD, #00BF63);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+               display:inline;
+               font-size: 2rem;
         }
 
         header nav {
@@ -48,8 +68,8 @@
         }
 
         header a {
-            color: #fff;
-			font-family: 'Montserrat', sans-serif;
+            color: #000000;
+	    font-family: 'Montserrat', sans-serif;
             text-decoration: none;
             font-size: 13px; /* Relative font size */
             margin: 0 20px; /* Adjusted margin */
@@ -61,7 +81,7 @@
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #fff; /* Line color */
+    background-color: #000000; /* Line color */
     transition: width 0.4s ease;
 }
 
@@ -107,6 +127,8 @@ header a:hover::before {
 
         main {
             padding: 20px 0;
+         flex-grow: 1;  
+
         }
 
         main h2 {
@@ -127,34 +149,23 @@ header a:hover::before {
         }
 
         #home {
-            text-align: center;
-            position: relative;
-            min-height: 400px;
+           text-align:center;
         }
 
         #home .overlay {
-            
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-			opacity: 0; /* Start with hidden overlay */
+    
+ opacity: 0; /* Start with hidden overlay */
     transition: opacity 0.3s ease-in-out; /* Fade transition */
         }
 #home .overlay.show {
     opacity: 1; /* Show overlay */
 }
         #home .welcome-text {
-            font-size: 3em;
-            margin-bottom: 20px;
-            background: rgb(0,42,255);
-background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
+            font-size: 2rem;
                 -webkit-background-clip: text;
                 background-clip: text;
                 color: transparent;
+                display:inline-flex;
         }
 
 
@@ -167,7 +178,9 @@ background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
 
         #services .service {
             margin-bottom: 20px;
+            
         }
+        
 
         .service-link {
             color: #77d667;
@@ -183,7 +196,8 @@ background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
             height: 20px;
         }
 .service-link {
-    color: #77d667;
+    color: #004AAD;
+    background: #fff;
     font-family: 'Montserrat', sans-serif;
     text-decoration: none;
     font-size: 16px;
@@ -219,7 +233,7 @@ background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
     .chat-container {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            right: 10px;
             background-color: #f1f1f1;
             width: 300px;
             border: 1px solid #ccc;
@@ -264,11 +278,13 @@ background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
         }
 
         footer {
-            background: #333;
+            background: #000000;
             color: #fff;
             text-align: center;
             padding: 30px 0;
-            border-top: #77d667 3px solid;
+            width: 100%;
+             bottom: 0;
+            
         }
 
         @media (max-width: 768px) {
@@ -393,7 +409,6 @@ button:hover::before {
     bottom: 20px;
     right: 20px;
  background: rgb(0,74,173);
-background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
     color: white;
     border: none;
     padding: 15px;
@@ -401,6 +416,8 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
     font-size: 20px;
     cursor: pointer;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+   
+
 }
 
 #chatButton:hover {
@@ -411,8 +428,9 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
 .chat-window {
     position: fixed;
     bottom: 80px;
-    right: 20px;
-    width: 300px;
+    right: 50px;
+    width: 100%;
+    max-width: 450px;
     max-height: 400px;
     background-color: white;
     border: 1px solid #ccc;
@@ -420,8 +438,17 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     display: none; /* Hidden by default */
     flex-direction: column;
+    margin: 0 auto;
+    
 }
-
+@media (max-width: 480px) {
+    .chat-window {
+        right: 10px; /* Adjust right position */
+        bottom: 10px; /* Adjust bottom position */
+        max-width: 90%; /* Make the width responsive */
+        max-height: 300px; /* Reduce max-height on smaller screens */
+    }
+}
 .chat-header {
     background-color: #004AAD;
     color: white;
@@ -453,11 +480,11 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
 
 .chat-footer button {
     margin-left: 10px;
-    padding: 8px 15px;
-    background-color: #004AAD;
+    padding: 15px;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 50%;
+    background: none;
     cursor: pointer;
 }
 
@@ -471,42 +498,377 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
   max-width: 600px;
   height: auto;
 }
+.summaryContent{
+ display: flex;
+  justify-content: center; /* Align items closer to the center */
+  gap: 20px; /* Adjust the gap between the summary blocks */
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+#loan-summary{
+display: inline-block; /* Change to inline-block */
+background-image: linear-gradient(-225deg, #FF057C 0%, #8D0B93 50%, #321575 100%);
+    padding: 20px;
+    color:#fff;
+    border-radius: 20px;
+    font-size: 1rem;
+    max-width: 25rem; /* Set a maximum width */
+    height:auto;
+    align-items: center; 
+       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+#policy-summary{
+display: inline-block; /* Change to inline-block */
+background-image: linear-gradient(-225deg, #434343 0%, black 100%);    
+padding: 20px;
+    color:#fff;
+    border-radius: 20px;
+    font-size: 1rem;
+    max-width: 25rem; /* Set a maximum width */
+    height:auto;
+    align-items: center; 
+       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+#services .container{
+    
+    display:flex;
+    justify-content: space-evenly;
+    padding-right: 20px;
+    
+}
+/* Base styles for the services section */
+#services {
+    padding: 20px;
+}
+
+#services .container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Ensure items wrap on smaller screens */
+}
+
+#services .service {
+    flex: 1 1 45%; /* Each service will take 45% of the width on larger screens */
+    margin: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+ @keyframes gradientMove {
+    0% {
+        background-position: 100% 50%; /* Start from right */
+    }
+    100% {
+        background-position: 0% 50%; /* Move to left */
+    }
+}
+
+#services .service h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color:#00BF63;
+}
+
+#services .service p {
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+#services .service-link {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #4158D0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+#services .service-link:hover {
+    background-color: #C850C0;
+}
+
+/* Make the section responsive */
+@media (max-width: 768px) {
+    #services .service {
+        flex: 1 1 100%; /* Full width on smaller screens */
+    }
+    
+}
+
+@media (max-width: 480px) {
+    #services .service h3 {
+        font-size: 1.2em;
+    }
+    #services .service p {
+        font-size: 0.9em;
+    }
+    #services .service-link {
+        font-size: 0.9em;
+    }
+}
+#wallet-balance-section {
+    background: url('images/card.png') no-repeat center;
+    background-size: contain;  /* This will make the entire image fit without cutting */
+    color: #fff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 400px;   /* Adjust height to match your card image */
+    width: 500px;    /* Adjust width to match your card image */
+    margin: 0;  /* This centers the div horizontally on the page */
+      padding: 0;
+}
+
+/* Position card name at the top right */
+#card-name {
+    position: absolute;
+    bottom: 115px;
+    left: 85px;   /* Adjust based on where you want it within the card */
+    font-size: 1rem;
+   padding: 0;
+    margin: 0;
+background: rgb(255,255,255);
+background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(135,134,132,1) 100%);
+  -webkit-text-fill-color: transparent; /* Transparent text to show gradient */
+    -webkit-background-clip: text;
+}
+#wallet-balance{
+ font-size: 1.8em;
+background: rgb(255,255,255);
+background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(135,134,132,1) 100%);
+  -webkit-text-fill-color: transparent; /* Transparent text to show gradient */
+    -webkit-background-clip: text;
+}
+#wallet-name {
+    position: absolute;
+    top: 87px;
+    right: 97px;   /* Adjust based on where you want it within the card */
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 0;
+background: rgb(0,0,0);
+background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 29%, rgba(255,255,255,1) 52%, rgba(0,0,0,1) 78%, rgba(0,0,0,1) 100%);
+background-size:450%; /* Further increase background size for smoother animation */
+     /* Clip gradient to text */
+    -webkit-text-fill-color: transparent; /* Transparent text to show gradient */
+    -webkit-background-clip: text;
+    animation: gradientMove 6s infinite ease-in; /* Longer animation for smoothness */
+}
+#balance-dash{
+   display: flex;
+  justify-content: center; /* Align items closer to the center */
+  gap: 0px; /* Adjust the gap between the summary blocks */
+}
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it appears above other content */
+    max-width: 300px; /* Limit the width */
+    
+}
+
+.notification {
+    transition: all 0.3s ease;
+    opacity: 1; /* Set initial opacity */
+background-image: linear-gradient(-225deg, #434343 0%, black 100%);    
+color: #fff;
+}
+#beneficiaries-container {
+    margin-top: 15px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.beneficiary {
+    margin-top: 10px;
+}
+
+.beneficiary label {
+    display: block;
+    margin-bottom: 5px;
+}
+/* Modal Overlay */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 1000; /* Make sure it is above other content */
+}
+
+/* Modal Content */
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Maximum width */
+}
+ @media (max-width: 768px) {
+     header h1{
+        font-size: 1.5rem; 
+         
+     }
+            nav ul {
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 20px;;
+                background-color: #fff;
+                width: 100%;
+                max-width: 200px;
+                display: none;
+                padding: 10px;
+                box-shadow: 5px 5px 5px grey;
+                border-radius: 20px;
+                z-index:1;
+              
+            }
+
+            nav ul li {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            nav ul.show {
+                display: block;
+            }
+
+            .hamburger {
+                display:block !important;
+                width:100%;
+              
+            }
+        }
+          @media (max-width: 768px) {
+            #balance-dash {
+                flex-direction: column;
+                align-items: flex-start;
+                width:100%;
+            }
+
+            #wallet-balance-section {
+                align-items: center;
+                width: 100%;
+            }
+
+            #wallet-balance-section h3 {
+         
+                width: 100%;
+            }
+            #wallet-balance-section #wallet-name{
+                top:90px;
+                right:-60px;
+                width: 100%;
+            }
+            #wallet-balance-section #card-name{
+                width: 100%;
+                left:-90px;
+            }
+            #chatButton {
+ 
+ background: rgb(0,74,173);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+ 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+   
+
+}
+        }
+         /* Hamburger icon for small screens */
+     
     </style>
 </head>
 <body>
-    <header>
+   <header>
         <div class="container">
             <h1>Kubadu Services</h1>
+            <button class="hamburger" style="display:none;" onclick="toggleMenu()">&#9776;</button>
             <nav>
-                <ul>
+                <ul id="navLinks">
                     <li><a href="home.html">Home</a></li>
                     <li><a href="#services">Make a Request</a></li>
                     <li><a href="requestHistory.html">View Requests</a></li>
-						<li><a href="Loans.html">View Loans</a></li>
-					<li><a href="Policies.html">View Policies</a></li>
-                   <li><a href="EditProfile.html">Edit Profile</a></li>
+                    <li><a href="EditProfile.html">Edit Profile</a></li>
                 </ul>
             </nav>
         </div>
     </header>
     <main>
-        <section id="home" style="max-width:80%;">
-            <div class="overlay">
-			 <img src="https://images.pexels.com/photos/4629634/pexels-photo-4629634.jpeg" class="responsive" style="box-shadow:2px 2px 5px black; border-radius:8px;">
-                <h2 class="welcome-text">Welcome to Kubadu Services</h2>
-              
-            </div>
-        </section>
+        <div id="balance-dash">
+            <h2 style="margin: auto 0; color:#000000">Wallet Balance:</h2>
+           <div id="wallet-balance-section">
+            <h3 id="wallet-name">Kubadu Wallet</h3>
+  <h3 id="wallet-balance"></h3>
+  <h3 id="card-name"></h3>
+</div>
+ 
+            
+        </div>
+       
+
+          <h2 style="text-align: center; color:#000000; margin:auto 0;">Summary:</h2>
+        <div class="summaryContent">
+          
+           <div id="loan-summary">
+       
+            
+        </div>  
+            <div id="policy-summary">
+       
+            
+        </div> 
+            
+        </div>
+           <h2 id="deniedRequestH2" style="text-align: center; color:#000000; margin:auto 0;">Denied Requests</h2>
+           <div id="recent-requests"></div>
+        <div id="modify-request-form" style="display: none;">
+    <h3>Modify and Resubmit Request</h3>
+    <p id="denial-reason"></p>
+    <label for="request-type">Request Type:</label>
+    <input type="text" id="request-type" disabled><br>
+
+    <label for="request-amount">Amount:</label>
+    <input type="number" id="request-amount"><br>
+
+    <button onclick="resubmitRequest(requestId)">Resubmit</button>
+</div>
         <section id="services">
+             <h2 style="text-align: center; color:#000000">Make a Request</h2>
             <div class="container">
-                <h2>Make a Request</h2>
+               
                 <div class="service">
-                    <h3>Loans</h3>
+                    <h3 style="background-image: linear-gradient(-225deg, #434343 0%, black 100%);  
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent; display:inline;">Loans</h3>
                     <p>Flexible loan options to meet your financial needs.</p>
                     <a href="javascript:void(0);" class="service-link" onclick="openForm('loan')"><img src="icons/loan.png" alt="Loan Icon">Apply for a loan</a>
                 </div>
                 <div class="service">
-                    <h3>Funeral Policies</h3>
+                    <h3 style="background-image: linear-gradient(-225deg, #434343 0%, black 100%);  
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent; display:inline;">Funeral Policies</h3>
                     <p>Comprehensive funeral policies to ensure peace of mind.</p>
                     <a href="javascript:void(0);" id="open-policy-popup" class="service-link" onclick="openForm('funeral')"><img src="icons/policy.png" alt="Funeral Policy Icon"/>Request for funeral Policies</a>
                 </div>
@@ -523,32 +885,50 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
 
     </main>
     <footer>
-        <div class="container">
+    
             <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
-        </div>
+       
     </footer>
 
     <!-- Pop-up Form -->
     <div class="popup-overlay" id="popup-overlay"></div>
 
     <!-- Loan Form -->
-    <div class="popup-form" id="loan-form">
-        <button class="close-button" onclick="closeForm('loan')">X</button>
-        <h3>Apply for a Loan</h3>
-        <form id="loanform">
+   <div class="popup-form" id="loan-form">
+    <button class="close-button" onclick="closeForm('loan')">X</button>
+    <h3>Apply for a Loan</h3>
+    <form id="loanform">
         <label for="loan-type">Loan Type:</label>
         <select id="loan-type" name="loan-type">
             <option value="personalLoan">Personal Loan</option>
             <option value="businessLoan">Business Loan</option>
             <option value="homeLoan">Home Loan</option>
         </select><br><br>
+        
         <div id="loan-details">
-            <p>Please select a loan type to view details.</p>
+           
         </div>
+ <div id="custom-loan-amount-div" style="display:none;">
+        <label for="custom-loan-amount">Specify Loan Amount:</label>
+        <input type="number" id="custom-loan-amount" placeholder="Enter loan amount">
+    </div>
+        <div id="upload-documents" style="display:none;">
+            <h4>Upload Required Documents:</h4><br>
+           <label for="national-id" id="nationalIdLabel">National ID:</label>
+            <input type="file" id="national-id" name="national-id" accept="image/*">
+            <label for="proof-address" id="proofAddressLabel">Proof of Address:</label>
+            <input type="file" id="proof-address" name="proof-address" accept="image/*">
+              <label for="proof-income" id="proofIncomeLabel">Proof of Income:</label>
+            <input type="file" id="proof-income" name="proof-income" accept="image/*">
+             <label for="bank-statement" id="bankStatementLabel">Bank Statement:</label>
+            <input type="file" id="bank-statement" name="bank-statement" accept="image/*">
+        </div>
+
         <button type="submit">Add Loan</button>
     </form>
-        <div id="loan-notification" class="notification"></div>
-    </div>
+    <div id="loan-notification" class="notification"></div>
+</div>
+
 
     <!-- Funeral Policy Form -->
     <div class="popup-form" id="funeral-form">
@@ -563,10 +943,62 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
             <div id="policy-details">
                 <!-- Policy details will be displayed dynamically here -->
             </div>
+              <div id="upload-documents1" style="display:none;">
+            <h4>Upload Required Documents:</h4>
+            <label for="national-id" id="nationalIdLabel1"> National ID/Passport</label>
+            <input type="file" id="national-id1" name="national-id" accept="image/*">
+            <label for="proof-address" id="proofAddressLabel1"> Proof of Address</label>
+            <input type="file" id="proof-address1" name="proof-address" accept="image/*">
+            <label for="proof-income" id="proofIncomeLabel1"> Proof of Income</label>
+            <input type="file" id="proof-income1" name="proof-income" accept="image/*">
+            <label for="bank-statement" id="bankStatementLabel1"> Bank Statement</label>
+            <input type="file" id="bank-statement1" name="bank-statement" accept="image/*">
+        </div>
+             <div id="beneficiaries-container">
+        <h3>Beneficiaries</h3>
+        <button type="button" id="add-beneficiary">Add Beneficiary</button>
+    </div>
+
             <button type="submit">Add Policy</button> 
         </form>
         <div id="funeral-policy-notification" class="notification"></div>
     </div>
+   <!-- Modal Overlay -->
+<div id="modal-overlay" style="display:none;">
+    <div id="claims-section" class="modal-content">
+        <span id="close-modal" style="cursor:pointer; float:right; width:25px; height:25px;">&times;</span>
+        <h2>Submit a Claim</h2>
+        <div id="claims-notification" style="display: none; color: red;"></div>
+        <form id="claims-form">
+            <div>
+                <label for="policy-id">Policy ID:</label>
+                <input type="text" id="policy-id" required>
+            </div>
+            <div>
+            <label for="beneficiary-name">Beneficiary Name:</label>
+            <select id="beneficiary-name" required>
+                <option value="">Select Beneficiary</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+            <div>
+                <label for="relationship">Relationship to Deceased:</label>
+                <input type="text" id="relationship" required>
+            </div>
+            <div>
+                <label for="deceased-name">Deceased Name:</label>
+                <input type="text" id="deceased-name" required>
+            </div>
+            <div>
+                <label for="death-certificate">Upload Death Certificate:</label>
+                <input type="file" id="death-certificate" accept=".pdf,.jpg,.jpeg,.png" required>
+            </div>
+            <button type="submit">Submit Claim</button>
+        </form>
+    </div>
+</div>
+
+
 	<!-- Chat Window -->
 <div id="chatWindow" class="chat-window">
     <div class="chat-header">
@@ -578,11 +1010,18 @@ background: linear-gradient(90deg, rgba(0,74,173,1) 0%, rgba(0,191,99,1) 100%);
     </div>
     <div class="chat-footer">
         <input type="text" id="message" placeholder="Type your message...">
-        <button id="send">Send</button>
-         <button id="resolve-chat-button">Resolve</button>
+        <button id="send"><img src="images/send.png" width="20" height="20"></button>
+         <button id="resolve-chat-button"><img src="images/like.png" width="20" height="20"></button>
     </div>
 </div>
-  
+        
+  <div id="notification-container"></div>
+ <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById("navLinks");
+            navLinks.classList.toggle("show");
+        }
+    </script>
 <script>
 function showOverlay() {
     const overlay = document.querySelector('#home .overlay');
@@ -608,8 +1047,9 @@ function toggleChatWindow() {
 	<script type="module">
 	
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
     // Your web app's Firebase configuration
@@ -633,18 +1073,206 @@ if (!initializeApp.length) {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
+const storage = getStorage(app);
 
 let userID = null;
 let userDocRef = null;
 let userDocSnap = null;
 let chatId = null;
+const listenForRecentRequests = (userId) => {
+    const recentRequestsQuery = query(
+        collection(db, "Requests"), 
+        where("userId", "==", userId), 
+        where("status", "==", "Denied")
+    );
+
+    const unsubscribe = onSnapshot(recentRequestsQuery, (querySnapshot) => {
+        const requests = [];
+        
+        querySnapshot.forEach((doc) => {
+            requests.push({ id: doc.id, ...doc.data() });
+        });
+
+        displayRecentRequests(requests); // Update the UI in real-time
+    },
+    (error) => {
+        console.error("Error fetching recent requests: ", error);
+    });
+
+    // Return unsubscribe function if you want to stop listening later
+    return unsubscribe;
+};
+
+const displayRecentRequests = (requests) => {
+    const requestContainer = document.getElementById("recent-requests");
+    requestContainer.innerHTML = ''; // Clear previous requests
+ if (requests.length === 0) {
+        // Display a message if there are no denied requests
+        const noRequestsMessage = document.createElement('div');
+        noRequestsMessage.className = 'no-requests';
+        noRequestsMessage.innerHTML = '<strong>No denied requests currently.</strong>';
+        noRequestsMessage.style.padding = '10px';
+        noRequestsMessage.style.margin = '10px 0';
+        noRequestsMessage.style.border = '1px solid #ccc';
+        noRequestsMessage.style.borderRadius = '5px';
+        noRequestsMessage.style.background = '#f9f9f9';
+        requestContainer.appendChild(noRequestsMessage);
+        return;
+    }
+    requests.forEach(request => {
+        const requestElement = document.createElement('div');
+        requestElement.className = 'request-item';
+        requestElement.innerHTML = `
+            <strong>Request Type:</strong> ${request.type}<br>
+            <strong>Status:</strong> ${request.status}<br>
+            <strong>Reason:</strong> ${request.reason}<br>
+                        <button class="modify-btn" data-id="${request.id}">Modify and Resubmit</button>
+        `;
+        requestElement.style.padding = '10px';
+        requestElement.style.margin = '10px 0';
+        requestElement.style.border = '1px solid #ccc';
+        requestElement.style.borderRadius = '5px';
+        requestElement.style.background = '#f9f9f9';
+
+        requestContainer.appendChild(requestElement);
+    });
+    document.querySelectorAll('.modify-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const requestId = e.target.getAttribute('data-id');
+            openModifyForm(requestId);
+        });
+    });
+};
+const openModifyForm = async (requestId) => {
+    const docSnap = await getDoc(doc(db, "Requests", requestId));
+    if (docSnap.exists()) {
+        const requestData = docSnap.data();
+
+        // Create the form with required document fields
+        let formHtml = `<h3>Resubmit Required Documents</h3><p>Reason: ${requestData.reason}</p><form id="resubmit-form">`;
+
+        if (requestData.documents.nationalId) {
+            formHtml += `
+                <label for="national-id">National ID:</label>
+                <input type="file" id="national-id"><br>`;
+        }
+        if (requestData.documents.proofAddress) {
+            formHtml += `
+                <label for="proof-income">Proof of Address:</label>
+                <input type="file" id="proof-address"><br>`;
+        }
+        if (requestData.documents.bankStatement) {
+            formHtml += `
+                <label for="bank-statement">Bank Statement:</label>
+                <input type="file" id="bank-statement"><br>`;
+        }
+
+        formHtml += `<button type="submit">Resubmit</button></form>`;
+
+        document.getElementById('modify-request-form').innerHTML = formHtml;
+        document.getElementById('modify-request-form').style.display = 'block';
+
+        document.getElementById('resubmit-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            resubmitDocuments(requestId);
+        });
+    }
+};
+
+const resubmitDocuments = async (requestId) => {
+    const nationalIdFile = document.getElementById('national-id').files[0];
+    const proofIncomeFile = document.getElementById('proof-address').files[0];
+    const bankStatementFile = document.getElementById('bank-statement').files[0];
+
+    // Upload documents if they are present
+    const updates = {documents: {}};
+
+    if (nationalIdFile) {
+        const nationalIdRef = ref(storage, `documents/nationalId/${requestId}`);
+        await uploadBytes(nationalIdRef, nationalIdFile);
+        updates.documents.nationalId = await getDownloadURL(nationalIdRef);
+    }
+
+    if (proofIncomeFile) {
+        const proofIncomeRef = ref(storage, `documents/proofIncome/${requestId}`);
+        await uploadBytes(proofIncomeRef, proofIncomeFile);
+        updates.documents.proofAddress = await getDownloadURL(proofIncomeRef);
+    }
+
+    if (bankStatementFile) {
+        const bankStatementRef = ref(storage, `documents/bankStatement/${requestId}`);
+        await uploadBytes(bankStatementRef, bankStatementFile);
+        updates.documents.bankStatement = await getDownloadURL(bankStatementRef);
+    }
+
+    // Update request status to Pending after resubmission
+    await updateDoc(doc(db, "Requests", requestId), {
+        ...updates,
+        status: "pending"
+    });
+ document.getElementById('modify-request-form').style.display = 'none';
+    alert('Documents resubmitted successfully!');
+};
 
     document.getElementById("chatButton").addEventListener("click", function() {
         toggleChatWindow();  // First action
     });
+const listenForNotifications = (userId) => {
+    const unsubscribe = onSnapshot(
+        query(collection(db, "notifications"), where("userId", "==", userId)),
+        (querySnapshot) => {
+            const notifications = [];
+            querySnapshot.forEach((doc) => {
+                notifications.push({ id: doc.id, ...doc.data() });
+            });
+            displayNotifications(notifications);
+        },
+        (error) => {
+            console.error("Error listening to notifications: ", error);
+        }
+    );
+
+    // Return the unsubscribe function to stop listening when needed
+    return unsubscribe;
+};
+
+const displayNotifications = (notifications) => {
+    const notificationContainer = document.getElementById("notification-container");
+    notificationContainer.innerHTML = ''; // Clear previous notifications
+
+    notifications.forEach(notification => {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = 'notification';
+        notificationElement.innerHTML = `
+            <strong>${notification.message}</strong>
+            <button class="close-btn" data-id="${notification.id}">X</button><br>
+            
+        `;
+        notificationElement.style.display = 'flex';
+        notificationElement.style.justifyContent = 'space-between';
+        notificationElement.style.padding = '10px';
+        notificationElement.style.margin = '5px 0';
+        notificationElement.style.backgroundColor = '#f0f0f0';
+        notificationElement.style.border = '1px solid #ccc';
+        notificationElement.style.borderRadius = '5px';
+
+        // Add an event listener to remove the notification
+        notificationElement.querySelector('.close-btn').addEventListener('click', () => {
+            removeNotification(notification.id);
+            notificationContainer.removeChild(notificationElement);
+        });
+
+        notificationContainer.appendChild(notificationElement);
+    });
+};
+
+// Function to remove notification
+const removeNotification = async (notificationId) => {
+    await deleteDoc(doc(db, "notifications", notificationId)); // Delete the notification from Firestore
+};
 
 
- function checkUserLogin() {
+async function checkUserLogin() {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 console.log("User is logged in:", user);
@@ -667,9 +1295,14 @@ let chatId = null;
                     if (userDocSnap.exists()) {
                         
                         console.log("User data:", userDocSnap.data()); // Successfully retrieved user data
-                        loadLoans(userDocSnap); // Load loan options and setup form
-						loadPolicies(userDocSnap);
-                                                
+                        await loadLoans(userDocSnap); // Load loan options and setup form
+						await loadPolicies(userDocSnap);
+                                                await initializeLoanSummary(userDocSnap.data().UserId);
+                                                await initializePolicySummary(userDocSnap.data().UserId);
+                                               await loadWalletBalance(userDocSnap.data().UserId);
+                                                const unsubscribe = await listenForNotifications(userDocSnap.data().UserId);
+                                                const recentRequest = await listenForRecentRequests(userDocSnap.data().UserId);
+
                     } else {
                         alert("Please login first.");
                          window.location.href = "login.html"; // Redirect to login page
@@ -684,94 +1317,478 @@ let chatId = null;
             }
         });
     }
+    async function loadWalletBalance(userId) {
+    // Reference to the user document in Firestore
+    const userDocRef = doc(db, "Customers", userId);
+    
+    // Get the document snapshot
+    const userDocSnap = await getDoc(userDocRef);
+    
+    if (userDocSnap.exists()) {
+        const walletBalance = userDocSnap.data().walletBalance || 0; // Default to 0 if no balance exists
+        
+        // Update the wallet balance on the page
+        document.getElementById('wallet-balance').textContent = "R" + walletBalance.toFixed(2);
+        document.getElementById('card-name').textContent = userDocSnap.data().Name + " " + userDocSnap.data().Surname;
+    } else {
+        console.error("User document not found!");
+    }
+}
 
-    // Function to load loans from Firestore
-    async function loadLoans(userDocSnap) {
-        const loanTypeDropdown = document.getElementById("loan-type");
-        const loanDetails = document.getElementById("loan-details");
-        const notificationDiv = document.getElementById("loan-notification");
 
-        // Fetch loan data from Firestore
-        const querySnapshot = await getDocs(collection(db, "loans"));
-        loanTypeDropdown.innerHTML = ''; // Clear existing options
+   // Call this function with the user's ID when the page loads
+async function initializePolicySummary(userId) {
+    console.log("initializing policy summary");
+    try {
+        const policySummary = await loadPolicySummary(userId);
+        console.log("Policy summary is:", policySummary);
+        displayPolicySummary(policySummary, userId);
+    } catch (error) {
+        console.error("Error fetching policy summary:", error);
+    }
+}
 
-        querySnapshot.forEach((doc) => {
-            const loan = doc.data();
-            const option = document.createElement("option");
-            option.value = loan.loanType;
-            option.textContent = loan.loanType;
-            option.setAttribute('data-amount', loan.loanAmount);
-            option.setAttribute('data-rate', loan.loanInterestRate);
-            loanTypeDropdown.appendChild(option);
+function displayPolicySummary(policySummary, userId) {
+    const summaryContainer = document.getElementById("policy-summary");
+    summaryContainer.innerHTML = ""; // Clear existing summary
+    console.log("Final policy summary is: ", policySummary);
+
+    policySummary.forEach(policy => {
+        summaryContainer.innerHTML += `
+            <div>
+                <h5 style="font-size:1.2rem; text-align:center;padding-bottom: 10px;">Current Policy</h5>
+                
+                <strong>Original Amount:</strong> R${policy.originalAmount ?? 0}<br>
+                <strong>Total Paid:</strong> R${policy.totalPaid ?? 0}<br>
+                <strong>Remaining Balance:</strong> R${policy.remainingBalance ?? 0}<br>
+                  <!-- Make a Claim Button -->
+                <button class="make-claim-button" style="width: 100%; left:0%;" data-userId="${userId}" data-policy-coverage="${policy.coverage}" data-policy-id="${policy.policyId}">Make a Claim</button>
+            </div>
+        `;
+            console.log("policy id is: " + policy.id);
+    });
+     const claimButtons = document.querySelectorAll(".make-claim-button");
+    claimButtons.forEach(button => {
+        button.addEventListener("click", (event) => {
+            const policyId = event.target.getAttribute("data-policy-id");
+            const coverage = event.target.getAttribute("data-policy-coverage");
+            const userId = event.target.getAttribute("data-userId");
+            handleMakeClaim(policyId, coverage, userId);
+        });
+    });
+}
+
+async function loadPolicySummary(userId) {
+    const policySummary = [];
+    
+    // Create a query to get the policies for the specific user
+    const policiesQuery = query(
+        collection(db, "Users Policies"),
+        where("userId", "==", userId)
+    );
+
+    const userPoliciesSnapshot = await getDocs(policiesQuery);
+
+    if (userPoliciesSnapshot.empty) {
+        console.log("No policies found for this user.");
+        return policySummary; // Return early if no policies found
+    }
+
+    await Promise.all(userPoliciesSnapshot.docs.map(async (policyDoc) => {
+        const policyData = policyDoc.data();
+        const policyId = policyDoc.id;
+        const originalAmount = policyData.payment;
+
+        // Get payments for the specific policy
+        const paymentsSnapshot = await getDocs(collection(db, `Users Policies/${policyId}/Payments`));
+        let totalPaid = 0;
+
+      
+            totalPaid = policyDoc.data().paid; // Ensure 'amount' is the correct field name
+
+
+        const remainingBalance = policyData.remaining;
+        const progress = (totalPaid / originalAmount) * 100;
+        const status = remainingBalance <= 0 ? 'Completed' : 'Active'; // Adjust based on remaining balance
+
+        policySummary.push({
+            policyId: policyId,
+            type: policyData.type, // Assuming 'type' is a field for policy type
+            originalAmount: originalAmount,
+            totalPaid: totalPaid,
+            coverage: policyData.coverage,
+            remainingBalance: remainingBalance,
+            progress: Math.min(progress, 100), // Ensure progress doesn't exceed 100%
+            status: status
         });
 
-        // Listen for change event to display loan details
-        loanTypeDropdown.addEventListener('change', function() {
-            const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
-            const loanAmount = selectedOption.getAttribute('data-amount');
-            const loanRate = selectedOption.getAttribute('data-rate');
-            
-            if (loanAmount && loanRate) {
-                loanDetails.innerHTML = `<strong>Loan Amount:</strong> ${loanAmount} <br> <strong>Interest Rate:</strong> ${loanRate}%`;
-            } else {
-                loanDetails.innerHTML = 'Please select a loan type to view details.';
-            }
-        });
+        console.log(`Policy ID: ${policyId}, Original Amount(This month): ${originalAmount}, Total Paid: ${totalPaid}, Remaining Balance: ${remainingBalance}`);
+    }));
 
-        // Handle loan form submission
-        const loanForm = document.getElementById('loanform');
-        if (loanForm) {
-            loanForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
-                const loanType = selectedOption.value;
-                const loanAmount = selectedOption.getAttribute('data-amount');
-                const loanRate = selectedOption.getAttribute('data-rate');
+    console.log("Current policy summary is:", policySummary);
+    return policySummary;
+}
+async function handleMakeClaim(policyId, coverage, userId) {
+    console.log(`Making a claim for policy ID: ${policyId}`);
 
-                if (!loanType || !loanAmount || !loanRate) {
-                    notificationDiv.textContent = 'Please select a valid loan type.';
-                    notificationDiv.style.display = 'block';
-                    return;
-                }
+    // Show the modal overlay and claims form
+    document.getElementById("modal-overlay").style.display = "block";
+    document.getElementById("policy-id").value = policyId; // Pre-fill the policy ID in the claims form
+    const beneficiaryDropdown = document.getElementById("beneficiary-name");
+    beneficiaryDropdown.innerHTML = ''; // Clear existing options
 
-                const loanRequestData = {
-                    userEmail: userDocSnap.data().Email,  // Use the actual user's email from Firestore
-					userName: userDocSnap.data().Name,
-					userSurname: userDocSnap.data().Surname,
-                    type: loanType,
-                    amount: loanAmount,
-                    interestRate: loanRate,
-                    requestType: 'Loan',
-                    timestamp: new Date(),
-                    status: 'pending'
-                };
+    try {
+        // Fetch the user's policy document by policyId
+        const policyDoc = await getDoc(doc(db, "Users Policies", policyId)); // Corrected to use getDoc for a single document
+        
+        if (policyDoc.exists()) {
+            const beneficiaries = policyDoc.data().beneficiaries; // Assuming beneficiaries is an array
 
-                try {
-                    // Add the loan request to Firestore in the "Requests" collection
-                    await addDoc(collection(db, 'Requests'), loanRequestData);
-                    notificationDiv.textContent = 'Loan request submitted successfully.';
-                    notificationDiv.style.display = 'block';
-                    console.log('Loan request submitted successfully:', loanRequestData);
-
-                    // Reset the form after submission
-                    loanForm.reset();
-                    loanDetails.innerHTML = '<p>Please select a loan type to view details.</p>';
-                } catch (error) {
-                    notificationDiv.textContent = `Error submitting loan request: ${error.message}`;
-                    notificationDiv.style.display = 'block';
-                    console.error('Error submitting loan request:', error);
-                }
+            // Populate the beneficiary dropdown
+            beneficiaries.forEach((beneficiary) => {
+                const option = document.createElement("option");
+                option.value = beneficiary.name; // Assuming 'name' is the field for beneficiary's name
+                option.textContent = beneficiary.name;
+                beneficiaryDropdown.appendChild(option);
             });
         } else {
-            console.log("Loan form not found");
+            console.error("Policy document does not exist.");
+            // Handle the case where the policy document is not found
+            alert("Policy not found. Please check the policy ID.");
         }
+    } catch (error) {
+        console.error("Error fetching beneficiaries:", error);
+        alert("An error occurred while fetching beneficiaries. Please try again.");
     }
-	
+    // Add event listener for form submission
+    const claimsForm = document.getElementById("claims-form");
+    claimsForm.onsubmit = async (event) => {
+        event.preventDefault();
+        await setupClaimsForm(coverage, beneficiaryDropdown.value, userId);
+    };
+
+    // Add event listener for closing the modal
+    document.getElementById("close-modal").onclick = () => {
+        document.getElementById("modal-overlay").style.display = "none";
+    };
+
+    // Close the modal if user clicks outside of it
+    window.onclick = (event) => {
+        if (event.target === document.getElementById("modal-overlay")) {
+            document.getElementById("modal-overlay").style.display = "none";
+        }
+    };
+}
+
+async function loadLoanSummary(userId) {
+    const loanSummary = [];
+    // Create a query to get approved loans for the specific user
+    const loansQuery = query(
+        collection(db, "User Loans"),
+        where("status", "==", "Approved"),
+        where("userId", "==", userId)
+    );
+
+    const userLoansSnapshot = await getDocs(loansQuery);
+
+    if (userLoansSnapshot.empty) {
+        console.log("No approved loans found for this user.");
+        return loanSummary; // Return early if no loans found
+    }
+
+    await Promise.all(userLoansSnapshot.docs.map(async (loanDoc) => {
+        const loanData = loanDoc.data();
+        const loanId = loanDoc.id;
+        const originalAmount = loanData.originalAmount;
+
+        // Get payments for the specific loan
+        const paymentsSnapshot = await getDocs(collection(db, `User Loans/${loanId}/Payments`));
+        let totalPaid = 0;
+
+        paymentsSnapshot.forEach(paymentDoc => {
+            totalPaid += paymentDoc.data().Paid; // Ensure 'Paid' is the correct field name
+        });
+
+        const remainingBalance = originalAmount - totalPaid;
+
+        loanSummary.push({
+            LoanId: loanId,
+            OriginalAmount: originalAmount,
+            TotalPaid: totalPaid,
+            RemainingBalance: loanData.dataAmount
+        });
+
+        // You can display this summary on the home page
+        console.log(`Loan ID: ${loanId}, Original Amount: ${originalAmount}, Total Paid: ${totalPaid}, Remaining Balance: ${remainingBalance}`);
+    }));
+
+    console.log("Current loan summary is:", loanSummary);
+    return loanSummary;
+}
+
+// Call this function with the user's ID when the page loads
+async function initializeLoanSummary(userId) {
+    try {
+        const loanSummary = await loadLoanSummary(userId);
+        console.log("Loan summary is:", loanSummary);
+        displayLoanSummary(loanSummary);
+    } catch (error) {
+        console.error("Error fetching loan summary:", error);
+    }
+}
+
+
+function displayLoanSummary(loanSummary) {
+    const summaryContainer = document.getElementById("loan-summary");
+    summaryContainer.innerHTML = ""; // Clear existing summary
+console.log("final loan summary is: " + loanSummary);
+    
+       loanSummary.forEach(loan => {
+        summaryContainer.innerHTML += `
+            <div>
+            
+                         <h5 style="font-size:1.2rem; text-align:center;padding-bottom: 10px;">Current Loan</h5>
+
+                <strong>Original Amount:</strong> R${loan.OriginalAmount}<br>
+                <strong>Total Paid:</strong> R${loan.TotalPaid}<br>
+                <strong>Remaining Balance:</strong> R${loan.RemainingBalance}<br><br>
+            </div>
+        `;
+        });
+}
+
+    // Function to load loans from Firestore
+   async function loadLoans(userDocSnap) {
+    const loanTypeDropdown = document.getElementById("loan-type");
+    const loanDetails = document.getElementById("loan-details");
+    const uploadDocuments = document.getElementById("upload-documents");
+    const customAmount = document.getElementById("custom-loan-amount");
+    const notificationDiv = document.getElementById("loan-notification");
+const customLoanAmountDiv = document.getElementById('custom-loan-amount-div');
+    const customLoanAmountInput = document.getElementById('custom-loan-amount');
+    // Fetch loan data from Firestore
+    const querySnapshot = await getDocs(collection(db, "loans"));
+    loanTypeDropdown.innerHTML = ''; // Clear existing options
+
+    querySnapshot.forEach((doc) => {
+        const loan = doc.data();
+        const option = document.createElement("option");
+        option.value = loan.loanType;
+        option.textContent = loan.loanType;
+        option.setAttribute('data-amount', loan.loanAmount);
+        option.setAttribute('data-rate', loan.loanInterestRate);
+         option.setAttribute('data-duration', loan.loanDuration);
+        option.setAttribute('data-requirements', JSON.stringify(loan.requirements)); // Store requirements as JSON
+        loanTypeDropdown.appendChild(option);
+    });
+
+    // Listen for change event to display loan details and document upload options
+    loanTypeDropdown.addEventListener('change', function() {
+        const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
+        const loanAmount = selectedOption.getAttribute('data-amount');
+        const loanRate = selectedOption.getAttribute('data-rate');
+        const loanDuration = selectedOption.getAttribute('data-duration');
+         const loanType = selectedOption.value;
+        const requirements = JSON.parse(selectedOption.getAttribute('data-requirements'));
+if (loanType === "Custom Loan") {
+            // Display the custom loan input field and set default interest rate and duration
+            customLoanAmountDiv.style.display = 'block';
+            loanDetails.innerHTML = `<strong>Interest Rate:</strong> ${loanRate}% <br> <strong>Duration:</strong> ${loanDuration}`;
+             uploadDocuments.style.display = 'block'; // Show the upload section
+  const nationalIdLabel = document.getElementById('nationalIdLabel');
+    const proofAddressLabel = document.getElementById('proofAddressLabel');
+    const proofIncomeLabel = document.getElementById('proofIncomeLabel');
+    const bankStatementLabel = document.getElementById('bankStatementLabel');
+            // Show/hide file inputs based on requirements
+            document.getElementById('national-id').style.display = requirements.requireId ? 'block' : 'none';
+                nationalIdLabel.style.display = requirements.requireId ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-address').style.display = requirements.requireProofAddress ? 'block' : 'none';
+                proofAddressLabel.style.display = requirements.requireProofAddress ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-income').style.display = requirements.requireIncome ? 'block' : 'none';
+                proofIncomeLabel.style.display = requirements.requireIncome ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('bank-statement').style.display = requirements.requireBankStatement ? 'block' : 'none';
+                bankStatementLabel.style.display = requirements.requireBankStatement ? 'block' : 'none'; // Hide/show label
+
+        }else{
+            customLoanAmountDiv.style.display = 'none'; 
+            if (loanAmount && loanRate && loanDuration) {
+            loanDetails.innerHTML = `<strong>Loan Amount:</strong> ${loanAmount} <br> <strong>Interest Rate:</strong> ${loanRate}% <br> <strong>Duration:</strong> ${loanDuration} months`;
+            uploadDocuments.style.display = 'block'; // Show the upload section
+  const nationalIdLabel = document.getElementById('nationalIdLabel');
+    const proofAddressLabel = document.getElementById('proofAddressLabel');
+    const proofIncomeLabel = document.getElementById('proofIncomeLabel');
+    const bankStatementLabel = document.getElementById('bankStatementLabel');
+            // Show/hide file inputs based on requirements
+            document.getElementById('national-id').style.display = requirements.requireId ? 'block' : 'none';
+                nationalIdLabel.style.display = requirements.requireId ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-address').style.display = requirements.requireProofAddress ? 'block' : 'none';
+                proofAddressLabel.style.display = requirements.requireProofAddress ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-income').style.display = requirements.requireIncome ? 'block' : 'none';
+                proofIncomeLabel.style.display = requirements.requireIncome ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('bank-statement').style.display = requirements.requireBankStatement ? 'block' : 'none';
+                bankStatementLabel.style.display = requirements.requireBankStatement ? 'block' : 'none'; // Hide/show label
+
+        } else {
+            loanDetails.innerHTML = 'Please select a loan type to view details.';
+            uploadDocuments.style.display = 'none'; // Hide the upload section
+             // Also hide all labels when the loan type is not selected
+    nationalIdLabel.style.display = 'none';
+    proofAddressLabel.style.display = 'none';
+    proofIncomeLabel.style.display = 'none';
+    bankStatementLabel.style.display = 'none';
+        }  
+            
+        }
+      
+    });
+
+    // Handle loan form submission
+    const loanForm = document.getElementById('loanform');
+loanForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const selectedOption = loanTypeDropdown.options[loanTypeDropdown.selectedIndex];
+    const loanType = selectedOption.value;
+    const customAmount = document.getElementById("custom-loan-amount");
+    let loanAmount = selectedOption.getAttribute('data-amount');
+    let loanRate = selectedOption.getAttribute('data-rate');
+    let loanDuration = selectedOption.getAttribute('data-duration');
+    
+     if (loanType === "Custom Loan") {
+            loanAmount = customLoanAmountInput.value;
+            loanRate = 15; // Default interest rate for custom loan
+            loanDuration = 12; // Default loan duration for custom loan
+        }
+const existingLoanQuery = query(
+        collection(db, 'Requests'), 
+        where('userId', '==', userDocSnap.data().UserId), 
+        where('requestType', '==', 'Loan'),
+        where('status', '==', 'pending') // Optional: Check only for pending loans
+    );
+
+    try {
+        const existingLoanSnapshot = await getDocs(existingLoanQuery);
+        if (!existingLoanSnapshot.empty) {
+            notificationDiv.textContent = 'You already have a pending loan request.';
+            notificationDiv.style.display = 'block';
+            return; // Exit early if there's an existing loan
+        }
+    } catch (error) {
+        notificationDiv.textContent = `Error checking existing loan request: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        console.error('Error checking existing loan request:', error);
+        return; // Exit early on error
+    }
+  
+    // Collect uploaded documents
+    const documents = {};
+    const files = {
+        nationalId: document.getElementById('national-id').files[0],
+        proofAddress: document.getElementById('proof-address').files[0],
+        proofIncome: document.getElementById('proof-income').files[0],
+        bankStatement: document.getElementById('bank-statement').files[0]
+    };
+
+    // Upload files and get download URLs
+    try {
+        for (const [key, file] of Object.entries(files)) {
+            if (file) {
+                documents[key] = await uploadFile(file);
+            }
+        }
+    } catch (error) {
+        notificationDiv.textContent = `Error uploading documents: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        return; // Exit early if there's an error
+    }
+const calculatedAmount = parseFloat(loanAmount) * parseFloat(loanRate)/100 + parseFloat(loanAmount);
+
+alert("Amount you have to repay is:" + calculatedAmount);
+    const loanRequestData = {
+        userEmail: userDocSnap.data().Email,
+        userName: userDocSnap.data().Name,
+        userId: userDocSnap.data().UserId, 
+        userSurname: userDocSnap.data().Surname,
+        type: loanType,
+        amount: calculatedAmount,
+        interestRate: loanRate,
+        requestType: 'Loan',
+        duration: loanDuration,
+        requestedOn: new Date(),
+        status: 'pending'
+    };
+ // Only include documents if they exist
+    if (Object.keys(documents).length > 0) {
+        loanRequestData.documents = documents; // Add documents only if they are uploaded
+    } else {
+        notificationDiv.textContent = 'Please upload the required documents.';
+        notificationDiv.style.display = 'block';
+        return; // Exit early if no documents are uploaded
+    }
+
+    try {
+        // Add the loan request to Firestore in the "Requests" collection
+        await addDoc(collection(db, 'Requests'), loanRequestData);
+        notificationDiv.textContent = 'Loan request submitted successfully.';
+        notificationDiv.style.display = 'block';
+        console.log('Loan request submitted successfully:', loanRequestData);
+
+        // Reset the form after submission
+        loanForm.reset();
+        loanDetails.innerHTML = '<p>Please select a loan type to view details.</p>';
+        uploadDocuments.style.display = 'none'; // Hide upload section after submission
+    } catch (error) {
+        notificationDiv.textContent = `Error submitting loan request: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        console.error('Error submitting loan request:', error);
+    }
+});
+}
+
+	async function uploadFile(file) {
+    const storageRef = ref(storage, `documents/${file.name}`);
+    
+    // Check the file type
+   if (file.type !== "application/pdf" && file.type !== "image/jpeg" && file.type !== "image/png") {
+    alert("Only PDF, JPEG, and PNG files are allowed.");
+    return;
+}
+    // Upload the file
+    await uploadBytes(storageRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+}
+
+
+
 	    async function loadPolicies(userDocSnap) {
         const policyTypeDropdown = document.getElementById("policy-type");
         const policyDetails = document.getElementById("policy-details");
         const notificationDiv = document.getElementById("funeral-policy-notification");
-
+          const beneficiariesContainer = document.getElementById('beneficiaries-container');
+    const addBeneficiaryButton = document.getElementById('add-beneficiary');
+ const uploadDocuments = document.getElementById("upload-documents1");
+ 
+   addBeneficiaryButton.addEventListener('click', () => {
+        const beneficiaryDiv = document.createElement('div');
+        beneficiaryDiv.className = 'beneficiary';
+        beneficiaryDiv.innerHTML = `
+            <label>Beneficiary Name: <input type="text" class="beneficiary-name" required></label>
+            <label>Relationship: <input type="text" class="beneficiary-relationship" required></label>
+            <label>Contact: <input type="text" class="beneficiary-contact" required></label>
+               <label>ID or Birth Certificate: 
+            <input type="file" class="beneficiary-document" accept=".jpg,.jpeg,.png,.pdf" required>
+        </label>
+        `;
+        beneficiariesContainer.appendChild(beneficiaryDiv);
+    });
         // Fetch loan data from Firestore
         const querySnapshot = await getDocs(collection(db, "policies"));
         policyTypeDropdown.innerHTML = ''; // Clear existing options
@@ -783,6 +1800,7 @@ let chatId = null;
             option.textContent = policy.policyType;
             option.setAttribute('coverage', policy.coverage);
             option.setAttribute('payment', policy.payment);
+             option.setAttribute('data-requirements', JSON.stringify(policy.requirements)); // Store requirements as JSON
             policyTypeDropdown.appendChild(option);
         });
 
@@ -791,11 +1809,34 @@ let chatId = null;
             const selectedOption = policyTypeDropdown.options[policyTypeDropdown.selectedIndex];
             const policyCoverage = selectedOption.getAttribute('coverage');
             const payment = selectedOption.getAttribute('payment');
-            
+             const requirements = JSON.parse(selectedOption.getAttribute('data-requirements'));
             if (policyCoverage && payment) {
                 policyDetails.innerHTML = `<strong>Coverage:</strong> ${policyCoverage} <br> <strong>Payment:</strong> ${payment}`;
+                 uploadDocuments.style.display = 'block'; // Show the upload section
+const nationalIdLabel = document.getElementById('nationalIdLabel1');
+    const proofAddressLabel = document.getElementById('proofAddressLabel1');
+    const proofIncomeLabel = document.getElementById('proofIncomeLabel1');
+    const bankStatementLabel = document.getElementById('bankStatementLabel1');
+            // Show/hide file inputs based on requirements
+            document.getElementById('national-id1').style.display = requirements.requireId ? 'block' : 'none';
+                            nationalIdLabel.style.display = requirements.requireId ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-address1').style.display = requirements.requireProofAddress ? 'block' : 'none';
+                            proofAddressLabel.style.display = requirements.requireProofAddress ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('proof-income1').style.display = requirements.requireIncome ? 'block' : 'none';
+                            proofIncomeLabel.style.display = requirements.requireIncome ? 'block' : 'none'; // Hide/show label
+
+            document.getElementById('bank-statement1').style.display = requirements.requireBankStatement ? 'block' : 'none';
+                            bankStatementLabel.style.display = requirements.requireBankStatement ? 'block' : 'none'; // Hide/show label
+
             } else {
                 policyDetails.innerHTML = 'Please select a policy type to view details.';
+                  uploadDocuments.style.display = 'none'; // Hide the upload section
+                   nationalIdLabel.style.display = 'none';
+    proofAddressLabel.style.display = 'none';
+    proofIncomeLabel.style.display = 'none';
+    bankStatementLabel.style.display = 'none';
             }
         });
 
@@ -808,25 +1849,110 @@ let chatId = null;
                 const policyType = selectedOption.value;
                 const policyCoverage = selectedOption.getAttribute('coverage');
                 const payment = selectedOption.getAttribute('payment');
+const existingPolicyQuery = query(
+        collection(db, 'Requests'), 
+        where('userId', '==', userDocSnap.data().UserId), 
+        where('requestType', '==', 'Funeral Policy'),
+        where('status', '==', 'pending') // Optional: Check only for pending loans
+    );
 
+    try {
+        const existingPolicySnapshot = await getDocs(existingPolicyQuery);
+        if (!existingPolicySnapshot.empty) {
+            notificationDiv.textContent = 'You already have a pending policy request.';
+            notificationDiv.style.display = 'block';
+            return; // Exit early if there's an existing loan
+        }
+    } catch (error) {
+        notificationDiv.textContent = `Error checking existing policy request: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        console.error('Error checking policy loan request:', error);
+        return; // Exit early on error
+    }
                 if (!policyType || !policyCoverage || !payment) {
                     notificationDiv.textContent = 'Please select a valid policy type.';
                     notificationDiv.style.display = 'block';
                     return;
                 }
+ // Collect uploaded documents
+    const documents = {};
+    const files = {
+        nationalId: document.getElementById('national-id1').files[0],
+        proofAddress: document.getElementById('proof-address1').files[0],
+        proofIncome: document.getElementById('proof-income1').files[0],
+        bankStatement: document.getElementById('bank-statement1').files[0]
+    };
 
+    // Upload files and get download URLs
+    try {
+        for (const [key, file] of Object.entries(files)) {
+            if (file) {
+                documents[key] = await uploadFile(file);
+            }
+        }
+    } catch (error) {
+        notificationDiv.textContent = `Error uploading documents: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        return; // Exit early if there's an error
+    }
+      const beneficiaries = Array.from(document.querySelectorAll('.beneficiary')).map(div => {
+           const documentFile = div.querySelector('.beneficiary-document').files[0];
+        if (!documentFile) {
+            notificationDiv.textContent = 'Each beneficiary must provide an ID or birth certificate document.';
+            notificationDiv.style.display = 'block';
+            return null; // Return null to indicate missing document
+        }
+            return {
+                name: div.querySelector('.beneficiary-name').value,
+                relationship: div.querySelector('.beneficiary-relationship').value,
+                contact: div.querySelector('.beneficiary-contact').value,
+                 document: documentFile // Include document for upload
+            };
+        }).filter(beneficiary => beneficiary !== null); // Filter out any null values
+
+        if (beneficiaries.length === 0) {
+            notificationDiv.textContent = 'Please add at least one beneficiary.';
+            notificationDiv.style.display = 'block';
+            return;
+        }
+     // Upload beneficiary documents
+    const beneficiaryDocuments = {};
+    try {
+        for (const beneficiary of beneficiaries) {
+            // Upload each beneficiary's document
+            const documentUrl = await uploadFile(beneficiary.document);
+            beneficiaryDocuments[beneficiary.name] = documentUrl; // Store the document URL
+        }
+    } catch (error) {
+        notificationDiv.textContent = `Error uploading beneficiary documents: ${error.message}`;
+        notificationDiv.style.display = 'block';
+        return; // Exit early on error
+    }
                 const policyRequestData = {
                     userEmail: userDocSnap.data().Email,  // Use the actual user's email from Firestore
-					userName: userDocSnap.data().Name,
-					userSurname: userDocSnap.data().Surname,
-                    policyType: policyType,
+		    userName: userDocSnap.data().Name,
+	            userSurname: userDocSnap.data().Surname,
+                    userId: userDocSnap.data().UserId,
+                    type: policyType,
                     coverage: policyCoverage,
-                    payment: payment,
+                    amount: payment,
+              beneficiaries: beneficiaries.map(beneficiary => ({
+            name: beneficiary.name,
+            relationship: beneficiary.relationship,
+            contact: beneficiary.contact,
+            documentUrl: beneficiaryDocuments[beneficiary.name] // Include document URL
+        })),
+                    requestedOn: new Date(),
                     requestType: 'Funeral Policy',
-                    timestamp: new Date(),
                     status: 'pending'
                 };
-
+if (Object.keys(documents).length > 0) {
+        policyRequestData.documents = documents; // Add documents only if they are uploaded
+    } else {
+        notificationDiv.textContent = 'Please upload the required documents.';
+        notificationDiv.style.display = 'block';
+        return; // Exit early if no documents are uploaded
+    }
                 try {
                     // Add the loan request to Firestore in the "Requests" collection
                     await addDoc(collection(db, 'Requests'), policyRequestData);
@@ -835,7 +1961,7 @@ let chatId = null;
                     console.log('Policy request submitted successfully:', policyRequestData);
 
                     // Reset the form after submission
-                    policyForm.reset();
+                    policyForm.innerHtml = '';
                     policyDetails.innerHTML = '<p>Please select a policy type to view details.</p>';
                 } catch (error) {
                     notificationDiv.textContent = `Error submitting policy request: ${error.message}`;
@@ -875,6 +2001,50 @@ async function findUserChatId(userId) {
     return null;
 }
 
+async function setupClaimsForm(coverage, beneficiary, userId) {
+    const claimsForm = document.getElementById('claims-form');
+    const notificationDiv = document.getElementById('claims-notification');
+
+    claimsForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const policyId = document.getElementById('policy-id').value;
+        const relationship = document.getElementById('relationship').value;
+        const deceasedName = document.getElementById('deceased-name').value;
+        const deathCertificate = document.getElementById('death-certificate').files[0];
+
+        if (!policyId || !relationship || !deceasedName || !deathCertificate) {
+            notificationDiv.textContent = 'Please fill in all required fields.';
+            notificationDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            const certificateUrl = await uploadFile(deathCertificate); // Function to upload file
+
+            const claimData = {
+                policyId: policyId,
+                beneficiaryName: beneficiary,
+                relationship: relationship,
+                deceasedName: deceasedName,
+                userId: userId,
+                coverage: coverage,
+                deathCertificate: certificateUrl,
+                status: 'Pending', // Initial status
+                submittedOn: new Date()
+            };
+
+            // Save claim to Firestore
+            await addDoc(collection(db, 'Claims'), claimData);
+            notificationDiv.textContent = 'Claim submitted successfully.';
+            notificationDiv.style.display = 'block';
+            claimsForm.reset(); // Reset form fields
+        } catch (error) {
+            notificationDiv.textContent = `Error submitting claim: ${error.message}`;
+            notificationDiv.style.display = 'block';
+        }
+    });
+}
 
 
  window.addEventListener('DOMContentLoaded', (event) => {

@@ -3,48 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kubadu Financial Services</title>
+    <title>Welcome to Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* Basic CSS reset */
+        * {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            box-sizing: border-box;
+        }
+		html {
+    font-size: 16px;
+}
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        header {
+            background: #f9f9f9;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            text-align: left;
+        }
+
+        header h1 {
+            font-size: 2em;
+			margin-left:20px;
+                        background: rgb(0,42,255);
+background: linear-gradient(90deg, #004AAD, #00BF63);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+               display:inline;
+        }
+
+        main {
+            padding: 20px 0;
+        }
+
+        /* Home section with transitions */
+        #home {
+            background: url('images/landingimage.jpg') no-repeat center center/cover;
+            color: #fff;
+            text-align: center;
+            position: relative;
+            min-height: 400px;
+           
+        }
+
+        #home .overlay {
+            background: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
 
-        .kubadu {
-            font-size: 36px;
-            color: #001f3f; /* Dark Blue */
+     
+
+        #home h2 {
+            font-size: 48px;
             margin-bottom: 20px;
-            text-transform: uppercase;
+            color: #fff;
+            animation-delay: 1s;
         }
 
-        .financial-services {
+        #home p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            color: #fff;
+            animation-delay: 1.5s;
+        }
+
+        #home button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #004AAD;
+            color: white;
+            cursor: pointer;
+            animation-delay: 2s;
+        }
+
+        #home button:hover {
+            background-color: #00BF63;
+        }
+/* Style the home section */
+#home {
+    position: relative;
+    min-height: 400px;
+    background-color: #004AAD;
+    color: #fff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.overlay {
+    position: relative;
+}
+
+.slider {
+    position: relative;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.slider-text-container {
+    position: relative;
+    overflow: hidden;
+    height: 100px; /* Adjust the height based on the text size */
+}
+
+.slider-text {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    transition: opacity 1s ease-in-out;
+}
+
+.slider-text.active {
+    opacity: 1;
+}
+
+        /* Animation keyframes */
+        @keyframes fadeInText {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInImage {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* About Us section */
+        #about h2 {
+            text-align: center;
+            margin-bottom: 20px;
+			margin-top: 20px;
+			 color: #000000;
+        }
+
+        #about p {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        /* Features section */
+        #features {
+            background: #f9f9f9;
+            padding: 50px 0;
+        }
+
+        #features .container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            flex: 1 1 30%;
+            background: #fff;
+            padding: 20px;
+            margin: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+           
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-item img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .feature-item h3 {
             font-size: 24px;
-            color: #001f3f; /* Dark Blue */
-            text-transform: uppercase;
+            color: #004AAD;
+            margin-bottom: 10px;
         }
 
-        .green {
-            color: #007e3a; /* Dark Green */
+        .feature-item p {
+            font-size: 16px;
+            color: #666;
         }
+
+        @keyframes fadeInFeature {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+h2 {
+ text-align: center;
+            color: #000000;
+            margin-bottom: 20px;
+}
+        footer {
+            background: #000000;
+            color: #fff;
+            text-align: center;
+            padding: 30px 0;
+      
+        }
+		
+		
+        .container1 {
+            
+           text-align: center;
+        }
+.container1 button {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 15px;
+    font-family: 'Montserrat', sans-serif;
+    color: #00BF63;
+    font-weight: bold;
+    background: none;
+    cursor: pointer;
+    position: relative; /* Needed for ::before to be positioned relative to the button */
+    overflow: hidden;
+}
+
+.container1 button::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%; /* Start from the middle */
+    width: 0;
+    height: 1px;
+    background-color: black; /* Line color */
+    transition: width 0.4s ease, left 0.4s ease; /* Animate width and position */
+}
+@media (max-width: 768px) {
+     header h1{
+        font-size: 1.5rem; 
+         
+     }
+            nav ul {
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 20px;;
+                background-color: #fff;
+                width: 100%;
+                max-width: 200px;
+                display: none;
+                padding: 10px;
+                box-shadow: 5px 5px 5px grey;
+                border-radius: 20px;
+                z-index:1;
+              
+            }
+
+            nav ul li {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            nav ul.show {
+                display: block;
+            }
+
+            .hamburger {
+                display:block !important;
+                width:100%;
+              
+            }
+        }
+      
+.container1 button:hover {
+    background-color: #fff;
+    color: #00C04B;
+}
+
+.container1 button:hover::before {
+    width: 100%; /* Expand line to full width */
+    left: 0; /* Move line to start from the left */
+}
+ form label {
+            margin-bottom: 30px;
+        }
+
+        form input,
+        form textarea {
+            padding: 10px;
+			margin: auto;
+			margin-bottom: 30px;
+  width: 100%;
+            font-size: 1em;
+        }
+
+        form button {
+  display: inline-block;
+    padding: 10px 15px;
+    background-color: #4158D0;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: none;
+            font-size: 1em;
+        }
+		
+		button[type="submit"]:hover {
+background-color: #C850C0;
+}
+		
+		#contact {
+		text-align:center;
+		display: flex;
+		 background: #f9f9f9;
+		}
+                 @keyframes gradientMove {
+    0% {
+        background-position: 100% 50%; /* Start from right */
+    }
+    100% {
+        background-position: 0% 50%; /* Move to left */
+    }
+}
+
     </style>
-    <script>
-        // JavaScript function to redirect to the "about_us.html" page after a delay
-        window.onload = function() {
-            setTimeout(function() {
-                window.location.href = "about_us.html"; 
-            }, 3000); // Adjust the delay (in milliseconds) as needed, 3000 milliseconds = 3 seconds
-        };
-    </script>
 </head>
 <body>
-    <div class="kubadu">K<span class="green">U</span>BA<span class="green">D</span>U</div>
-    <div class="financial-services">Financial Services</div>
+  <header>
+        <div class="container">
+            <h1>Kubadu Services</h1>
+            
+        </div>
+    </header>
+ 
+    <!-- Welcome Section with animations -->
+    <main>
+      <section id="home">
+    <div class="overlay">
+        <h2 style="font-size:2rem;">Welcome to Kubadu Services</h2>
+        <div class="slider">
+            <div class="slider-text-container">
+                <div class="slider-text active">Your trusted partner for loans, funeral policies, and claims.</div>
+                <div class="slider-text">We provide flexible loan options to meet your financial needs.</div>
+                <div class="slider-text">Our comprehensive funeral policies ensure peace of mind.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    
+        <!-- About Us Section -->
+        <section id="about">
+            <div class="container">
+                <h2>About Us</h2>
+                <p>Kubadu Financial Services is dedicated to providing financial solutions tailored to meet your needs. Our mission is to offer reliable financial assistance and services to individuals and businesses.</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+		<h2 style="font-size:2rem; background: rgb(0,0,0);
+background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 47%, rgba(255,255,255,1) 50%, rgba(0,0,0,1) 53%, rgba(0,0,0,1) 100%);
+ -webkit-text-fill-color: transparent; /* Transparent text to show gradient */
+    -webkit-background-clip: text;
+    background-size:150%; /* Further increase background size for smoother animation */
+    animation: gradientMove 6s infinite ease-in; /* Longer animation for smoothness */">What we offer:</h2>
+            <div class="container">
+                <div class="feature-item">
+                    <img src="icons/loan.png" alt="Loans" style="width:2rem; height:auto;">
+                    <h3 style="background: rgb(0,42,255);
+background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;">Flexible Loan Options</h3>
+                    <p>Choose from a variety of loan types to meet your financial needs.</p>
+                </div>
+                <div class="feature-item">
+                    <img src="icons/policy.png" alt="Funeral Policy" style="width:2rem; height:auto;">
+                    <h3 style="background: rgb(0,42,255);
+background: linear-gradient(90deg, #fc00ff 0%, #00dbde 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;">Funeral Policies</h3>
+                    <p>Comprehensive funeral policies that ensure peace of mind.</p>
+                </div>
+             
+            </div>
+        </section>
+			<div class="container1" style="width:100%; justify-content: space-between; padding:30px; background: #004AAD;">
+                            <h3 style="color:#fff;">Enjoy our financial solutions.</h3>
+				<button onclick="location.href='login.html'" style="background:#fff; color: #004AAD; text-align: center;">Login</button>
+                <button onclick="location.href='Register.html'" style="background:#fff; color: #004AAD; text-align: center;">Register</button>
+				</div>
+				
+				
+        <section id="contact">
+            <div class="container">
+                <h2 style="margin-top:20px;">Contact Us</h2>
+                <p style="margin-bottom: 30px;">Get in touch with us for more information or assistance.</p>
+                <form id="contactForm">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+<label for="subject">Subject</label>
+                    <textarea id="subject" name="subject" required></textarea>
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required></textarea>
+                    
+                    <button type="submit" style="font-family: Montserrat, sans-serif;">Send Message</button>
+                </form>
+            </div>
+            
+        </section>
+        <div id="responseMessage" style="background: yellow; color: fff; text-align: center;"/>
+    </main>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+  
+    let currentIndex = 0;
+    const slides = document.querySelectorAll('.slider-text');
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active');
+            if (i === index) {
+                slide.classList.add('active');
+            }
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        showSlide(currentIndex);
+    }
+
+    // Automatically change slides every 4 seconds
+    setInterval(nextSlide, 3000);
+</script>
+<script type="module">
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
+        authDomain: "login-b62bd.firebaseapp.com",
+        projectId: "login-b62bd",
+        storageBucket: "login-b62bd.appspot.com",
+        messagingSenderId: "861930818449",
+        appId: "1:861930818449:web:1c5f962893ca85ecf5a830",
+        measurementId: "G-KHJSX85R56"
+    };
+
+   let app;
+if (!initializeApp.length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = initializeApp(firebaseConfig);
+}
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const analytics = getAnalytics(app);
+const storage = getStorage(app);
+
+    document.getElementById('contactForm').addEventListener('submit', async function (e) {
+    e.preventDefault();  // Prevent the form from submitting the traditional way
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+    const subject = document.getElementById('subject').value;
+
+    // Send the form data to Firebase Firestore or Realtime Database
+    try {
+        await addDoc(collection(db, "CustomerInquiries"), {
+            name: name,
+            email: email,
+   subject: subject,
+            message: message,
+            status: "pending",  // Set initial status to "pending"
+            timestamp: new Date()
+        });
+
+        // Show success message to the user
+        document.getElementById('responseMessage').innerText = "Your message has been sent!";
+    } catch (error) {
+        console.error("Error adding message: ", error);
+        document.getElementById('responseMessage').innerText = "There was an error sending your message. Please try again.";
+    }
+});
+
+</script>
 </body>
+
 </html>

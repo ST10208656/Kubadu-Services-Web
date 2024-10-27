@@ -98,8 +98,8 @@
             <table id="dataTable">
                 <thead>
                     <tr>
-                        <th>Loan ID</th>
-                        <th>Loan Type</th>
+                        <th>Policy ID</th>
+                        <th>Policy Type</th>
 						<th>Remaining Amount</th>
                         
                     </tr>
@@ -141,7 +141,7 @@
 	if(db){
 	console.log("firestore is initialized successfully");
 	
-const q = query(collection(db, "User Loans"));
+const q = query(collection(db, "Users Policies"));
 
 const querySnapshot = await getDocs(q);
 querySnapshot.forEach((doc) => {
@@ -151,7 +151,7 @@ querySnapshot.forEach((doc) => {
   
   
   //const timestamp = data.timestamp.toDate().toLocaleString();
-  const rowData = [doc.id, data.type, data.dataAmount];
+  const rowData = [doc.id, data.type, data.remaining];
   
   const rowElement = document.createElement("tr");
 
