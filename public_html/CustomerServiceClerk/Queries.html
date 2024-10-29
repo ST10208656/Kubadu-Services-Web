@@ -95,12 +95,45 @@ Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/html.html to edit this
             margin-bottom: 10px;
             color: #004AAD;
         }
+        .back-btn {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin-top:20px;
+            margin-left: 20px;
+            text-align: center;
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background-color: #003580;
+        }
+        footer {
+            background-color: #004AAD;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            border-top: #00C04B 3px solid;
+        }
     </style>
     </head>
     <body>
+        <header>
+        <div class="container">
+            <h1>Manage Funeral Policies - Kubadu Services</h1>
+        </div>
+    </header>
+        <a href="indexCSC.html" class="back-btn">Back to Dashboard</a>
        <h1>Customer Inquiries</h1>
 <div id="inquiriesList"></div>
-
+ <footer>
+        <div class="container">
+            <p>&copy; 2024 Kubadu Services. All rights reserved.</p>
+        </div>
+    </footer>
     </body>
     <script type="module">
          import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";

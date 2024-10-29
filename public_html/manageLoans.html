@@ -165,7 +165,7 @@
     </header>
     <main>
         <div class="container">
-            <a href="index.html" class="back-btn">Back to Dashboard</a>
+            <a href="Dashboard.html" class="back-btn">Back to Dashboard</a>
             <div class="card">
                 <h2>Add New Loan</h2>
                 <form id="add-loan-form" class="add-loan-form">
@@ -597,8 +597,7 @@ function attachSubmitButtonListeners() {
 
                     // Set the dataAmount to zero since balance cannot be negative
                     await updateDoc(doc(db, "User Loans", docId), {
-                        dataAmount: 0,
-                        status: 'Completed'                      
+                        dataAmount: 0                    
                     });
                     
                 } else {
@@ -646,12 +645,12 @@ async function updateWalletBalance(userId) {
 
         // Calculate remaining balance for this loan
         remainingBalance = originalAmount - totalPayments;
-        alert("Remaining balance for loan is: " + remainingBalance);
+        
 
         // Accumulate the remaining balance for loans
         totalRemainingBalance += remainingBalance;
     }
-alert("total remaining baalnce 0n is: " + totalRemainingBalance);
+
     // Step 4: Query all policies for the user
     const policiesQuery = query(collection(db, "Users Policies"), where("userId", "==", userId));
     const policiesSnapshot = await getDocs(policiesQuery);
@@ -675,19 +674,19 @@ alert("total remaining baalnce 0n is: " + totalRemainingBalance);
 
         // Calculate remaining balance for this policy
         remainingBalance1 = originalAmount - totalPolicyPayments;
-        alert("Remaining balance for policy is: " + remainingBalance1);
+        
 
         // Accumulate the remaining balance for policies
         totalRemainingBalance += remainingBalance1;
     }
     console.log(totalRemainingBalance + "remainging balance");
 
-    alert("Final total remaining balance is: " + totalRemainingBalance);
+
 
     // Step 7: Check if there's an extra payment (negative remaining balance)
     if (totalRemainingBalance < 0) {
         const extraPayment = Math.abs(totalRemainingBalance);
-        alert('Extra payment is: ' + extraPayment);
+        
 
         // Step 8: Update the user's wallet with the extra payment
         const userDocRef = doc(db, "Customers", userId);

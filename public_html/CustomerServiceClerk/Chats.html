@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #fff;
             color: #333;
         }
 
@@ -151,6 +151,22 @@
             border-top: 3px solid #77d667;
             margin-top: 20px;
         }
+        .back-btn {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin-top:20px;
+            margin-left: 20px;
+            text-align: center;
+            background-color: #004AAD;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background-color: #003580;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +175,8 @@
             <h1>Customer service clerk Dashboard - Kubadu Services</h1>
         </div>
     </header>
+            <a href="indexCSC.html" class="back-btn">Back to Dashboard</a>
+
     <main>
        <div id="available-chats">
     <h3>Available Chats</h3>
@@ -199,7 +217,7 @@ function toggleChatWindow() {
 </script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, getDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
@@ -225,9 +243,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 var currentChatId = "";
+let userID = null;
 onAuthStateChanged(auth, (user) => {
     if (user) {
         loadAssignedChats(); // Load assigned chats for the authenticated user
+        userID = user.uid;
     } else {
         console.log("No user is logged in.");
         // Handle user not logged in (e.g., redirect to login page)
@@ -255,7 +275,7 @@ const chatWindow = document.getElementById("chat-window");
         snapshot.forEach(doc => {
             const chatData = doc.data();
             const chatItem = document.createElement("li");
-            chatItem.innerHTML = `Chat with Customer ${chatData.Name} ${chatData.Surname} <button class="assignChatBtn" data-chat-id="${doc.id}">Assign to Me</button>`;
+            chatItem.innerHTML = `Chat with Customer ${chatData.name} ${chatData.surname} <button class="assignChatBtn" data-chat-id="${doc.id}">Assign to Me</button>`;
             chatList.appendChild(chatItem);
         });
     }
@@ -306,42 +326,33 @@ document.addEventListener('click', function(event) {
     
 
 async function loadChatMessages(chatId) {
-    // Fetch chat data to get the name and surname
-    const chatRef = doc(db, "chats", chatId); // Reference to the chat document
-    const chatDoc = await getDoc(chatRef); // Fetch the chat document
+    try {
+        const chatRef = doc(db, "chats", chatId);
+        const chatDoc = await getDoc(chatRef);
 
-    if (!chatDoc.exists()) {
-        console.error("Chat not found!");
-        return;
-    }
-
-    const chatData = chatDoc.data(); // Get chat data (Name and Surname)
-    const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); // Query messages subcollection
-    const messagesList = document.getElementById("messages-list");
-
-    if (!messagesList) {
-        console.error("Messages list element not found!");
-        return;
-    }
-
-    onSnapshot(messagesQuery, (snapshot) => {
-        console.log("Snapshot received:", snapshot);
-        if (snapshot.empty) {
-            console.log("No messages found for this chat.");
+        if (!chatDoc.exists()) {
+            console.error("Chat not found!");
             return;
         }
 
-        messagesList.innerHTML = ''; // Clear existing messages
-        snapshot.forEach(doc => {
-            currentChatId = chatId;
-            const messageData = doc.data();
-            const messageItem = document.createElement("li");
+        const chatData = chatDoc.data();
+        const messagesQuery = query(collection(db, `chats/${chatId}/messages`), orderBy("timestamp"));
+        const messagesList = document.getElementById("messages-list");
+        messagesList.innerHTML = ''; // Clear any existing messages
 
-            // Use chatData for Name and Surname and messageData for message content and timestamp
-            messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${chatData.name} ${chatData.surname}: ${messageData.message}`;
-            messagesList.appendChild(messageItem);
+        onSnapshot(messagesQuery, (snapshot) => {
+                messagesList.innerHTML = ''; // Clear any existing messages
+            snapshot.forEach((doc) => {
+                const messageData = doc.data();
+                const messageItem = document.createElement("li");
+                messageItem.innerText = `${messageData.timestamp.toDate().toLocaleString()} - ${messageData.name}: ${messageData.message}`;
+                messagesList.appendChild(messageItem);
+            });
         });
-    });
+        toggleChatWindow(); // Ensure chat window is shown
+    } catch (error) {
+        console.error("Error loading chat messages:", error);
+    }
 }
 
 // Function to mark a chat as resolved
@@ -388,15 +399,21 @@ async function loadAssignedChats() {
     }
 
     onSnapshot(assignedChatsQuery, (snapshot) => {
-        assignedChatList.innerHTML = ''; // Clear existing chats
+    assignedChatList.innerHTML = ''; // Clear the list
+    if (snapshot.empty) {
+        const noChatsMessage = document.createElement("li");
+        noChatsMessage.textContent = "No assigned chats available.";
+        assignedChatList.appendChild(noChatsMessage);
+    } else {
         snapshot.forEach(doc => {
             const chatData = doc.data();
             const chatItem = document.createElement("li");
-            chatItem.innerHTML = `Chat with Customer: ${chatData.name} ${chatData.surname}  <button class="loadMessageBtn" onclick="toggleChatWindow()" data-message-id="${doc.id}">Open Chat</button>View Messages</button>`;
-           console.log(chatData);
-                assignedChatList.appendChild(chatItem);
+            chatItem.innerHTML = `Chat with Customer ${chatData.name} ${chatData.surname} <button class="loadMessageBtn" data-message-id="${doc.id}">Load Messages</button>`;
+            assignedChatList.appendChild(chatItem);
         });
-    });
+    }
+});
+
 }
 
 // Load assigned chats on window load
@@ -405,6 +422,7 @@ window.onload = async function() {
 
     if (user) {
         await loadAssignedChats(); // Only call this function if the user is logged in
+        userID = user.uid;
     } else {
         console.log("User is not logged in. Cannot load assigned chats.");
         // Optionally, redirect to login page or show a message
@@ -415,7 +433,8 @@ window.onload = async function() {
 async function sendMessageToChat(chatId) {
             const user = auth.currentUser;
             const messageInput = document.getElementById("message");
-
+const userDocRef = doc(db, 'employees', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
             if (user) {
                 const message = messageInput.value.trim();
 
@@ -423,7 +442,7 @@ async function sendMessageToChat(chatId) {
                     const chatDocRef = doc(db, "chats", chatId);
                     const messageData = {
                         userID: user.uid,
-                        name: user.displayName || "Anonymous",
+                        name: userDocSnap.data().name || "Anonymous",
                         message: message,
                         timestamp: new Date()
                     };
@@ -431,7 +450,6 @@ async function sendMessageToChat(chatId) {
                     try {
                         await addDoc(collection(chatDocRef, "messages"), messageData);
                         messageInput.value = "";  // Clear input field after sending
-                        loadChatMessages(chatId);  // Reload messages after sending
                     } catch (error) {
                         console.error("Error sending message: ", error);
                     }
