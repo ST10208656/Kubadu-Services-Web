@@ -209,7 +209,8 @@ background: linear-gradient(90deg, #004AAD, #00BF63);
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDocs, query, where, updateDoc, onSnapshot, getDoc, } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAauhTRKCxnwpXvfdvRMXfU1K9oFvYgRRE",
@@ -223,53 +224,78 @@ background: linear-gradient(90deg, #004AAD, #00BF63);
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+   const auth = getAuth(app); 
+    
+    let userID = null;
+let userDocRef = null;
+let userDocSnap = null;
+let chatId = null;
+window.onLoad = checkUserLogin();
+async function checkUserLogin() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User is logged in:", user);
+                userID = user.uid; // Store user ID
+                userDocRef = doc(db, 'Customers', userID); // Reference to the user document
+ 
 
-    const pendingRequestList = document.getElementById("pendingRequestList");
-    const approvedRequestList = document.getElementById("approvedRequestList");
-
-    const q = query(collection(db, "Requests"));
-
-    onSnapshot(q, (snapshot) => {
-        pendingRequestList.innerHTML = 'No pending request made.';
-        approvedRequestList.innerHTML = '';
-
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const requestedOn = data.requestedOn ? data.requestedOn.toDate().toLocaleString() : "No Timestamp Available";
-            const approvedOn = data.approvedOn ? data.approvedOn.toDate().toLocaleString() : "Not Approved";
-
-            const requestCard = document.createElement("div");
-            requestCard.classList.add("request-card");
-            requestCard.innerHTML = `
-                <div class="request-info">
-                    <div>
-                        <strong>Request ID:</strong> ${doc.id}<br>
-                        <strong>User Name:</strong> ${data.userName} ${data.userSurname}<br>
-                        <strong>Request Type:</strong> ${data.requestType}<br>
-                        <strong>Amount:</strong> ${data.amount}<br>
-                        <strong>Requested On:</strong> ${requestedOn}
-                    </div>
-                    ${data.status === "Approved" ? `<strong>Approved On:</strong> ${approvedOn}` : ""}
-                </div>
-                <div class="request-details">
-                    <p><strong>Details:</strong> ${data.details || "No additional details provided."}</p>
-                </div>
-            `;
-
-            if (data.status === "Approved") {
-                approvedRequestList.appendChild(requestCard);
+                try {
+                    const userDocSnap = await getDoc(userDocRef); // Await the document snapshot
+                    if (userDocSnap.exists()) {
+                        loadRequests(userDocSnap.data().UserId);
+                        console.log("User data:", userDocSnap.data()); // Successfully retrieved user data
+                      
+                    } else {
+                        alert("Please login first.");
+                         window.location.href = "login.html"; // Redirect to login page
+                    }
+                } catch (error) {
+                    console.error("Error fetching user document:", error); // Handle errors
+                }
             } else {
-                const actionButtons = document.createElement("div");
-                actionButtons.classList.add("action-buttons");
-                actionButtons.innerHTML = `
-                    
-                `;
-                requestCard.appendChild(actionButtons);
-                pendingRequestList.appendChild(requestCard);
+                console.log("No user is signed in.");
+                alert("You must log in");
+                window.location.href = "login.html"; // Redirect to login page
             }
         });
-    });
+    }
+      const pendingRequestList = document.getElementById("pendingRequestList");
+        const approvedRequestList = document.getElementById("approvedRequestList");
+  function loadRequests(userID) {
+            const q = query(collection(db, "Requests"), where("userId", "==", userID));
+            
+            onSnapshot(q, (snapshot) => {
+                pendingRequestList.innerHTML = '';
+                approvedRequestList.innerHTML = '';
 
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const requestedOn = data.requestedOn ? data.requestedOn.toDate().toLocaleString() : "No Timestamp Available";
+                    const approvedOn = data.approvedOn ? data.approvedOn.toDate().toLocaleString() : "Not Approved";
+
+                    const requestCard = document.createElement("div");
+                    requestCard.classList.add("request-card");
+                    requestCard.innerHTML = `
+                        <div>
+                            <strong>Request ID:</strong> ${doc.id}<br>
+                            <strong>User Name:</strong> ${data.userName} ${data.userSurname}<br>
+                            <strong>Request Type:</strong> ${data.requestType}<br>
+                            <strong>Amount:</strong> ${data.amount}<br>
+                            <strong>Requested On:</strong> ${requestedOn}
+                        </div>
+                        <p><strong>Details:</strong> ${data.details || "No additional details provided."}</p>
+                    `;
+
+                    if (data.status === "Approved") {
+                        requestCard.innerHTML += `<strong>Approved On:</strong> ${approvedOn}`;
+                        approvedRequestList.appendChild(requestCard);
+                    } else {
+                       requestCard.innerHTML += `<strong>Requested On:</strong> ${requestedOn}`;
+                        pendingRequestList.appendChild(requestCard);
+                    }
+                });
+            });
+        }
     // Approve and Deny actions
     pendingRequestList.addEventListener("click", async (e) => {
         if (e.target.classList.contains("approve-btn")) {

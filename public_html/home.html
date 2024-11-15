@@ -328,6 +328,8 @@ header a:hover::before {
             box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             border-radius: 10px;
+             max-height: 80vh; /* Limits the form's height */
+               overflow-y: auto; /* Enables vertical scrolling */
         }
 
         .popup-form h3 {
@@ -760,10 +762,15 @@ color: #fff;
                 align-items: flex-start;
                 width:100%;
             }
-
+ #balance-dash h2 {
+               text-align: center;
+               width: 100%;
+               padding-bottom: 0px;
+            }
             #wallet-balance-section {
                 align-items: center;
                 width: 100%;
+               
             }
 
             #wallet-balance-section h3 {
@@ -793,6 +800,14 @@ color: #fff;
    
 
 }
+ .summaryContent {
+        flex-direction: row; /* Align items horizontally on larger screens */
+        justify-content: space-evenly;
+    }
+
+    #loan-summary, #policy-summary {
+        width: 48%; /* Each summary box takes half the container's width */
+    }
         }
          /* Hamburger icon for small screens */
      
@@ -828,13 +843,14 @@ color: #fff;
 
           <h2 style="text-align: center; color:#000000; margin:auto 0;">Summary:</h2>
         <div class="summaryContent">
-          
+                  <p id="noMessage1" class="no-data-message" style="display: none; text-align: center;">No loan data available</p>
+  <p id="noMessage2" class="no-data-message" style="display: none; text-align:center;">No policy data available</p>
            <div id="loan-summary">
-       
             
         </div>  
             <div id="policy-summary">
-       
+             
+
             
         </div> 
             
@@ -899,15 +915,16 @@ color: #fff;
     <h3>Apply for a Loan</h3>
     <form id="loanform">
         <label for="loan-type">Loan Type:</label>
+
         <select id="loan-type" name="loan-type">
             <option value="personalLoan">Personal Loan</option>
             <option value="businessLoan">Business Loan</option>
             <option value="homeLoan">Home Loan</option>
         </select><br><br>
-        
-        <div id="loan-details">
-           
-        </div>
+            <div id="loan-details">
+          Please select a loan type to view details. 
+        </div>     
+       
  <div id="custom-loan-amount-div" style="display:none;">
         <label for="custom-loan-amount">Specify Loan Amount:</label>
         <input type="number" id="custom-loan-amount" placeholder="Enter loan amount">
@@ -1047,7 +1064,7 @@ function toggleChatWindow() {
 	<script type="module">
 	
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, getDoc, query, where, getDocs, orderBy, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
@@ -1102,6 +1119,19 @@ const listenForRecentRequests = (userId) => {
     // Return unsubscribe function if you want to stop listening later
     return unsubscribe;
 };
+function checkSummaryContent() {
+    const loanSummary = document.getElementById("loan-summary");
+    const policySummary = document.getElementById("policy-summary");
+
+    // Show "No data available" if the summary is empty
+    if (loanSummary.innerHTML.trim() === "") {
+        loanSummary.querySelector(".no-data-message").style.display = "block";
+    }
+
+    if (policySummary.innerHTML.trim() === "") {
+        policySummary.querySelector(".no-data-message").style.display = "block";
+    }
+}
 
 const displayRecentRequests = (requests) => {
     const requestContainer = document.getElementById("recent-requests");
@@ -1353,6 +1383,11 @@ function displayPolicySummary(policySummary, userId) {
     summaryContainer.innerHTML = ""; // Clear existing summary
     console.log("Final policy summary is: ", policySummary);
 
+if(policySummary.length === 0){
+    
+  summaryContainer.style.display = 'none';
+  document.getElementById('noMessage2').style.display = 'block';
+}
     policySummary.forEach(policy => {
         summaryContainer.innerHTML += `
             <div>
@@ -1542,7 +1577,11 @@ function displayLoanSummary(loanSummary) {
     const summaryContainer = document.getElementById("loan-summary");
     summaryContainer.innerHTML = ""; // Clear existing summary
 console.log("final loan summary is: " + loanSummary);
+    if(loanSummary.length === 0){
     
+  summaryContainer.style.display = 'none';
+  document.getElementById('noMessage1').style.display = 'block';
+}
        loanSummary.forEach(loan => {
         summaryContainer.innerHTML += `
             <div>
@@ -1569,7 +1608,12 @@ const customLoanAmountDiv = document.getElementById('custom-loan-amount-div');
     // Fetch loan data from Firestore
     const querySnapshot = await getDocs(collection(db, "loans"));
     loanTypeDropdown.innerHTML = ''; // Clear existing options
-
+const defaultOption = document.createElement("option");
+defaultOption.value = "";
+defaultOption.textContent = "Select Loan Type";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+loanTypeDropdown.appendChild(defaultOption);
     querySnapshot.forEach((doc) => {
         const loan = doc.data();
         const option = document.createElement("option");
@@ -1770,6 +1814,13 @@ alert("Amount you have to repay is:" + calculatedAmount);
 
 	    async function loadPolicies(userDocSnap) {
         const policyTypeDropdown = document.getElementById("policy-type");
+         policyTypeDropdown.innerHTML = ''; // Clear existing options
+        const defaultOption = document.createElement("option");
+defaultOption.value = "";
+defaultOption.textContent = "Select policy Type";
+defaultOption.disabled = true;
+defaultOption.selected = true;
+policyTypeDropdown.appendChild(defaultOption);
         const policyDetails = document.getElementById("policy-details");
         const notificationDiv = document.getElementById("funeral-policy-notification");
           const beneficiariesContainer = document.getElementById('beneficiaries-container');
@@ -1791,9 +1842,11 @@ alert("Amount you have to repay is:" + calculatedAmount);
     });
         // Fetch loan data from Firestore
         const querySnapshot = await getDocs(collection(db, "policies"));
-        policyTypeDropdown.innerHTML = ''; // Clear existing options
+        
+       
 
         querySnapshot.forEach((doc) => {
+            
             const policy = doc.data();
             const option = document.createElement("option");
             option.value = policy.policyType;
@@ -2054,7 +2107,8 @@ async function setupClaimsForm(coverage, beneficiary, userId) {
 async function sendMessage() {
     const user = auth.currentUser;  // Get the current user
     const messageInput = document.getElementById("message");
-
+ const userDocRef = doc(db, 'Customers', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
     if (user) {
         const message = messageInput.value.trim();
 
@@ -2109,11 +2163,18 @@ async function sendMessage() {
 
                 // Step 2: Add the message to the chat's messages subcollection
                 if (chatStatus !== "resolved") {
+                    console.log("you are here now");
+                    const userData = userDocSnap.data() || {}; // Fallback to an empty object if data is null
+if (!userData) {
+    console.error("User data is null or undefined.");
+    return; // Stop execution if userData is not available
+}
+console.log("User Data:", userData);
                     const messageData = {
                         userID: user.uid,
                         message: message,
-                        name: user.displayName || 'Anonymous',  // Use 'Anonymous' if displayName is missing
-                        surname: '', // You can replace this if surname data is available elsewhere
+                        name: userData.Name || 'Anonymous',  // Use 'Anonymous' if displayName is missing
+                        surname: userData.Surname, // You can replace this if surname data is available elsewhere
                         timestamp: new Date()
                     };
 
@@ -2153,7 +2214,7 @@ async function loadChatMessages(chatId) {
         
        
             // Now load messages for the chat
-            const messagesQuery = query(collection(db, `chats/${chatId}/messages`)); 
+            const messagesQuery = query(collection(db, `chats/${chatId}/messages`),orderBy("timestamp")); 
             const messagesList = document.getElementById("messages-list");
 
             if (!messagesList) {

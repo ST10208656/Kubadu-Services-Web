@@ -151,7 +151,7 @@ signInWithEmailAndPassword(auth, email, password)  // Pass auth as the first par
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-   alert("Error during sign-in: ", errorMessage);
+   alert("Error during sign-in: ", error.message);
   });
             }
         } else {
