@@ -1,0 +1,200 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="25dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <com.example.kubaduservices1.GradientTextView
+            android:id="@+id/textViewFuneralPolicy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Request for Funeral Policies"
+            android:textColor="#004AAD"
+            android:textSize="24sp" />
+
+        <Spinner
+            android:id="@+id/policyTypeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_below="@id/textViewFuneralPolicy"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="53dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_text_background"
+            android:fontFamily="@font/montserrat"
+            android:textColor="#7A7A7A"
+            android:textColorHint="#7A7A7A" />
+
+        <TextView
+            android:id="@+id/policyDetailsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/policyTypeSpinner"
+            android:layout_marginTop="16dp" />
+
+        <!-- Spinner for selecting the number of beneficiaries -->
+        <Spinner
+            android:id="@+id/beneficiaryCountSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_below="@id/policyDetailsTextView"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_background"
+            android:fontFamily="@font/montserrat"
+            android:textColor="#7A7A7A"
+            android:textColorHint="#7A7A7A" />
+
+        <!-- Add TextInputEditText and Buttons for Beneficiary Name and Document Upload -->
+
+        <LinearLayout
+            android:id="@+id/beneficiaryLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/beneficiaryCountSpinner"
+            android:layout_marginTop="24dp">
+
+            <!-- Beneficiary 1 -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:padding="12dp"
+                android:id="@+id/beneficiaryNameInput1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Beneficiary 1 Name"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/edit_text_background"
+                android:textColor="#7A7A7A"
+                android:textColorHint="#7A7A7A"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/birthCertificateButton1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Document for Beneficiary 1"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/button_gradient"
+                app:backgroundTint="@null" />
+
+            <!-- Beneficiary 2 -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:padding="12dp"
+                android:id="@+id/beneficiaryNameInput2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Beneficiary 2 Name"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/edit_text_background"
+                android:textColor="#7A7A7A"
+                android:textColorHint="#7A7A7A"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/birthCertificateButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Document for Beneficiary 2"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/button_gradient"
+                app:backgroundTint="@null" />
+
+            <!-- Beneficiary 3 -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:padding="12dp"
+                android:id="@+id/beneficiaryNameInput3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Beneficiary 3 Name"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/edit_text_background"
+                android:textColor="#7A7A7A"
+                android:textColorHint="#7A7A7A"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/birthCertificateButton3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Document for Beneficiary 3"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/button_gradient"
+                app:backgroundTint="@null" />
+
+            <!-- Beneficiary 4 -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:padding="12dp"
+                android:id="@+id/beneficiaryNameInput4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Beneficiary 4 Name"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/edit_text_background"
+                android:textColor="#7A7A7A"
+                android:textColorHint="#7A7A7A"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/birthCertificateButton4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Document for Beneficiary 4"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/button_gradient"
+                app:backgroundTint="@null" />
+
+            <!-- Beneficiary 5 -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:padding="12dp"
+                android:id="@+id/beneficiaryNameInput5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Beneficiary 5 Name"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/edit_text_background"
+                android:textColor="#7A7A7A"
+                android:textColorHint="#7A7A7A"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/birthCertificateButton5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="Select Document for Beneficiary 5"
+                android:fontFamily="@font/montserrat"
+                android:background="@drawable/button_gradient"
+                app:backgroundTint="@null" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/applyPolicyButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/beneficiaryLayout"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Apply for Policy"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/applyPolicyButton"
+            android:layout_marginTop="58dp"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Back to Home"
+            app:backgroundTint="@null" />
+    </RelativeLayout>
+</ScrollView>

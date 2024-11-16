@@ -1,0 +1,154 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="25dp">
+
+        <com.example.kubaduservices1.GradientTextView
+            android:id="@+id/loanFormTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="Apply for a Loan"
+            android:fontFamily="@font/montserrat_bold"
+            android:textSize="24sp" />
+
+        <!-- Spinner for Loan Type -->
+        <Spinner
+            android:id="@+id/loanTypeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="16dp"
+            android:hint="Select Loan Type"/>
+
+        <EditText
+            android:id="@+id/loanAmountEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="17dp"
+            android:background="@drawable/edit_text_background"
+            android:fontFamily="@font/montserrat"
+            android:hint="Enter loan amount"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:textColor="#7A7A7A"
+            android:textColorHint="#BDBDBD"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+        <TextView
+            android:id="@+id/interestRateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Interest Rate: 15%"
+            android:textColor="#7A7A7A"
+            android:fontFamily="@font/montserrat"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/bankSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="16dp"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+        <Spinner
+            android:id="@+id/paymentMethodSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="16dp"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+        <EditText
+            android:id="@+id/accountNumberEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_background"
+            android:fontFamily="@font/montserrat"
+            android:hint="Enter account number"
+            android:inputType="number"
+            android:minHeight="48dp"
+            android:textColor="#7A7A7A"
+            android:textColorHint="#BDBDBD"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+        <EditText
+            android:id="@+id/cellphoneEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_background"
+            android:fontFamily="@font/montserrat"
+            android:hint="Enter cellphone number"
+            android:inputType="phone"
+            android:minHeight="48dp"
+            android:textColor="#7A7A7A"
+            android:textColorHint="#BDBDBD"
+            android:visibility="gone" /> <!-- Initially hidden -->
+
+        <TextView
+            android:id="@+id/requiredDocumentsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Please upload the following documents:"
+            android:textColor="#7A7A7A"
+            android:fontFamily="@font/montserrat"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/uploadDocumentsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Upload Documents"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/applyLoanButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Apply for Loan"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Back to Home"
+            app:backgroundTint="@null" />
+
+        <TextView
+            android:id="@+id/loanNotificationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="#4FAF4C"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>

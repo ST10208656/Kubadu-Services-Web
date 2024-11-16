@@ -1,0 +1,55 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <string name="app_name">Kubadu Services</string>
+    <string name="open_navigation_drawer" />
+    <string name="close_navigation_drawer" />
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- A simple string to inform users of the fixed interest rate -->
+    <string name="loan_interest_rate_info">Interest Rate: 15% for all loan amounts</string>
+    <string name="interest_rate_text">Interest Rate: 15%</string>
+    <string name="confirm_loan_title">Confirm Loan Application</string>
+    <string name="confirm_loan_message">You are about to apply for a loan of %1$s. The total repayment amount will be %2$s.</string>
+    <string name="loan_request_successful">Loan request for R%s submitted successfully!</string>
+    <string name="loan_request_failed">Loan request failed: %s</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_valid_amount_and_upload">Please enter a valid loan amount and upload all required documents (ID, Proof of Residence, and Payslip).</string>
+    <string name="select_documents">Select Document to Upload</string>
+    <string name="upload_id_document">ID Document</string>
+    <string name="upload_proof_of_residence">Proof of Residence</string>
+    <string name="upload_payslip">Payslip (3 months)</string>
+    <string name="id_document_selected">ID document selected</string>
+    <string name="proof_of_residence_selected">Proof of residence selected</string>
+    <string name="payslip_selected">Payslip selected</string>
+    <string name="loan_request_submitted_message">Loan request submitted. We will notify you once it is reviewed.</string>
+    <string name="user_not_authenticated">User not authenticated. Please login to apply for a loan.</string>
+    <string name="document_upload_failed">Failed to upload document: %s</string>
+    <string name="id_upload_success">ID document uploaded successfully!</string>
+    <string name="proof_of_residence_upload_success">Proof of residence uploaded successfully!</string>
+    <string name="payslip_upload_success">Payslip uploaded successfully!</string>
+
+
+    <string-array name="policy_types">
+        <item>Basic Funeral Policy</item>
+        <item>Premium Funeral Policy</item>
+    </string-array>
+    <string-array name="funeral_policy_details_basic">
+        <item>Coverage: R50000</item>
+        <item>Premium: R50/month</item>
+    </string-array>
+
+    <string-array name="funeral_policy_details_premium">
+        <item>Coverage: R100000</item>
+        <item>Premium: R100/month</item>
+    </string-array>
+
+    <string name="hint_claim_submission">Please submit a copy of the death certificate to claim the funeral policy.</string>
+    <string name="confirm_claim_submission">Confirm claim submission?</string>
+    <string name="claim_submission_success">Claim submitted successfully.</string>
+    <string name="claim_submission_failure">Failed to upload document.</string>
+    <string name="record_claim_success">Claim request recorded.</string>
+    <string name="record_claim_failure">Failed to record claim request: %1$s</string>
+    <string name="proof_of_income_upload_success">Proof of Income uploaded successfully!</string>
+
+
+</resources>

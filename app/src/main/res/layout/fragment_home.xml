@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
+
+        <!-- Welcome Message -->
+        <com.example.kubaduservices1.GradientTextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Welcome, User!"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Buttons to navigate to LoanFragment and FuneralPolicyFragment arranged horizontally -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/loanButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_gradient"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white"
+                app:backgroundTint="@null"
+                android:text="Loan"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/funeralPolicyButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_gradient"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white"
+                app:backgroundTint="@null"
+                android:text="Funeral Policy" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="30dp"
+            android:orientation="vertical"
+            android:layout_marginVertical="20dp"
+            android:background="@color/black"
+            >
+            <com.example.kubaduservices1.GradientTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:text="Wallet Balance"
+                android:textAlignment="center"
+                android:textColor="#004AAD"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/card_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textAlignment="center"
+                android:text="Loading..." />
+            <TextView
+                android:id="@+id/wallet_balance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_bold"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textAlignment="center"
+                android:text="R0.00" />
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Notifications"
+            android:textColor="#004AAD"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/notificationsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/montserrat"
+            android:padding="8dp"
+            android:text="No new notifications." />
+
+        <!-- Promotions or News -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Latest News"
+            android:textColor="#004AAD"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/newsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:padding="8dp"
+            android:text="Stay tuned for the latest updates." />
+    </LinearLayout>
+</ScrollView>

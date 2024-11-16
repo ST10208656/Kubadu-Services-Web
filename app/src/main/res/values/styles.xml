@@ -1,0 +1,15 @@
+
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here -->
+        <item name="android:textAppearance">@style/CustomTextAppearance</item>
+    </style>
+
+    <!-- Custom Text Appearance for NavigationView items -->
+    <style name="CustomTextAppearance" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+</resources>

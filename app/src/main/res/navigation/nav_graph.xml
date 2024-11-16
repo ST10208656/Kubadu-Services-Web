@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.kubaduservices1.HomeFragment"
+        android:label="HomeFragment" />
+
+    <fragment
+        android:id="@+id/loanFragment"
+        android:name="com.example.kubaduservices1.LoanFragment"
+        android:label="LoanFragment" />
+
+    <fragment
+        android:id="@+id/funeralPolicyFragment"
+        android:name="com.example.kubaduservices1.FuneralPolicyFragment"
+        android:label="FuneralPolicyFragment" />
+
+    <fragment
+        android:id="@+id/claimsFragment"
+        android:name="com.example.kubaduservices1.Claims"
+        android:label="ClaimsFragment" />
+
+    <fragment
+        android:id="@+id/ServicesRequestedFragment"
+        android:name="com.example.kubaduservices1.ServicesRequestedFragment"
+        android:label="ServicesRequestedFragment" />
+
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.kubaduservices1.ProfileFragment"
+        android:label="ProfileFragment" />
+
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.example.kubaduservices1.SettingsFragment"
+        android:label="SettingsFragment" />
+
+    <action
+        android:id="@+id/action_homeFragment_to_loanFragment"
+        app:destination="@id/loanFragment" />
+
+    <action
+        android:id="@+id/action_homeFragment_to_funeralPolicyFragment"
+        app:destination="@id/funeralPolicyFragment" />
+
+    <action
+        android:id="@+id/action_homeFragment_to_claimsFragment"
+        app:destination="@id/claimsFragment" />
+
+</navigation>

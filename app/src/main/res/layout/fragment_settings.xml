@@ -1,0 +1,69 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Title TextView -->
+    <com.example.kubaduservices1.GradientTextView
+        android:id="@+id/settingsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp" />
+
+
+
+    <!-- Button Layout for Logout and Delete Account -->
+
+
+    <!-- Back to Home Button -->
+
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settingsTitle"
+        android:layout_marginTop="244dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Logout"
+            android:textColor="@color/white"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/deleteAccountButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_gradient"
+            android:fontFamily="@font/montserrat"
+            android:text="Delete Account"
+            android:textColor="@color/white"
+            app:backgroundTint="@null" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/backToHomeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonLayout"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/button_gradient"
+        android:fontFamily="@font/montserrat"
+        android:text="Back to Home"
+        android:textColor="@color/white"
+        app:backgroundTint="@null" />
+</RelativeLayout>
