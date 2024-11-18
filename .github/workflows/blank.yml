@@ -3,21 +3,21 @@ name: Web Admin CI/CD
 on:
   push:
     branches:
-      - webAdminBranch
-  pull_request:
-    branches:
-      - webAdminBranch
-  workflow_dispatch:  # This allows manual triggering from GitHub UI
+      - webAdminBranch  # Adjust to the correct branch name
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Navigate to the correct directory
+        run: cd Kubadu-Services-Web  # Change this if the folder is different (like client/)
+
       - name: Install dependencies
-        run: npm install
+        run: npm install  # This will now run in the public_html or client/ directory
 
       - name: Run tests
-        run: npm test
+        run: npm test  # If you want to run tests after install
