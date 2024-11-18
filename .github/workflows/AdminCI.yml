@@ -3,21 +3,19 @@ name: Web Admin CI/CD
 on:
   push:
     branches:
-      - webAdminBranch  # Adjust to your target branch
-  workflow_dispatch:  # Allows manual triggering from GitHub Actions tab
+      - webAdminBranch
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository code
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: webAdminBranch  # Adjust the branch
 
-      # Cache Node.js dependencies
+      # Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -30,37 +28,41 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # Specify the Node.js version
+          node-version: '20'
 
       # Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Install Chrome and ChromeDriver
-      - name: Install Chrome
+      # Install Chrome
+      - name: Install Google Chrome
         run: sudo apt-get install -y google-chrome-stable
 
+      # Install ChromeDriver matching Chrome version
       - name: Install ChromeDriver
-        run: npm install chromedriver@latest
+        run: |
+          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+')
+          npm install chromedriver@$CHROME_VERSION
+          chmod +x node_modules/.bin/chromedriver
 
-      # Set up Xvfb for headless browser testing
+      # Start Xvfb for headless testing
       - name: Start Xvfb
         run: |
           sudo apt-get install -y xvfb
           Xvfb :99 & export DISPLAY=:99
 
-      # List files to verify directory structure (Debugging step)
-      - name: List files
-        run: ls -la
-
-      # Run Selenium tests
+      # Run Selenium tests in headless mode
       - name: Run Selenium tests
-        run: npm run test:selenium
+        env:
+          DISPLAY: :99
+        run: |
+          google-chrome-stable --version
+          node_modules/.bin/chromedriver --version
+          npm run test:selenium -- --headless
 
-      # Upload test results (Optional)
-      - name: Archive test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: test-results/
+      # Debug step: Print log files
+      - name: Print Chrome logs
+        run: |
+          if [ -f /var/log/google-chrome/chrome_debug.log ]; then
+            cat /var/log/google-chrome/chrome_debug.log
+          fi
