@@ -34,7 +34,11 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}
-
+            
+   # Step 4: Grant execute permission for Gradle wrapper
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
+        
       # Step 6: Run tests
       - name: Run tests
         run: ./gradlew test
