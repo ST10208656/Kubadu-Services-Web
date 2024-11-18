@@ -1,4 +1,4 @@
-name: Admin Branch CI/CD
+name: Web Admin CI/CD
 
 on:
   push:
@@ -7,22 +7,22 @@ on:
   pull_request:
     branches:
       - webAdminBranch
+  workflow_dispatch:  # This allows manual triggering from GitHub UI
 
 jobs:
-  build-admin:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js (if you're using Node.js)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
       - name: Install dependencies
         run: npm install
 
-      - name: Run Admin tests (if you have tests for your admin panel)
+      - name: Run tests
         run: npm test
-
-      - name: Deploy Admin (if you deploy from this branch)
-        run: |
-          # Add commands to deploy to your admin dashboard environment
-          echo "Deploying Admin Dashboard"
