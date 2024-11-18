@@ -40,30 +40,32 @@ jobs:
       - name: Install Google Chrome
         run: sudo apt-get install -y google-chrome-stable
 
-      # Step 6: Install ChromeDriver matching Chrome version
-      - name: Install ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+' | head -1)  # Extract Chrome version
-          npm install chromedriver@$CHROME_VERSION || npm install chromedriver@latest  # Install matching chromedriver version
-          chmod +x node_modules/.bin/chromedriver  # Ensure chromedriver is executable
+      # Step 6: Install webdriver-manager to handle ChromeDriver automatically
+      - name: Install webdriver-manager
+        run: npm install webdriver-manager --save-dev
 
-      # Step 7: Start Xvfb (X virtual framebuffer) for headless testing
+      # Step 7: Download and start chromedriver with webdriver-manager
+      - name: Start chromedriver
+        run: |
+          ./node_modules/.bin/webdriver-manager update  # Downloads the chromedriver automatically
+          ./node_modules/.bin/webdriver-manager start  # Start chromedriver
+
+      # Step 8: Start Xvfb (X virtual framebuffer) for headless testing
       - name: Start Xvfb
         run: |
           sudo apt-get install -y xvfb  # Install Xvfb if not present
           Xvfb :99 & export DISPLAY=:99  # Start Xvfb and set DISPLAY environment variable
 
-      # Step 8: Run Selenium tests in headless mode
+      # Step 9: Run Selenium tests in headless mode
       - name: Run Selenium tests
         env:
-          DISPLAY: :99  # Ensure the DISPLAY environment variable is set for headless mode
-          CHROMEDRIVER_PATH: "./node_modules/.bin/chromedriver"  # Set the path here
+          DISPLAY: :99
         run: |
           google-chrome-stable --version  # Check Chrome version
           chromedriver --version  # Check chromedriver version
           npm run test:selenium -- --headless  # Run Selenium tests in headless mode
 
-      # Step 9: Debugging - Print Chrome logs in case of errors
+      # Step 10: Debugging - Print Chrome logs in case of errors
       - name: Print Chrome logs
         run: |
           if [ -f /var/log/google-chrome/chrome_debug.log ]; then  # Check if Chrome debug log exists
