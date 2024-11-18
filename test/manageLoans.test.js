@@ -1,93 +1,295 @@
-import { getFirestore } from 'firebase/firestore';
+// Import functions to test
+import { loadLoans, viewLoanDetails, approveLoan, rejectLoan } from '../public_html/js/manageLoans.js';
 
-describe('Manage Loans', () => {
-    let db;
+// Mock Firebase modules
+jest.mock('firebase/app', () => ({
+    initializeApp: jest.fn()
+}));
 
-    beforeEach(() => {
-        document.body.innerHTML = `
-            <div id="loan-list"></div>
-            <div id="loan-details"></div>
-            <div id="status-filters">
-                <button id="pending-filter">Pending</button>
-                <button id="approved-filter">Approved</button>
-                <button id="rejected-filter">Rejected</button>
-            </div>
-            <input type="text" id="search-input" />
-            <button id="approve-btn">Approve</button>
-            <button id="reject-btn">Reject</button>
+jest.mock('firebase/firestore', () => {
+    const mockDb = {};
+    return {
+        getFirestore: jest.fn(() => mockDb),
+        collection: jest.fn(),
+        query: jest.fn(),
+        where: jest.fn(),
+        orderBy: jest.fn(),
+        getDocs: jest.fn(),
+        doc: jest.fn(),
+        getDoc: jest.fn(),
+        updateDoc: jest.fn(),
+        deleteDoc: jest.fn(),
+        mockDb
+    };
+});
+
+// Import mocked Firebase objects
+const { 
+    getFirestore, collection, query, where, orderBy, getDocs, 
+    doc, getDoc, updateDoc, deleteDoc, mockDb
+} = require('firebase/firestore');
+
+// Mock Firebase auth
+const auth = { currentUser: { uid: 'testUserId' } };
+window.auth = auth;
+
+beforeEach(() => {
+    // Clear all mocks
+    jest.clearAllMocks();
+    
+    // Reset the DOM
+    document.body.innerHTML = `
+        <div id="loans-list"></div>
+        <div id="loan-details"></div>
+        <div id="loanDetailsModal"></div>
+    `;
+
+    // Mock window.alert and console.error
+    window.alert = jest.fn();
+    window.console.error = jest.fn();
+
+    // Mock bootstrap Modal
+    window.bootstrap = {
+        Modal: jest.fn().mockImplementation(() => ({
+            show: jest.fn()
+        }))
+    };
+
+    // Mock helper functions
+    window.createLoanElement = jest.fn().mockImplementation((id, loan) => {
+        const div = document.createElement('div');
+        div.className = 'loan-item';
+        div.innerHTML = `
+            <h3>${loan.type}</h3>
+            <p>Amount: ${loan.amount}</p>
+            <p>Status: ${loan.status}</p>
+            <button onclick="viewLoanDetails('${id}')">View Details</button>
+            ${loan.status === 'pending' ? `
+                <button onclick="approveLoan('${id}')">Approve</button>
+                <button onclick="rejectLoan('${id}')">Reject</button>
+            ` : ''}
         `;
-
-        // Setup Firebase mock
-        db = {
-            collection: jest.fn(() => ({
-                get: jest.fn().mockResolvedValue({ docs: [] }),
-                where: jest.fn().mockReturnThis()
-            }))
-        };
-        global.db = db;
+        return div;
     });
 
-    // Basic DOM element tests
-    test('should have loan list container', () => {
-        const loanList = document.getElementById('loan-list');
-        expect(loanList).not.toBeNull();
+    window.createLoanDetailsHTML = jest.fn().mockImplementation((loan) => `
+        <h2>Loan Details</h2>
+        <p>Type: ${loan.type}</p>
+        <p>Amount: ${loan.amount}</p>
+        <p>Status: ${loan.status}</p>
+        <p>Request Date: ${loan.requestDate.toDate().toLocaleDateString()}</p>
+        <p>Purpose: ${loan.purpose || ''}</p>
+        ${loan.approvedDate ? `<p>Approved Date: ${loan.approvedDate.toDate().toLocaleDateString()}</p>` : ''}
+        ${loan.rejectedDate ? `<p>Rejected Date: ${loan.rejectedDate.toDate().toLocaleDateString()}</p>` : ''}
+    `);
+
+    window.areDocumentsVerified = jest.fn().mockImplementation((loan) => {
+        return loan.documents && loan.documents.every(doc => doc.verified === true);
+    });
+});
+
+describe('Loan Management', () => {
+    describe('loadLoans', () => {
+        test('should load and display loans', async () => {
+            const mockLoan = {
+                id: 'loan1',
+                data: () => ({
+                    type: 'Personal',
+                    amount: 1000,
+                    status: 'pending',
+                    requestDate: {
+                        toDate: () => new Date()
+                    }
+                })
+            };
+
+            const mockDocs = {
+                forEach: jest.fn((callback) => {
+                    callback(mockLoan);
+                    callback(mockLoan);
+                })
+            };
+
+            const mockQuerySnapshot = {
+                forEach: mockDocs.forEach
+            };
+
+            collection.mockReturnValue('loansRef');
+            query.mockReturnValue('queryRef');
+            getDocs.mockResolvedValue(mockQuerySnapshot);
+
+            await loadLoans();
+
+            expect(collection).toHaveBeenCalledWith(mockDb, 'loans');
+            expect(orderBy).toHaveBeenCalledWith('requestDate', 'desc');
+            expect(query).toHaveBeenCalledWith('loansRef', expect.any(Function));
+            expect(getDocs).toHaveBeenCalledWith('queryRef');
+            expect(mockDocs.forEach).toHaveBeenCalledTimes(1);
+            expect(window.createLoanElement).toHaveBeenCalledTimes(2);
+        });
+
+        test('should handle errors when loading loans', async () => {
+            getDocs.mockRejectedValue(new Error('Failed to load'));
+
+            await loadLoans();
+
+            expect(window.alert).toHaveBeenCalledWith('Error loading loans. Please try again.');
+        });
     });
 
-    test('should have loan details container', () => {
-        const loanDetails = document.getElementById('loan-details');
-        expect(loanDetails).not.toBeNull();
+    describe('viewLoanDetails', () => {
+        test('should display loan details in modal', async () => {
+            const mockLoanRef = {
+                id: 'loan123'
+            };
+            const mockLoan = {
+                exists: () => true,
+                data: () => ({
+                    type: 'Personal',
+                    amount: 1000,
+                    status: 'pending',
+                    requestDate: {
+                        toDate: () => new Date()
+                    },
+                    purpose: 'Home renovation'
+                })
+            };
+
+            doc.mockReturnValue(mockLoanRef);
+            getDoc.mockResolvedValue(mockLoan);
+
+            await viewLoanDetails('loan123');
+
+            expect(doc).toHaveBeenCalledWith(mockDb, 'loans', 'loan123');
+            expect(getDoc).toHaveBeenCalledWith(mockLoanRef);
+            expect(window.createLoanDetailsHTML).toHaveBeenCalledWith(mockLoan.data());
+            expect(window.bootstrap.Modal).toHaveBeenCalled();
+        });
+
+        test('should handle errors when viewing loan details', async () => {
+            getDoc.mockRejectedValue(new Error('Failed to load'));
+
+            await viewLoanDetails('loan123');
+
+            expect(window.alert).toHaveBeenCalledWith('Error loading loan details. Please try again.');
+        });
     });
 
-    test('should have status filter buttons', () => {
-        const pendingFilter = document.getElementById('pending-filter');
-        const approvedFilter = document.getElementById('approved-filter');
-        const rejectedFilter = document.getElementById('rejected-filter');
-        
-        expect(pendingFilter).not.toBeNull();
-        expect(approvedFilter).not.toBeNull();
-        expect(rejectedFilter).not.toBeNull();
+    describe('approveLoan', () => {
+        test('should approve a valid loan', async () => {
+            const mockLoanRef = {
+                id: 'loan123'
+            };
+            const mockLoan = {
+                exists: () => true,
+                data: () => ({
+                    documents: [{ verified: true }, { verified: true }],
+                    status: 'pending'
+                })
+            };
+
+            doc.mockReturnValue(mockLoanRef);
+            getDoc.mockResolvedValue(mockLoan);
+            updateDoc.mockResolvedValue();
+            window.areDocumentsVerified.mockReturnValue(true);
+
+            await approveLoan('loan123');
+
+            expect(doc).toHaveBeenCalledWith(mockDb, 'loans', 'loan123');
+            expect(updateDoc).toHaveBeenCalledWith(mockLoanRef, expect.objectContaining({
+                status: 'approved',
+                approvedBy: 'testUserId',
+                approvedDate: expect.any(Date)
+            }));
+            expect(window.alert).toHaveBeenCalledWith('Loan approved successfully!');
+        });
+
+        test('should handle non-existent loan', async () => {
+            const mockLoan = {
+                exists: () => false,
+                data: () => null
+            };
+
+            getDoc.mockResolvedValue(mockLoan);
+
+            await approveLoan('loan123');
+
+            expect(updateDoc).not.toHaveBeenCalled();
+            expect(window.console.error).toHaveBeenCalled();
+            expect(window.alert).toHaveBeenCalledWith('Error approving loan. Please try again.');
+        });
+
+        test('should handle unverified documents', async () => {
+            const mockLoanRef = {
+                id: 'loan123'
+            };
+            const mockLoan = {
+                exists: () => true,
+                data: () => ({
+                    documents: [{ verified: true }, { verified: false }],
+                    status: 'pending'
+                })
+            };
+
+            doc.mockReturnValue(mockLoanRef);
+            getDoc.mockResolvedValue(mockLoan);
+            window.areDocumentsVerified.mockReturnValue(false);
+
+            await approveLoan('loan123');
+
+            expect(doc).toHaveBeenCalledWith(mockDb, 'loans', 'loan123');
+            expect(updateDoc).not.toHaveBeenCalled();
+            expect(window.alert).toHaveBeenCalledWith('All required documents must be verified before approval.');
+            expect(window.console.error).not.toHaveBeenCalled();
+        });
+
+        test('should handle errors during approval', async () => {
+            const mockLoan = {
+                exists: () => true,
+                data: () => ({
+                    documents: [{ verified: true }, { verified: true }],
+                    status: 'pending'
+                })
+            };
+
+            getDoc.mockResolvedValue(mockLoan);
+            updateDoc.mockRejectedValue(new Error('Failed to approve'));
+            window.areDocumentsVerified.mockReturnValue(true);
+
+            await approveLoan('loan123');
+
+            expect(window.console.error).toHaveBeenCalled();
+            expect(window.alert).toHaveBeenCalledWith('Error approving loan. Please try again.');
+        });
     });
 
-    test('should have search input', () => {
-        const searchInput = document.getElementById('search-input');
-        expect(searchInput).not.toBeNull();
-    });
+    describe('rejectLoan', () => {
+        test('should reject an existing loan', async () => {
+            const mockLoanRef = {
+                id: 'loan123'
+            };
 
-    test('should have action buttons', () => {
-        const approveBtn = document.getElementById('approve-btn');
-        const rejectBtn = document.getElementById('reject-btn');
-        
-        expect(approveBtn).not.toBeNull();
-        expect(rejectBtn).not.toBeNull();
-    });
+            doc.mockReturnValue(mockLoanRef);
+            updateDoc.mockResolvedValue();
 
-    // Simple Firebase interaction tests
-    test('should fetch loans from Firestore', async () => {
-        const mockLoans = [
-            { id: 'loan1', data: () => ({ status: 'pending', amount: 1000 }) }
-        ];
+            await rejectLoan('loan123');
 
-        db.collection('loans').get.mockResolvedValueOnce({ docs: mockLoans });
-        
-        // Call the collection method
-        await db.collection('loans').get();
+            expect(doc).toHaveBeenCalledWith(mockDb, 'loans', 'loan123');
+            expect(updateDoc).toHaveBeenCalledWith(mockLoanRef, {
+                status: 'rejected',
+                rejectedDate: expect.any(Date),
+                rejectedBy: 'testUserId'
+            });
+            expect(window.alert).toHaveBeenCalledWith('Loan rejected successfully!');
+        });
 
-        // Verify Firestore was called
-        expect(db.collection).toHaveBeenCalledWith('loans');
-    });
+        test('should handle errors during rejection', async () => {
+            updateDoc.mockRejectedValue(new Error('Failed to reject'));
 
-    test('should filter loans by status', async () => {
-        const mockLoans = [
-            { id: 'loan1', data: () => ({ status: 'pending', amount: 1000 }) }
-        ];
+            await rejectLoan('loan123');
 
-        db.collection('loans').get.mockResolvedValueOnce({ docs: mockLoans });
-
-        const pendingFilter = document.getElementById('pending-filter');
-        const event = new Event('click');
-        pendingFilter.dispatchEvent(event);
-
-        // Verify Firestore query was attempted
-        expect(db.collection).toHaveBeenCalledWith('loans');
+            expect(window.console.error).toHaveBeenCalled();
+            expect(window.alert).toHaveBeenCalledWith('Error rejecting loan. Please try again.');
+        });
     });
 });

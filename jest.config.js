@@ -13,7 +13,9 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   collectCoverageFrom: [
+    'src/**/*.js',
     'public_html/js/**/*.js',
-    '!**/node_modules/**'
+    '!**/node_modules/**',
+    '!**/__mocks__/**'
   ]
 };

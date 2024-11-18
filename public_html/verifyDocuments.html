@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification - Kubadu Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS reset and styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; line-height: 1.6; }
+        .container { width: 90%; margin: auto; padding: 20px; }
+        
+        /* Header styles */
+        header {
+            background: linear-gradient(90deg, #004AAD, #00BF63);
+            color: #fff;
+            padding: 20px 0;
+        }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th { background: #004AAD; color: #fff; }
+        
+        /* Button styles */
+        button {
+            padding: 8px 16px;
+            margin: 0 4px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Search and filter section */
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Document Verification</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Search and filters -->
+        <div class="filters">
+            <input type="text" id="search-input" placeholder="Search by submitter...">
+            <select id="type-filter">
+                <option value="all">All Types</option>
+                <option value="Death Certificate">Death Certificate</option>
+                <option value="Medical Report">Medical Report</option>
+                <option value="Insurance Policy">Insurance Policy</option>
+            </select>
+            <select id="status-filter">
+                <option value="all">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Verified">Verified</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+
+        <!-- Documents table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Document Type</th>
+                    <th>Submitted By</th>
+                    <th>Submission Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="documents-list">
+                <!-- Document rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners for search and filters
+            document.getElementById('search-input').addEventListener('input', updateVisibility);
+            document.getElementById('type-filter').addEventListener('change', updateVisibility);
+            document.getElementById('status-filter').addEventListener('change', updateVisibility);
+        });
+
+        // Functions for document verification will be injected by tests
+    </script>
+</body>
+</html>

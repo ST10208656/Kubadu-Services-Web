@@ -1,94 +1,167 @@
-import { getFirestore } from 'firebase/firestore';
+// Import Firebase modules
+import { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
-describe('Manage Claims', () => {
-    let db;
+// Import functions to test
+import { loadClaims, viewClaimDetails, approveClaim, rejectClaim } from '../public_html/js/manageClaims.js';
 
+// Mock Firebase modules
+jest.mock('firebase/firestore', () => ({
+    getFirestore: jest.fn(),
+    collection: jest.fn(),
+    query: jest.fn(),
+    where: jest.fn(),
+    orderBy: jest.fn(),
+    getDocs: jest.fn(),
+    doc: jest.fn(() => ({})),
+    updateDoc: jest.fn(),
+    getDoc: jest.fn()
+}));
+
+jest.mock('firebase/app', () => ({
+    initializeApp: jest.fn()
+}));
+
+const mockFirestore = jest.requireMock('firebase/firestore');
+
+describe('Claims Management', () => {
     beforeEach(() => {
         document.body.innerHTML = `
-            <div id="claims-list"></div>
-            <div id="claim-details"></div>
-            <div id="status-filters">
-                <button id="pending-filter">Pending</button>
-                <button id="approved-filter">Approved</button>
-                <button id="rejected-filter">Rejected</button>
+            <div id="users-claims-list"></div>
+            <div id="claimDetailsModal">
+                <div id="claim-details"></div>
             </div>
-            <input type="text" id="search-input" />
-            <button id="approve-btn">Approve</button>
-            <button id="reject-btn">Reject</button>
+            <input type="text" id="admin-notes" />
         `;
 
-        // Setup Firebase mock
-        db = {
-            collection: jest.fn(() => ({
-                get: jest.fn().mockResolvedValue({ docs: [] }),
-                where: jest.fn().mockReturnThis(),
-                doc: jest.fn().mockReturnThis()
-            }))
-        };
-        global.db = db;
+        window.bootstrap = { Modal: jest.fn().mockImplementation(() => ({ show: jest.fn() })) };
+        window.createClaimElement = jest.fn().mockImplementation((id, claim) => {
+            const div = document.createElement('div');
+            div.className = 'claim-item';
+            div.innerHTML = `<h3>${claim.type}</h3><p>Status: ${claim.status}</p>`;
+            return div;
+        });
+        window.createClaimDetailsHTML = jest.fn().mockImplementation((claim) => `<h2>Claim Details</h2><p>Type: ${claim.type}</p><p>Amount: ${claim.amount}</p>`);
+        window.alert = jest.fn();
+        window.console = { error: jest.fn() };
+
+        global.auth = { currentUser: { uid: 'testUserId' } };
+
+        mockFirestore.getDocs.mockReset();
+        mockFirestore.getDoc.mockReset();
+        mockFirestore.updateDoc.mockReset();
     });
 
-    // Basic DOM element tests
-    test('should have claims list container', () => {
-        const claimsList = document.getElementById('claims-list');
-        expect(claimsList).not.toBeNull();
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    test('should have claim details container', () => {
-        const claimDetails = document.getElementById('claim-details');
-        expect(claimDetails).not.toBeNull();
+    describe('loadClaims', () => {
+        test('should load claims successfully', async () => {
+            const mockClaimData = { type: 'Medical', status: 'pending' };
+            const mockClaim = { id: 'claim1', data: () => mockClaimData };
+            mockFirestore.getDocs.mockResolvedValueOnce({ forEach: (callback) => callback(mockClaim) });
+
+            await loadClaims();
+
+            const claimsList = document.getElementById('users-claims-list');
+            expect(window.createClaimElement).toHaveBeenCalledTimes(1);
+            expect(window.createClaimElement).toHaveBeenCalledWith('claim1', mockClaimData);
+            expect(claimsList.children.length).toBe(1);
+            expect(claimsList.innerHTML).toContain('Medical');
+        });
+
+        test('should handle load error', async () => {
+            mockFirestore.getDocs.mockRejectedValueOnce(new Error('Load failed'));
+
+            await loadClaims();
+
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Error loading claims. Please try again.');
+        });
     });
 
-    test('should have status filter buttons', () => {
-        const pendingFilter = document.getElementById('pending-filter');
-        const approvedFilter = document.getElementById('approved-filter');
-        const rejectedFilter = document.getElementById('rejected-filter');
-        
-        expect(pendingFilter).not.toBeNull();
-        expect(approvedFilter).not.toBeNull();
-        expect(rejectedFilter).not.toBeNull();
+    describe('viewClaimDetails', () => {
+        test('should display claim details', async () => {
+            const mockClaimData = { type: 'Medical', amount: 1000 };
+            mockFirestore.getDoc.mockResolvedValueOnce({ exists: () => true, data: () => mockClaimData });
+
+            await viewClaimDetails('claim123');
+
+            const claimDetails = document.getElementById('claim-details');
+            expect(window.createClaimDetailsHTML).toHaveBeenCalledTimes(1);
+            expect(window.createClaimDetailsHTML).toHaveBeenCalledWith(mockClaimData);
+            expect(claimDetails.innerHTML).toContain('Medical');
+            expect(claimDetails.innerHTML).toContain('1000');
+            expect(window.bootstrap.Modal).toHaveBeenCalledTimes(1);
+            expect(window.bootstrap.Modal).toHaveBeenCalled();
+        });
+
+        test('should handle view error', async () => {
+            mockFirestore.getDoc.mockRejectedValueOnce(new Error('View failed'));
+
+            await viewClaimDetails('claim123');
+
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Error loading claim details. Please try again.');
+        });
     });
 
-    test('should have search input', () => {
-        const searchInput = document.getElementById('search-input');
-        expect(searchInput).not.toBeNull();
+    describe('approveClaim', () => {
+        test('should approve claim with verified documents', async () => {
+            const mockClaim = { exists: () => true, data: () => ({ documents: [{ verified: true }] }) };
+            mockFirestore.getDoc.mockResolvedValueOnce(mockClaim);
+            mockFirestore.updateDoc.mockResolvedValueOnce();
+
+            await approveClaim('claim123');
+
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Claim approved successfully!');
+        });
+
+        test('should reject unverified documents', async () => {
+            const mockClaim = { exists: () => true, data: () => ({ documents: [{ verified: false }] }) };
+            mockFirestore.getDoc.mockResolvedValueOnce(mockClaim);
+
+            await approveClaim('claim123');
+
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('All required documents must be verified before approval.');
+        });
     });
 
-    test('should have action buttons', () => {
-        const approveBtn = document.getElementById('approve-btn');
-        const rejectBtn = document.getElementById('reject-btn');
-        
-        expect(approveBtn).not.toBeNull();
-        expect(rejectBtn).not.toBeNull();
-    });
+    describe('rejectClaim', () => {
+        test('should reject claim with notes', async () => {
+            document.getElementById('admin-notes').value = 'Invalid claim';
+            mockFirestore.getDoc.mockResolvedValueOnce({ exists: () => true, data: () => ({}) });
+            mockFirestore.updateDoc.mockResolvedValueOnce();
 
-    // Simple Firebase interaction tests
-    test('should fetch claims from Firestore', async () => {
-        const mockClaims = [
-            { id: 'claim1', data: () => ({ status: 'pending', amount: 1000 }) }
-        ];
+            await rejectClaim('claim123');
 
-        db.collection('claims').get.mockResolvedValueOnce({ docs: mockClaims });
-        
-        // Call the collection method
-        await db.collection('claims').get();
+            expect(mockFirestore.updateDoc).toHaveBeenCalledTimes(1);
+            expect(mockFirestore.updateDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ status: 'rejected', adminNotes: 'Invalid claim', rejectedBy: 'testUserId' }));
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Claim rejected successfully!');
+        });
 
-        // Verify Firestore was called
-        expect(db.collection).toHaveBeenCalledWith('claims');
-    });
+        test('should require rejection notes', async () => {
+            document.getElementById('admin-notes').value = '';
+            await rejectClaim('claim123');
 
-    test('should filter claims by status', async () => {
-        const mockClaims = [
-            { id: 'claim1', data: () => ({ status: 'pending', amount: 1000 }) }
-        ];
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Please provide a reason for rejection.');
+        });
 
-        db.collection('claims').get.mockResolvedValueOnce({ docs: mockClaims });
+        test('should handle rejection error', async () => {
+            document.getElementById('admin-notes').value = 'Invalid claim';
+            mockFirestore.getDoc.mockResolvedValueOnce({ exists: () => true, data: () => ({}) });
+            mockFirestore.updateDoc.mockRejectedValueOnce(new Error('Rejection failed'));
 
-        const pendingFilter = document.getElementById('pending-filter');
-        const event = new Event('click');
-        pendingFilter.dispatchEvent(event);
+            await rejectClaim('claim123');
 
-        // Verify Firestore query was attempted
-        expect(db.collection).toHaveBeenCalledWith('claims');
+            expect(window.console.error).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledTimes(1);
+            expect(window.alert).toHaveBeenCalledWith('Error rejecting claim. Please try again.');
+        });
     });
 });
