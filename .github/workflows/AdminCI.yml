@@ -3,68 +3,68 @@ name: Web Admin CI/CD
 on:
   push:
     branches:
-      - webAdminBranch
-  workflow_dispatch:
+      - webAdminBranch  # Trigger this on pushes to the webAdminBranch
+  workflow_dispatch:  # Allows manual trigger of the workflow from GitHub UI
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
 
     steps:
-        # Checkout the repository code
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: webAdminBranch  # Adjust to the branch you want to use (develop or webAdminBranch)
+          ref: webAdminBranch  # Use the desired branch (e.g., webAdminBranch)
 
-      # Cache Node modules
+      # Step 2: Cache Node modules to speed up the build process
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
-          path: node_modules
+          path: node_modules  # Cache node_modules to avoid re-installation
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules
 
-      # Set up Node.js
+      # Step 3: Set up Node.js environment with the desired version
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20'  # Adjust Node.js version as needed
 
-      # Install dependencies
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Install Chrome
+      # Step 5: Install Google Chrome
       - name: Install Google Chrome
         run: sudo apt-get install -y google-chrome-stable
 
-      # Install ChromeDriver matching Chrome version
+      # Step 6: Install ChromeDriver matching Chrome version
       - name: Install ChromeDriver
         run: |
-          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+' | head -1)
-          npm install chromedriver@$CHROME_VERSION || npm install chromedriver@latest
-          chmod +x node_modules/.bin/chromedriver
+          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+' | head -1)  # Extract Chrome version
+          npm install chromedriver@$CHROME_VERSION || npm install chromedriver@latest  # Install matching chromedriver version
+          chmod +x node_modules/.bin/chromedriver  # Ensure chromedriver is executable
 
-      # Start Xvfb for headless testing
+      # Step 7: Start Xvfb (X virtual framebuffer) for headless testing
       - name: Start Xvfb
         run: |
-          sudo apt-get install -y xvfb
-          Xvfb :99 & export DISPLAY=:99
+          sudo apt-get install -y xvfb  # Install Xvfb if not present
+          Xvfb :99 & export DISPLAY=:99  # Start Xvfb and set DISPLAY environment variable
 
-      # Run Selenium tests in headless mode
+      # Step 8: Run Selenium tests in headless mode
       - name: Run Selenium tests
         env:
-          DISPLAY: :99
+          DISPLAY: :99  # Use virtual display for headless tests
         run: |
-          google-chrome-stable --version
-          node_modules/.bin/chromedriver --version
-          npm run test:selenium -- --headless
+          google-chrome-stable --version  # Verify Chrome installation
+          node_modules/.bin/chromedriver --version  # Verify ChromeDriver installation
+          npm run test:selenium -- --headless  # Run Selenium tests (ensure `test:selenium` script is defined in package.json)
 
-      # Debug step: Print log files
+      # Step 9: Debugging - Print Chrome logs in case of errors
       - name: Print Chrome logs
         run: |
-          if [ -f /var/log/google-chrome/chrome_debug.log ]; then
-            cat /var/log/google-chrome/chrome_debug.log
+          if [ -f /var/log/google-chrome/chrome_debug.log ]; then  # Check if Chrome debug log exists
+            cat /var/log/google-chrome/chrome_debug.log  # Print log content for debugging
           fi
