@@ -33,18 +33,36 @@ jobs:
         run: |
           npm install
           npm install -g mocha
+          npm install -g chromedriver
 
-      - name: Install Google Chrome
+      - name: Install Chrome and ChromeDriver
         run: |
+          # Install Chrome
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
-          google-chrome --version
+          
+          # Get Chrome version
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | awk -F'.' '{print $1}')
+          echo "Chrome version: $CHROME_VERSION"
+          
+          # Install matching ChromeDriver
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
+          curl -L -o chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+          unzip chromedriver.zip
+          chmod +x chromedriver
+          sudo mv chromedriver /usr/local/bin/
+          chromedriver --version
 
       - name: Set up test environment
         run: |
-          # Create screenshots directory for test artifacts
           mkdir -p test/screenshots
           chmod -R 777 test/screenshots
+          
+          # Start ChromeDriver
+          chromedriver --port=4444 &
+          sleep 3  # Give ChromeDriver time to start
 
       - name: Start Xvfb
         run: |
@@ -57,9 +75,12 @@ jobs:
           CI: true
           NODE_ENV: test
           DISPLAY: :99
+          SELENIUM_REMOTE_URL: "http://localhost:4444"
         run: |
           echo "Chrome version:"
           google-chrome --version
+          echo "ChromeDriver version:"
+          chromedriver --version
           
           echo "Running Selenium tests..."
           npx mocha --timeout 60000 --retries 2 test/*.selenium.test.js
