@@ -21,10 +21,6 @@ jobs:
       - name: List files
         run: ls -la
 
-      # Navigate to the project directory
-      - name: Navigate to project directory
-        run: cd Kubadu-Services-Web
-
       # Install dependencies
       - name: Install dependencies
         run: npm install
