@@ -11,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
+        # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: webAdminBranch  # Adjust to the branch you want to use (develop or webAdminBranch)
 
       # Cache Node modules
       - name: Cache Node modules
