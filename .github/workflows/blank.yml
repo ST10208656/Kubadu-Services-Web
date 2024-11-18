@@ -18,7 +18,7 @@ jobs:
 
       # If package.json is in a subfolder like 'Kubadu-Services-Web', navigate to that folder
       - name: Navigate to the correct directory
-        run: cd path/to/Kubadu-Services-Web  # Adjust this if the folder is different (e.g., public_html)
+        run: cd package.json  # Adjust this if the folder is different (e.g., public_html)
 
       # Install dependencies by running 'npm install' inside the correct directory
       - name: Install dependencies
