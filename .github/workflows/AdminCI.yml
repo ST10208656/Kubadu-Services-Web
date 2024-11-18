@@ -43,8 +43,8 @@ jobs:
       # Install ChromeDriver matching Chrome version
       - name: Install ChromeDriver
         run: |
-          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+')
-          npm install chromedriver@$CHROME_VERSION
+          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+' | head -1)
+          npm install chromedriver@$CHROME_VERSION || npm install chromedriver@latest
           chmod +x node_modules/.bin/chromedriver
 
       # Start Xvfb for headless testing
