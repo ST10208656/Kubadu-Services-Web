@@ -48,7 +48,7 @@ jobs:
       - name: Start chromedriver
         run: |
           ./node_modules/.bin/webdriver-manager update  # Downloads the chromedriver automatically
-          ./node_modules/.bin/webdriver-manager start  # Start chromedriver
+          ./node_modules/.bin/webdriver-manager start &  # Run chromedriver in the background
 
       # Step 8: Start Xvfb (X virtual framebuffer) for headless testing
       - name: Start Xvfb
@@ -65,7 +65,12 @@ jobs:
           chromedriver --version  # Check chromedriver version
           npm run test:selenium -- --headless  # Run Selenium tests in headless mode
 
-      # Step 10: Debugging - Print Chrome logs in case of errors
+      # Step 10: Terminate chromedriver after tests complete
+      - name: Kill chromedriver process
+        run: |
+          killall chromedriver  # Kill chromedriver if it's still running
+
+      # Step 11: Debugging - Print Chrome logs in case of errors
       - name: Print Chrome logs
         run: |
           if [ -f /var/log/google-chrome/chrome_debug.log ]; then  # Check if Chrome debug log exists
