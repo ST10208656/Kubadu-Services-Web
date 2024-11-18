@@ -12,9 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
+      # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: appBranch  # Adjust to the branch you want to use (develop or webAdminBranch)
 
       # Step 3: Cache Gradle dependencies
       - name: Cache Gradle dependencies
