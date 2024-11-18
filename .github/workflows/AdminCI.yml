@@ -57,7 +57,7 @@ jobs:
       - name: Run Selenium tests
         env:
           DISPLAY: :99  # Ensure the DISPLAY environment variable is set for headless mode
-          CHROMEDRIVER_PATH: "/node_modules/chromedriver/bin/chromedriver"  # Set the path here
+          CHROMEDRIVER_PATH: "./node_modules/.bin/chromedriver"  # Set the path here
         run: |
           google-chrome-stable --version  # Check Chrome version
           chromedriver --version  # Check chromedriver version
