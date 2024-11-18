@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,39 +30,68 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install -g mocha
 
       - name: Install Google Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
+          google-chrome --version
 
-      - name: Install webdriver-manager
-        run: npm install webdriver-manager --save-dev
-
-      - name: Download and start chromedriver
+      - name: Set up test environment
         run: |
-          ./node_modules/.bin/webdriver-manager update
-          ./node_modules/.bin/webdriver-manager start &
+          mkdir -p public_html
+          cp -r src/* public_html/ || true
+          cp -r html/* public_html/ || true
+          cp -r views/* public_html/ || true
+          mkdir -p test/screenshots
+          chmod -R 777 test/screenshots
 
-      - name: Start Xvfb (Virtual Frame Buffer for headless mode)
+      - name: Start Xvfb
         run: |
           sudo apt-get install -y xvfb
-          Xvfb :99 & export DISPLAY=:99
+          Xvfb :99 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      - name: Run Selenium tests in headless mode
+      - name: Run Selenium tests
         env:
+          CI: true
+          NODE_ENV: test
           DISPLAY: :99
         run: |
-          google-chrome-stable --version  # Check Google Chrome version
-          chromedriver --version  # Check ChromeDriver version
-          npm run test:selenium -- --headless --verbose  # Run your tests with verbose output
+          echo "Chrome version:"
+          google-chrome --version
+          
+          echo "Running Selenium tests..."
+          npx mocha --timeout 60000 --retries 2 test/*.selenium.test.js
 
-      - name: Kill chromedriver process
-        run: |
-          killall chromedriver
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            test/screenshots
+            test-results
+            selenium-debug.log
+          retention-days: 7
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-logs
+          path: |
+            npm-debug.log
+            selenium-debug.log
+            test/screenshots
+            /var/log/google-chrome/chrome_debug.log
+          retention-days: 7
 
       - name: Print Chrome logs
+        if: always()
         run: |
           if [ -f /var/log/google-chrome/chrome_debug.log ]; then
             cat /var/log/google-chrome/chrome_debug.log
