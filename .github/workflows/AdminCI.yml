@@ -26,9 +26,7 @@ jobs:
         run: npm install
 
       - name: Install ChromeDriver
-        run: |
-         sudo apt-get update
-         sudo apt-get install -y chromium-chromedriver
+        run: npm install --save-dev selenium-webdriver chromedriver mocha
 
 
       # Run tests (optional)
