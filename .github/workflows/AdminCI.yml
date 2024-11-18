@@ -56,11 +56,12 @@ jobs:
       # Step 8: Run Selenium tests in headless mode
       - name: Run Selenium tests
         env:
-          DISPLAY: :99  # Use virtual display for headless tests
+          DISPLAY: :99  # Ensure the DISPLAY environment variable is set for headless mode
+          CHROMEDRIVER_PATH: "/node_modules/chromedriver/bin/chromedriver"  # Set the path here
         run: |
-          google-chrome-stable --version  # Verify Chrome installation
-          node_modules/.bin/chromedriver --version  # Verify ChromeDriver installation
-          npm run test:selenium -- --headless  # Run Selenium tests (ensure `test:selenium` script is defined in package.json)
+          google-chrome-stable --version  # Check Chrome version
+          chromedriver --version  # Check chromedriver version
+          npm run test:selenium -- --headless  # Run Selenium tests in headless mode
 
       # Step 9: Debugging - Print Chrome logs in case of errors
       - name: Print Chrome logs
