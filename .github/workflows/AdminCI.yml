@@ -42,10 +42,7 @@ jobs:
 
       - name: Set up test environment
         run: |
-          mkdir -p public_html
-          cp -r src/* public_html/ || true
-          cp -r html/* public_html/ || true
-          cp -r views/* public_html/ || true
+          # Create screenshots directory for test artifacts
           mkdir -p test/screenshots
           chmod -R 777 test/screenshots
 
