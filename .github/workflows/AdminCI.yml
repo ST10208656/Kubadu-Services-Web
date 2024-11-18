@@ -27,5 +27,5 @@ jobs:
 
       # Run tests (optional)
       - name: Run tests
-        run: npm test
+        run: npm run test:selenium
         
