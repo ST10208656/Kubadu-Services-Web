@@ -15,21 +15,52 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: webAdminBranch  # Adjust to the branch you want to use (develop or webAdminBranch)
+          ref: webAdminBranch  # Adjust the branch
 
-      # List files to verify directory structure
-      - name: List files
-        run: ls -la
+      # Cache Node.js dependencies
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Specify the Node.js version
 
       # Install dependencies
       - name: Install dependencies
         run: npm install
 
+      # Install Chrome and ChromeDriver
+      - name: Install Chrome
+        run: sudo apt-get install -y google-chrome-stable
+
       - name: Install ChromeDriver
         run: npm install chromedriver@latest
 
+      # Set up Xvfb for headless browser testing
+      - name: Start Xvfb
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 & export DISPLAY=:99
 
-      # Run tests (optional)
-      - name: Run tests
+      # List files to verify directory structure (Debugging step)
+      - name: List files
+        run: ls -la
+
+      # Run Selenium tests
+      - name: Run Selenium tests
         run: npm run test:selenium
-        
+
+      # Upload test results (Optional)
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
