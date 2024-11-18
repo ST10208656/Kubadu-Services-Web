@@ -26,7 +26,7 @@ jobs:
         run: npm install
 
       - name: Install ChromeDriver
-        run: npm install --save-dev selenium-webdriver chromedriver mocha
+        run: npm install chromedriver@latest
 
 
       # Run tests (optional)
