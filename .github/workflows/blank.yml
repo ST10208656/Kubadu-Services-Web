@@ -1,23 +1,29 @@
 name: Web Admin CI/CD
 
+# Trigger workflow on push to webAdminBranch and manually using workflow_dispatch
 on:
   push:
     branches:
-      - webAdminBranch  # Adjust to the correct branch name
+      - webAdminBranch  # Adjust to the correct branch name for automatic trigger
+  workflow_dispatch:  # Manual trigger from the Actions tab in GitHub
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout code from repository
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # If package.json is in a subfolder like 'Kubadu-Services-Web', navigate to that folder
       - name: Navigate to the correct directory
-        run: cd Kubadu-Services-Web  # Change this if the folder is different (like client/)
+        run: cd Kubadu-Services-Web  # Adjust this if the folder is different (e.g., public_html)
 
+      # Install dependencies by running 'npm install' inside the correct directory
       - name: Install dependencies
-        run: npm install  # This will now run in the public_html or client/ directory
+        run: npm install  # This will now run in the Kubadu-Services-Web (or your chosen) directory
 
+      # Run tests if necessary
       - name: Run tests
-        run: npm test  # If you want to run tests after install
+        run: npm test  # If you want to run tests after install, adjust as needed
