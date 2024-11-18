@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository code
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: appBranch  # Adjust to the branch you want to use (develop or webAdminBranch)
+          ref: appBranch  # Adjust to the branch you want to use
 
-      # Step 3: Cache Gradle dependencies
+      # Step 2: Cache Gradle dependencies
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
@@ -28,6 +28,10 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}
+
+      # Step 3: Grant execute permission for Gradle wrapper
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x gradlew
 
       # Step 4: Build the app
       - name: Build with Gradle
