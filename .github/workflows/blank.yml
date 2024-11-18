@@ -1,0 +1,33 @@
+name: Admin Branch CI/CD
+
+on:
+  push:
+    branches:
+      - webAdminBranch
+  pull_request:
+    branches:
+      - webAdminBranch
+
+jobs:
+  build-admin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js (if your admin dashboard is Node.js based)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Admin tests (if you have tests for your admin panel)
+        run: npm test
+
+      - name: Deploy Admin (if you deploy from this branch)
+        run: |
+          # Add commands to deploy to your admin dashboard environment
+          echo "Deploying Admin Dashboard"
