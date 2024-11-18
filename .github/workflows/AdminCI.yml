@@ -33,7 +33,9 @@ jobs:
         run: npm install
 
       - name: Install Google Chrome
-        run: sudo apt-get install -y google-chrome-stable
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Install webdriver-manager
         run: npm install webdriver-manager --save-dev
@@ -43,7 +45,7 @@ jobs:
           ./node_modules/.bin/webdriver-manager update
           ./node_modules/.bin/webdriver-manager start &
 
-      - name: Start Xvfb
+      - name: Start Xvfb (Virtual Frame Buffer for headless mode)
         run: |
           sudo apt-get install -y xvfb
           Xvfb :99 & export DISPLAY=:99
@@ -52,9 +54,9 @@ jobs:
         env:
           DISPLAY: :99
         run: |
-          google-chrome-stable --version
-          chromedriver --version
-          npm run test:selenium -- --headless --verbose  # Use verbose flag to capture logs
+          google-chrome-stable --version  # Check Google Chrome version
+          chromedriver --version  # Check ChromeDriver version
+          npm run test:selenium -- --headless --verbose  # Run your tests with verbose output
 
       - name: Kill chromedriver process
         run: |
