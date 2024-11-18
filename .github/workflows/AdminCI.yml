@@ -3,76 +3,65 @@ name: Web Admin CI/CD
 on:
   push:
     branches:
-      - webAdminBranch  # Trigger this on pushes to the webAdminBranch
-  workflow_dispatch:  # Allows manual trigger of the workflow from GitHub UI
+      - webAdminBranch
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: webAdminBranch  # Use the desired branch (e.g., webAdminBranch)
+          ref: webAdminBranch
 
-      # Step 2: Cache Node modules to speed up the build process
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
-          path: node_modules  # Cache node_modules to avoid re-installation
+          path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules
 
-      # Step 3: Set up Node.js environment with the desired version
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # Adjust Node.js version as needed
+          node-version: '20'
 
-      # Step 4: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 5: Install Google Chrome
       - name: Install Google Chrome
         run: sudo apt-get install -y google-chrome-stable
 
-      # Step 6: Install webdriver-manager to handle ChromeDriver automatically
       - name: Install webdriver-manager
         run: npm install webdriver-manager --save-dev
 
-      # Step 7: Download and start chromedriver with webdriver-manager
-      - name: Start chromedriver
+      - name: Download and start chromedriver
         run: |
-          ./node_modules/.bin/webdriver-manager update  # Downloads the chromedriver automatically
-          ./node_modules/.bin/webdriver-manager start &  # Run chromedriver in the background
+          ./node_modules/.bin/webdriver-manager update
+          ./node_modules/.bin/webdriver-manager start &
 
-      # Step 8: Start Xvfb (X virtual framebuffer) for headless testing
       - name: Start Xvfb
         run: |
-          sudo apt-get install -y xvfb  # Install Xvfb if not present
-          Xvfb :99 & export DISPLAY=:99  # Start Xvfb and set DISPLAY environment variable
+          sudo apt-get install -y xvfb
+          Xvfb :99 & export DISPLAY=:99
 
-      # Step 9: Run Selenium tests in headless mode
-      - name: Run Selenium tests
+      - name: Run Selenium tests in headless mode
         env:
           DISPLAY: :99
         run: |
-          google-chrome-stable --version  # Check Chrome version
-          chromedriver --version  # Check chromedriver version
-          npm run test:selenium -- --headless  # Run Selenium tests in headless mode
+          google-chrome-stable --version
+          chromedriver --version
+          npm run test:selenium -- --headless --verbose  # Use verbose flag to capture logs
 
-      # Step 10: Terminate chromedriver after tests complete
       - name: Kill chromedriver process
         run: |
-          killall chromedriver  # Kill chromedriver if it's still running
+          killall chromedriver
 
-      # Step 11: Debugging - Print Chrome logs in case of errors
       - name: Print Chrome logs
         run: |
-          if [ -f /var/log/google-chrome/chrome_debug.log ]; then  # Check if Chrome debug log exists
-            cat /var/log/google-chrome/chrome_debug.log  # Print log content for debugging
+          if [ -f /var/log/google-chrome/chrome_debug.log ]; then
+            cat /var/log/google-chrome/chrome_debug.log
           fi
