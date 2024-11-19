@@ -63,8 +63,6 @@ dependencies {
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     implementation ("androidx.cardview:cardview:1.0.0")
 
-
-
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:4.11.0")
@@ -77,7 +75,6 @@ dependencies {
     testImplementation("androidx.test:rules:1.5.0")
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.test.ext:truth:1.5.0")
-    testImplementation("androidx.fragment:fragment-testing:1.6.2")
     testImplementation("androidx.navigation:navigation-testing:2.7.6")
     testImplementation("com.google.firebase:firebase-auth:22.3.0")
     testImplementation("com.google.firebase:firebase-firestore:24.10.0")
