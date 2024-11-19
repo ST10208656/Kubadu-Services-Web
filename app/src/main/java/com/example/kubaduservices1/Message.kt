@@ -6,5 +6,12 @@ data class Message(
     val userID: String = "",
     val message: String = "",
     val name: String = "",
-    val timestamp: Timestamp? = null
-)
+    val timestamp: com.google.firebase.Timestamp? = null
+) {
+    fun getFormattedTime(): String {
+        return timestamp?.let { ts ->
+            val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+            sdf.format(ts.toDate())
+        } ?: ""
+    }
+}

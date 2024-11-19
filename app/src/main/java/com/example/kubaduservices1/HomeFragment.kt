@@ -32,6 +32,7 @@ class HomeFragment : Fragment() {
     private lateinit var messageInput: EditText
     private lateinit var sendMessageButton: ImageButton
     private lateinit var resolveChatButton: ImageButton
+    private lateinit var emptyMessagesText: TextView
     private var chatId: String? = null
     private lateinit var messagesAdapter: MessagesAdapter
 
@@ -89,6 +90,7 @@ class HomeFragment : Fragment() {
             messageInput = view.findViewById(R.id.messageInput)
             sendMessageButton = view.findViewById(R.id.sendMessageButton)
             resolveChatButton = view.findViewById(R.id.resolveChatButton)
+            emptyMessagesText = view.findViewById(R.id.emptyMessagesText)
 
             // Setup RecyclerView
             messagesAdapter = MessagesAdapter()
@@ -96,6 +98,21 @@ class HomeFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 adapter = messagesAdapter
             }
+
+            // Update empty state when messages change
+            messagesAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                override fun onChanged() {
+                    updateEmptyState()
+                }
+
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    updateEmptyState()
+                }
+
+                override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                    updateEmptyState()
+                }
+            })
 
             Log.d("HomeFragment", "Chat views initialized: " +
                 "messageInput=${messageInput != null}, " +
@@ -122,12 +139,23 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun updateEmptyState() {
+        if (messagesAdapter.itemCount > 0) {
+            messagesRecyclerView.visibility = View.VISIBLE
+            emptyMessagesText.visibility = View.GONE
+        } else {
+            messagesRecyclerView.visibility = View.GONE
+            emptyMessagesText.visibility = View.VISIBLE
+        }
+    }
+
     private inner class MessagesAdapter : RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
         private var messages: List<Message> = emptyList()
 
         inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val messageText: TextView = itemView.findViewById(R.id.messageText)
             val senderName: TextView = itemView.findViewById(R.id.senderName)
+            val timestamp: TextView = itemView.findViewById(R.id.timestamp)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -140,9 +168,10 @@ class HomeFragment : Fragment() {
             val message = messages[position]
             holder.messageText.text = message.message
             holder.senderName.text = message.name
+            holder.timestamp.text = message.getFormattedTime()
         }
 
-        override fun getItemCount(): Int = messages.size
+        override fun getItemCount() = messages.size
 
         fun submitList(newMessages: List<Message>) {
             messages = newMessages
@@ -200,7 +229,7 @@ class HomeFragment : Fragment() {
         // Check for existing chat
         db.collection("chats")
             .whereEqualTo("customerID", currentUser.uid)
-            .whereEqualTo("status", "open")
+            .whereIn("status", listOf("open", "unassigned"))
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {

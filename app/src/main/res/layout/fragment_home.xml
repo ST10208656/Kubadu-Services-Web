@@ -14,20 +14,104 @@
         <!-- Welcome Message -->
         <com.example.kubaduservices1.GradientTextView
             android:id="@+id/welcomeTextView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Welcome, User!"
             android:textSize="24sp"
+            android:textColor="@color/black"
             android:textStyle="bold" />
 
         <!-- Buttons to navigate to LoanFragment and FuneralPolicyFragment arranged horizontally -->
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical"
+            android:layout_marginVertical="20dp"
+            android:background="@drawable/wallet_balance_background"
+            android:outlineProvider="bounds"
+            android:clipToPadding="false"
+            android:layout_marginHorizontal="4dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:text="Wallet Balance"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/card_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textAlignment="center"
+                android:text="Loading..." />
+
+            <TextView
+                android:id="@+id/wallet_balance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_bold"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textAlignment="center"
+                android:text="R0.00" />
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Notifications"
+            android:textColor="#004AAD"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/notificationsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:fontFamily="@font/montserrat"
+            android:textSize="16sp"
+            android:text="No new notifications." />
+
+        <!-- Promotions or News -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="Latest News"
+            android:textColor="#004AAD"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/newsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat"
+            android:text="No new notifications"
+            android:textSize="16sp" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_margin="30dp">
 
             <Button
                 android:id="@+id/loanButton"
@@ -52,83 +136,6 @@
                 app:backgroundTint="@null"
                 android:text="Funeral Policy" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:elevation="8dp"
-            android:orientation="vertical"
-            android:layout_marginVertical="20dp"
-            android:background="@color/black"
-            >
-            <com.example.kubaduservices1.GradientTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="@font/montserrat_bold"
-                android:text="Wallet Balance"
-                android:textAlignment="center"
-                android:textColor="#004AAD"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/card_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textAlignment="center"
-                android:text="Loading..." />
-            <TextView
-                android:id="@+id/wallet_balance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/montserrat_bold"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textAlignment="center"
-                android:text="R0.00" />
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="Notifications"
-            android:textColor="#004AAD"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/notificationsTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="@font/montserrat"
-            android:padding="8dp"
-            android:text="No new notifications." />
-
-        <!-- Promotions or News -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="Latest News"
-            android:textColor="#004AAD"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/newsTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat"
-            android:text="No new notifications"
-            android:textSize="16sp" />
-
         <!-- Chat Window -->
         <LinearLayout
             android:id="@+id/chatWindow"
@@ -145,15 +152,33 @@
                 android:text="Chat Support"
                 android:textColor="@color/white"
                 android:textSize="18sp"
+                android:textAlignment="center"
                 android:fontFamily="@font/montserrat_bold"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/messagesRecyclerView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:background="#F5F5F5"
-                android:padding="8dp"/>
+                android:layout_height="wrap_content"
+                android:background="#F5F5F5">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/messagesRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/emptyMessagesText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="No messages yet. Start a conversation!"
+                    android:textColor="#757575"
+                    android:fontFamily="@font/montserrat"
+                    android:visibility="visible"/>
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -169,6 +194,7 @@
                     android:background="@android:color/white"
                     android:hint="Type a message..."
                     android:padding="8dp"
+                    android:fontFamily="@font/montserrat"
                     android:textColor="@android:color/black"/>
 
                 <ImageButton

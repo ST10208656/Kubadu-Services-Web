@@ -59,6 +59,10 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.test.ext:junit-ktx:1.1.5")
+    implementation ("androidx.recyclerview:recyclerview:1.3.2")
+    implementation ("androidx.cardview:cardview:1.0.0")
+
+
 
     // Testing
     testImplementation("junit:junit:4.13.2")

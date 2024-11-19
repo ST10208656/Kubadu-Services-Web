@@ -6,38 +6,45 @@
 
     <fragment
         android:id="@+id/homeFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="Home" />
 
     <fragment
         android:id="@+id/loanFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.LoanFragment"
-        android:label="LoanFragment" />
+        android:label="Loan" />
 
     <fragment
         android:id="@+id/funeralPolicyFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.FuneralPolicyFragment"
-        android:label="FuneralPolicyFragment" />
+        android:label="FuneralPolicy" />
 
     <fragment
         android:id="@+id/claimsFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.Claims"
-        android:label="ClaimsFragment" />
+        android:label="Claims" />
 
     <fragment
         android:id="@+id/ServicesRequestedFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.ServicesRequestedFragment"
-        android:label="ServicesRequestedFragment" />
+        android:label="ServicesRequested" />
 
     <fragment
         android:id="@+id/ProfileFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.ProfileFragment"
-        android:label="ProfileFragment" />
+        android:label="Profile" />
 
     <fragment
         android:id="@+id/SettingsFragment"
+        android:fontFamily="@font/montserrat_bold"
         android:name="com.example.kubaduservices1.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="Settings" />
 
     <action
         android:id="@+id/action_homeFragment_to_loanFragment"

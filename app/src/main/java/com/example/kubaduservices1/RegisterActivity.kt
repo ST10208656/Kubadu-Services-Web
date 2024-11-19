@@ -35,43 +35,56 @@ class RegisterActivity : AppCompatActivity() {
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString().trim()
 
-            // Check if name, surname, email, and password are valid
-            if (isValidName(name) && isValidName(surname) && Validation.isValidEmail(email) && Validation.isValidPassword(password)) {
-                // Register the user with Firebase Authentication
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // Get the user ID
-                            val userId = auth.currentUser?.uid
-
-                            // Store the user information in Firestore
-                            val user = hashMapOf(
-                                "userId" to userId,
-                                "name" to name,
-                                "surname" to surname,
-                                "email" to email
-                            )
-
-                            userId?.let {
-                                db.collection("Customers").document(it)
-                                    .set(user)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-                                        // Redirect to LoginActivity
-                                        startActivity(Intent(this, LoginActivity::class.java))
-                                        finish()
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Toast.makeText(this, "Failed to save user: ${e.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                            }
-                        } else {
-                            Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "Invalid name, surname, email, or password", Toast.LENGTH_SHORT).show()
+            // Check each field individually and show specific error messages
+            if (!isValidName(name)) {
+                Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            if (!isValidName(surname)) {
+                Toast.makeText(this, "Surname cannot be empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!Validation.isValidEmail(email)) {
+                Toast.makeText(this, "Please enter a valid email address (e.g., user@example.com)", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!Validation.isValidPassword(password)) {
+                Toast.makeText(this, "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Register the user with Firebase Authentication
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // Get the user ID
+                        val userId = auth.currentUser?.uid
+
+                        // Store the user information in Firestore
+                        val user = hashMapOf(
+                            "UserId" to userId,
+                            "Name" to name,
+                            "Surname" to surname,
+                            "Email" to email
+                        )
+
+                        userId?.let {
+                            db.collection("Customers").document(it)
+                                .set(user)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
+                                    // Redirect to LoginActivity
+                                    startActivity(Intent(this, LoginActivity::class.java))
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Failed to save user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    } else {
+                        Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
         }
     }
 
