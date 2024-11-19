@@ -96,8 +96,8 @@ jobs:
             --organization "$AZURE_DEVOPS_ORG" \
             --project "$AZURE_DEVOPS_PROJECT" \
             --scope project \
-            --feed "KubaduAndroidApp" \
-            --name "android-app-artifacts" \
+            --feed "KubaduMobileArtifacts" \
+            --name "android-app-build" \
             --version "$GITHUB_RUN_NUMBER.0.0" \
             --path artifact \
-            --description "Android App Artifacts from GitHub Actions Run #$GITHUB_RUN_NUMBER"
+            --description "Kubadu Services Mobile App Build #$GITHUB_RUN_NUMBER - Includes APK, test reports, and lint results"
