@@ -48,3 +48,56 @@ jobs:
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+  publish:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: appBranch
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Prepare artifact directory
+        run: |
+          mkdir -p artifact
+          cp -r artifacts/test-reports/* artifact/ || true
+          cp -r artifacts/app-debug/* artifact/ || true
+        
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az extension add --name azure-devops
+      
+      - name: Azure DevOps Login
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: echo $AZURE_DEVOPS_PAT | az devops login
+      
+      - name: Azure DevOps Artifact Upload
+        env:
+          AZURE_DEVOPS_ORG: ${{ secrets.AZURE_DEVOPS_ORG }}
+          AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT }}
+        run: |
+          # Configure Azure DevOps CLI
+          az devops configure --defaults organization="$AZURE_DEVOPS_ORG" project="$AZURE_DEVOPS_PROJECT"
+          
+          # List contents of artifact directory
+          echo "Contents of artifact directory:"
+          ls -la artifact/
+          
+          # Create and publish artifact
+          az artifacts universal publish \
+            --organization "$AZURE_DEVOPS_ORG" \
+            --project "$AZURE_DEVOPS_PROJECT" \
+            --scope project \
+            --feed "KubaduAndroidApp" \
+            --name "android-app-artifacts" \
+            --version "$GITHUB_RUN_NUMBER.0.0" \
+            --path artifact \
+            --description "Android App Artifacts from GitHub Actions Run #$GITHUB_RUN_NUMBER"
