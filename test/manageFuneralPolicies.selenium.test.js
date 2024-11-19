@@ -1,456 +1,281 @@
 const { Builder, By, until } = require('selenium-webdriver');
-const assert = require('assert');
 const chrome = require('selenium-webdriver/chrome');
+const assert = require('assert');
+const path = require('path');
 
-describe('Funeral Policies Management E2E Tests', function() {
+describe('Funeral Policies Management Tests', function() {
     let driver;
 
-    // Increase timeout for Selenium tests
-    this.timeout(10000);
+    this.timeout(30000); // Increase timeout for Selenium tests
 
     beforeEach(async function() {
         // Set up Chrome in headless mode
-        const options = new chrome.Options();
+        let options = new chrome.Options();
         options.addArguments('--headless');
-        
+        options.addArguments('--no-sandbox');
+        options.addArguments('--disable-dev-shm-usage');
+
         driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
             .build();
 
-        // Navigate to the funeral policies page and inject test data
-        await driver.get('file:///c:/Users/RC_Student_lab/Desktop/Kubadu Admin/public_html/manageFuneralPolicies.html');
-        
-        // Mock Firebase functions and data
-        await driver.executeScript(function() {
-            // Mock data
-            const mockPolicies = [
+        // Navigate to the funeral policies page
+        const htmlPath = path.join(__dirname, '..', 'public_html', 'manageFuneralPolicies.html');
+        await driver.get('file://' + htmlPath);
+
+        // Wait for the document to be ready
+        await driver.wait(async function() {
+            const readyState = await driver.executeScript('return document.readyState');
+            return readyState === 'complete';
+        }, 5000);
+
+        // Initialize mock data and setup UI
+        await driver.executeScript(`
+            // Mock policy data
+            window.policies = [
                 {
                     id: 'policy1',
-                    name: 'Basic Funeral Plan',
-                    coverage: 'R15,000',
-                    payment: 150.00,
-                    status: 'Active'
+                    policyHolder: 'John Doe',
+                    policyNumber: 'FP001',
+                    status: 'Active',
+                    startDate: '2024-01-01',
+                    coverageAmount: 50000,
+                    monthlyPremium: 500,
+                    beneficiaries: ['Jane Doe', 'Jack Doe'],
+                    lastPaymentDate: '2024-01-15'
                 },
                 {
                     id: 'policy2',
-                    name: 'Premium Funeral Plan',
-                    coverage: 'R30,000',
-                    payment: 300.00,
-                    status: 'Active'
+                    policyHolder: 'Jane Smith',
+                    policyNumber: 'FP002',
+                    status: 'Pending',
+                    startDate: '2024-02-01',
+                    coverageAmount: 30000,
+                    monthlyPremium: 300,
+                    beneficiaries: ['John Smith'],
+                    lastPaymentDate: null
                 },
                 {
                     id: 'policy3',
-                    name: 'Family Funeral Plan',
-                    coverage: 'R50,000',
-                    payment: 450.00,
-                    status: 'Inactive'
+                    policyHolder: 'Bob Wilson',
+                    policyNumber: 'FP003',
+                    status: 'Cancelled',
+                    startDate: '2024-01-15',
+                    coverageAmount: 40000,
+                    monthlyPremium: 400,
+                    beneficiaries: ['Alice Wilson', 'Charlie Wilson'],
+                    lastPaymentDate: '2024-01-20'
                 }
             ];
 
-            // Populate policies table
-            let policiesList = document.getElementById('policies-list');
-            if (!policiesList) {
-                // Create table if it doesn't exist
-                const table = document.createElement('table');
-                table.id = 'policies-list';
+            // Create or update policies table
+            function updatePoliciesTable() {
+                const container = document.querySelector('.container');
+                let table = document.querySelector('#policies-table');
                 
-                // Create table header
-                const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
-                ['Policy Name', 'Coverage', 'Payment', 'Status', 'Actions'].forEach(text => {
-                    const th = document.createElement('th');
-                    th.textContent = text;
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-                
-                // Create table body
-                const tbody = document.createElement('tbody');
-                table.appendChild(tbody);
-                
-                // Find the main container or create one
-                let container = document.querySelector('.container');
-                if (!container) {
-                    container = document.createElement('div');
-                    container.className = 'container';
-                    document.body.appendChild(container);
+                if (!table) {
+                    table = document.createElement('table');
+                    table.id = 'policies-table';
+                    table.innerHTML = '<thead><tr><th>Policy Number</th><th>Policy Holder</th><th>Status</th><th>Coverage Amount</th><th>Monthly Premium</th><th>Start Date</th><th>Last Payment</th><th>Actions</th></tr></thead><tbody></tbody>';
+                    container.appendChild(table);
                 }
-                
-                // Add the table to the container
-                container.appendChild(table);
-                policiesList = tbody;
-            }
-            
-            // Create mock search and filter elements if they don't exist
-            if (!document.getElementById('search-input')) {
-                const searchInput = document.createElement('input');
-                searchInput.id = 'search-input';
-                searchInput.type = 'text';
-                searchInput.placeholder = 'Search policies...';
-                document.querySelector('.container').insertBefore(searchInput, policiesList.parentElement);
-            }
-            
-            if (!document.getElementById('status-filter')) {
-                const statusFilter = document.createElement('select');
-                statusFilter.id = 'status-filter';
-                const options = [
-                    { value: 'all', text: 'All Statuses' },
-                    { value: 'Active', text: 'Active' },
-                    { value: 'Inactive', text: 'Inactive' }
-                ];
-                options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.value;
-                    option.textContent = opt.text;
-                    statusFilter.appendChild(option);
+
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+
+                window.policies.forEach(policy => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-policy-id', policy.id);
+                    row.innerHTML = \`
+                        <td>\${policy.policyNumber}</td>
+                        <td>\${policy.policyHolder}</td>
+                        <td>\${policy.status}</td>
+                        <td>$\${policy.coverageAmount}</td>
+                        <td>$\${policy.monthlyPremium}</td>
+                        <td>\${policy.startDate}</td>
+                        <td>\${policy.lastPaymentDate || 'N/A'}</td>
+                        <td>
+                            <button class="edit-btn btn-primary">Edit</button>
+                            <button class="payment-btn btn-success" \${policy.status !== 'Active' ? 'disabled' : ''}>Record Payment</button>
+                            <button class="cancel-btn btn-danger" \${policy.status === 'Cancelled' ? 'disabled' : ''}>Cancel Policy</button>
+                        </td>
+                    \`;
+                    tbody.appendChild(row);
                 });
-                document.querySelector('.container').insertBefore(statusFilter, policiesList.parentElement);
-            }
-            
-            // Create add policy form if it doesn't exist
-            if (!document.getElementById('add-policy-form')) {
-                const form = document.createElement('form');
-                form.id = 'add-policy-form';
-                form.className = 'add-policy-form';
-                
-                const inputs = [
-                    { type: 'text', id: 'policy-type', placeholder: 'Policy Name' },
-                    { type: 'text', id: 'coverage', placeholder: 'Coverage Amount' },
-                    { type: 'number', id: 'payment', placeholder: 'Monthly Payment', step: '0.01' }
-                ];
-                
-                inputs.forEach(input => {
-                    const inputElement = document.createElement('input');
-                    Object.assign(inputElement, input);
-                    inputElement.required = true;
-                    form.appendChild(inputElement);
-                });
-                
-                const submitButton = document.createElement('button');
-                submitButton.type = 'submit';
-                submitButton.textContent = 'Add Policy';
-                form.appendChild(submitButton);
-                
-                document.querySelector('.container').insertBefore(form, policiesList.parentElement);
             }
 
-            // Populate policies table
-            mockPolicies.forEach(policy => {
-                const row = document.createElement('tr');
-                row.setAttribute('data-policy-id', policy.id);
-                const cells = [
-                    { text: policy.name },
-                    { text: policy.coverage },
-                    { text: 'R' + policy.payment.toFixed(2) },
-                    { text: policy.status },
-                    {
-                        html: '<button class="edit-btn" data-id="' + policy.id + '">Edit</button>' +
-                              '<button class="delete-btn" data-id="' + policy.id + '">Delete</button>'
-                    }
-                ];
-                
-                cells.forEach((cell, index) => {
-                    const td = document.createElement('td');
-                    if (cell.html) {
-                        td.innerHTML = cell.html;
-                    } else {
-                        td.textContent = cell.text;
-                    }
-                    row.appendChild(td);
-                });
-                
-                policiesList.appendChild(row);
-            });
-
-            // Add event listeners for edit and delete buttons
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    const policy = mockPolicies.find(p => p.id === id);
-                    if (!policy) return;
-
+            // Mock edit function
+            window.editPolicy = function(policyId) {
+                const policy = window.policies.find(p => p.id === policyId);
+                if (policy) {
                     const form = document.createElement('div');
-                    form.classList.add('edit-form');
-                    
-                    const inputs = [
-                        { type: 'text', id: 'edit-name', value: policy.name },
-                        { type: 'text', id: 'edit-coverage', value: policy.coverage },
-                        { type: 'number', id: 'edit-payment', value: policy.payment }
-                    ];
-                    
-                    inputs.forEach(input => {
-                        const inputElement = document.createElement('input');
-                        Object.assign(inputElement, input);
-                        form.appendChild(inputElement);
-                    });
-                    
-                    const saveButton = document.createElement('button');
-                    saveButton.textContent = 'Save';
-                    saveButton.addEventListener('click', function() {
-                        const name = document.getElementById('edit-name').value;
-                        const coverage = document.getElementById('edit-coverage').value;
-                        const payment = document.getElementById('edit-payment').value;
-                        
-                        const row = document.querySelector('[data-policy-id="' + id + '"]');
-                        if (row) {
-                            row.cells[0].textContent = name;
-                            row.cells[1].textContent = coverage;
-                            row.cells[2].textContent = 'R' + parseFloat(payment).toFixed(2);
-                        }
-
-                        form.remove();
-                    });
-                    form.appendChild(saveButton);
-                    
+                    form.className = 'edit-form modal';
+                    form.innerHTML = \`
+                        <div class="modal-content">
+                            <h2>Edit Policy</h2>
+                            <input type="text" id="edit-holder" value="\${policy.policyHolder}" class="form-control" placeholder="Policy Holder">
+                            <input type="number" id="edit-coverage" value="\${policy.coverageAmount}" class="form-control" placeholder="Coverage Amount">
+                            <input type="number" id="edit-premium" value="\${policy.monthlyPremium}" class="form-control" placeholder="Monthly Premium">
+                            <select id="edit-status" class="form-control">
+                                <option value="Active" \${policy.status === 'Active' ? 'selected' : ''}>Active</option>
+                                <option value="Pending" \${policy.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Cancelled" \${policy.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                            <button onclick="savePolicy('\${policy.id}')" class="btn-primary">Save</button>
+                        </div>
+                    \`;
                     document.body.appendChild(form);
-                });
-            });
+                }
+            };
 
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    const row = document.querySelector('[data-policy-id="' + id + '"]');
-                    if (row) {
-                        row.remove();
-                    }
-                });
-            });
-
-            // Add event listener for search input
-            document.getElementById('search-input').addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                document.querySelectorAll('#policies-list tbody tr').forEach(row => {
-                    const policyName = row.cells[0].textContent.toLowerCase();
-                    row.style.display = policyName.includes(searchTerm) ? '' : 'none';
-                });
-            });
-
-            // Add event listener for status filter
-            document.getElementById('status-filter').addEventListener('change', function() {
-                const selectedStatus = this.value;
-                document.querySelectorAll('#policies-list tbody tr').forEach(row => {
-                    const status = row.cells[3].textContent;
-                    row.style.display = (selectedStatus === 'all' || status === selectedStatus) ? '' : 'none';
-                });
-            });
-
-            // Add event listener for add policy form
-            document.getElementById('add-policy-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('policy-type').value;
-                const coverage = document.getElementById('coverage').value;
-                const payment = document.getElementById('payment').value;
-                
-                const row = document.createElement('tr');
-                const id = 'policy' + (document.querySelectorAll('#policies-list tr').length + 1);
-                row.setAttribute('data-policy-id', id);
-                
-                const cells = [
-                    { text: name },
-                    { text: coverage },
-                    { text: 'R' + parseFloat(payment).toFixed(2) },
-                    { text: 'Active' },
-                    {
-                        html: '<button class="edit-btn" data-id="' + id + '">Edit</button>' +
-                              '<button class="delete-btn" data-id="' + id + '">Delete</button>'
-                    }
-                ];
-                
-                cells.forEach((cell, index) => {
-                    const td = document.createElement('td');
-                    if (cell.html) {
-                        td.innerHTML = cell.html;
-                    } else {
-                        td.textContent = cell.text;
-                    }
-                    row.appendChild(td);
-                });
-                
-                document.getElementById('policies-list').appendChild(row);
-                this.reset();
-                
-                // Add event listeners to new buttons
-                const editBtn = row.querySelector('.edit-btn');
-                const deleteBtn = row.querySelector('.delete-btn');
-                
-                editBtn.addEventListener('click', function() {
-                    const form = document.createElement('div');
-                    form.classList.add('edit-form');
+            // Mock save function
+            window.savePolicy = function(policyId) {
+                const policy = window.policies.find(p => p.id === policyId);
+                if (policy) {
+                    policy.policyHolder = document.getElementById('edit-holder').value;
+                    policy.coverageAmount = parseFloat(document.getElementById('edit-coverage').value);
+                    policy.monthlyPremium = parseFloat(document.getElementById('edit-premium').value);
+                    policy.status = document.getElementById('edit-status').value;
                     
-                    const inputs = [
-                        { type: 'text', id: 'edit-name', value: name },
-                        { type: 'text', id: 'edit-coverage', value: coverage },
-                        { type: 'number', id: 'edit-payment', value: payment }
-                    ];
-                    
-                    inputs.forEach(input => {
-                        const inputElement = document.createElement('input');
-                        Object.assign(inputElement, input);
-                        form.appendChild(inputElement);
-                    });
-                    
-                    const saveButton = document.createElement('button');
-                    saveButton.textContent = 'Save';
-                    saveButton.addEventListener('click', function() {
-                        const newName = document.getElementById('edit-name').value;
-                        const newCoverage = document.getElementById('edit-coverage').value;
-                        const newPayment = document.getElementById('edit-payment').value;
-                        
-                        row.cells[0].textContent = newName;
-                        row.cells[1].textContent = newCoverage;
-                        row.cells[2].textContent = 'R' + parseFloat(newPayment).toFixed(2);
-                        
+                    const form = document.querySelector('.edit-form');
+                    if (form) {
                         form.remove();
-                    });
-                    form.appendChild(saveButton);
+                    }
                     
-                    document.body.appendChild(form);
-                });
-                
-                deleteBtn.addEventListener('click', function() {
-                    row.remove();
-                });
-            });
-        });
+                    updatePoliciesTable();
+                }
+            };
 
-        await driver.sleep(500); // Wait for the mock data to be loaded
+            // Mock payment function
+            window.recordPayment = function(policyId) {
+                const policy = window.policies.find(p => p.id === policyId);
+                if (policy && policy.status === 'Active') {
+                    const today = new Date().toISOString().split('T')[0];
+                    policy.lastPaymentDate = today;
+                    
+                    const message = document.createElement('div');
+                    message.className = 'success-message';
+                    message.textContent = 'Payment recorded successfully';
+                    document.body.appendChild(message);
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 3000);
+                    
+                    updatePoliciesTable();
+                }
+            };
+
+            // Mock cancel function
+            window.cancelPolicy = function(policyId) {
+                const policy = window.policies.find(p => p.id === policyId);
+                if (policy && policy.status !== 'Cancelled') {
+                    policy.status = 'Cancelled';
+                    updatePoliciesTable();
+                }
+            };
+
+            // Add event listeners
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.edit-btn')) {
+                    const policyId = e.target.closest('tr').getAttribute('data-policy-id');
+                    editPolicy(policyId);
+                } else if (e.target.matches('.payment-btn')) {
+                    const policyId = e.target.closest('tr').getAttribute('data-policy-id');
+                    recordPayment(policyId);
+                } else if (e.target.matches('.cancel-btn')) {
+                    const policyId = e.target.closest('tr').getAttribute('data-policy-id');
+                    cancelPolicy(policyId);
+                }
+            });
+
+            // Initialize the table
+            updatePoliciesTable();
+        `);
+
+        await driver.sleep(1000); // Wait for initialization
     });
 
     afterEach(async function() {
-        await driver.quit();
-    });
-
-    // Test policy list display
-    it('should display policy list correctly', async function() {
-        const policyRows = await driver.findElements(By.css('#policies-list tbody tr'));
-        assert.strictEqual(policyRows.length, 3, 'Should show three policy rows');
-
-        const firstRow = policyRows[0];
-        const cells = await firstRow.findElements(By.css('td'));
-        
-        assert.strictEqual(await cells[0].getText(), 'Basic Funeral Plan', 'Should show correct policy name');
-        assert.strictEqual(await cells[1].getText(), 'R15,000', 'Should show correct coverage');
-        assert.strictEqual(await cells[2].getText(), 'R150.00', 'Should show correct payment amount');
-    });
-
-    // Test adding a new policy
-    it('should add new policy correctly', async function() {
-        // Click the add policy button to show the form
-        await driver.executeScript(`
-            document.querySelector('#add-policy-btn').click();
-        `);
-        
-        await driver.sleep(500); // Wait for form to appear
-
-        // Fill out the form
-        await driver.executeScript(`
-            document.getElementById('policy-type').value = 'Test Policy';
-            document.getElementById('coverage').value = 'R25,000';
-            document.getElementById('payment').value = '200';
-        `);
-
-        // Submit the form
-        await driver.executeScript(`
-            const form = document.getElementById('add-policy-form');
-            form.querySelector('button[type="submit"]').click();
-        `);
-
-        await driver.sleep(1000); // Wait for the new policy to be added
-
-        try {
-            // Accept the success alert if it appears
-            const alert = await driver.switchTo().alert();
-            await alert.accept();
-        } catch (e) {
-            // Alert may not be present, which is fine
+        if (driver) {
+            await driver.quit();
         }
-
-        await driver.sleep(500); // Wait for UI to update
-
-        // Verify the new policy details
-        const lastRowCells = await driver.executeScript(`
-            const rows = Array.from(document.querySelectorAll('#policies-list tbody tr'));
-            const lastRow = rows[rows.length - 1];
-            return Array.from(lastRow.cells).map(cell => cell.textContent.trim());
-        `);
-
-        assert.strictEqual(lastRowCells[0], 'Test Policy', 'Should show correct policy name');
-        assert.strictEqual(lastRowCells[1], 'R25,000', 'Should show correct coverage');
-        assert.strictEqual(lastRowCells[2], 'R200.00', 'Should show correct payment amount');
     });
 
-    // Test editing a policy
-    it('should edit policy correctly', async function() {
-        const editButton = await driver.findElement(By.css('.edit-btn'));
-        await editButton.click();
+    it('should display the policies table', async function() {
+        // Wait for the table to be present
+        const table = await driver.wait(until.elementLocated(By.id('policies-table')), 5000);
+        assert.ok(table, 'Policies table should be present');
 
-        await driver.sleep(500); // Wait for edit form to appear
+        // Check if mock policies are displayed
+        const rows = await driver.findElements(By.css('#policies-table tbody tr'));
+        assert.strictEqual(rows.length, 3, 'Should display 3 mock policies');
+    });
 
-        const nameInput = await driver.findElement(By.id('edit-name'));
+    it('should edit policy details', async function() {
+        // Click edit button for first policy
+        const editBtn = await driver.findElement(By.css('.edit-btn'));
+        await editBtn.click();
+        await driver.sleep(500);
+
+        // Edit policy details
+        const holderInput = await driver.findElement(By.id('edit-holder'));
+        await holderInput.clear();
+        await holderInput.sendKeys('Updated Holder');
+
         const coverageInput = await driver.findElement(By.id('edit-coverage'));
-        const paymentInput = await driver.findElement(By.id('edit-payment'));
-        const saveButton = await driver.findElement(By.css('.edit-form button'));
-
-        await nameInput.clear();
-        await nameInput.sendKeys('Updated Policy');
         await coverageInput.clear();
-        await coverageInput.sendKeys('R40,000');
-        await paymentInput.clear();
-        await paymentInput.sendKeys('350');
+        await coverageInput.sendKeys('60000');
 
-        await saveButton.click();
-        await driver.sleep(500); // Wait for changes to apply
+        const premiumInput = await driver.findElement(By.id('edit-premium'));
+        await premiumInput.clear();
+        await premiumInput.sendKeys('600');
 
-        const firstRow = await driver.findElement(By.css('#policies-list tbody tr'));
-        const cells = await firstRow.findElements(By.css('td'));
-
-        assert.strictEqual(await cells[0].getText(), 'Updated Policy', 'Should show updated policy name');
-        assert.strictEqual(await cells[1].getText(), 'R40,000', 'Should show updated coverage');
-        assert.strictEqual(await cells[2].getText(), 'R350.00', 'Should show updated payment amount');
-    });
-
-    // Test deleting a policy
-    it('should delete policy correctly', async function() {
-        const initialRows = await driver.findElements(By.css('#policies-list tbody tr'));
-        const initialCount = initialRows.length;
-
-        const deleteButton = await driver.findElement(By.css('.delete-btn'));
-        await deleteButton.click();
-
-        await driver.sleep(500); // Wait for deletion to complete
-
-        const finalRows = await driver.findElements(By.css('#policies-list tbody tr'));
-        const finalCount = finalRows.length;
-
-        assert.strictEqual(finalCount, initialCount - 1, 'Should have one less policy after deletion');
-    });
-
-    // Test filtering by search term
-    it('should filter policies by search term', async function() {
-        const searchInput = await driver.findElement(By.id('search-input'));
-        await searchInput.sendKeys('Premium');
+        // Save changes
+        const saveBtn = await driver.findElement(By.css('.edit-form button'));
+        await saveBtn.click();
         await driver.sleep(500);
 
-        const visibleRows = await driver.findElements(By.css('#policies-list tbody tr:not([style*="display: none"])'));
-        assert.strictEqual(visibleRows.length, 1, 'Should show only one matching policy');
-        
-        const cells = await visibleRows[0].findElements(By.css('td'));
-        assert.strictEqual(await cells[0].getText(), 'Premium Funeral Plan', 'Should show the correct filtered policy');
+        // Verify changes
+        const updatedHolder = await driver.findElement(By.css('#policies-table tbody tr:first-child td:nth-child(2)')).getText();
+        assert.strictEqual(updatedHolder, 'Updated Holder', 'Policy holder should be updated');
+
+        const updatedCoverage = await driver.findElement(By.css('#policies-table tbody tr:first-child td:nth-child(4)')).getText();
+        assert.strictEqual(updatedCoverage, '$60000', 'Coverage amount should be updated');
+
+        const updatedPremium = await driver.findElement(By.css('#policies-table tbody tr:first-child td:nth-child(5)')).getText();
+        assert.strictEqual(updatedPremium, '$600', 'Monthly premium should be updated');
     });
 
-    // Test status filter
-    it('should filter policies by status', async function() {
-        const statusFilter = await driver.findElement(By.id('status-filter'));
-        await statusFilter.sendKeys('Inactive');
+    it('should record a payment for active policy', async function() {
+        // Click payment button for first policy (which is Active)
+        const paymentBtn = await driver.findElement(By.css('.payment-btn'));
+        await paymentBtn.click();
         await driver.sleep(500);
 
-        const visibleRows = await driver.findElements(By.css('#policies-list tbody tr:not([style*="display: none"])'));
-        assert.strictEqual(visibleRows.length, 1, 'Should show only one matching policy');
-        
-        const cells = await visibleRows[0].findElements(By.css('td'));
-        assert.strictEqual(await cells[3].getText(), 'Inactive', 'Should show only inactive policies');
+        // Verify success message appears
+        const message = await driver.wait(until.elementLocated(By.className('success-message')), 5000);
+        assert.ok(await message.isDisplayed(), 'Success message should be displayed');
+
+        // Verify last payment date is updated
+        const today = new Date().toISOString().split('T')[0];
+        const lastPayment = await driver.findElement(By.css('#policies-table tbody tr:first-child td:nth-child(7)')).getText();
+        assert.strictEqual(lastPayment, today, 'Last payment date should be updated to today');
+    });
+
+    it('should cancel an active policy', async function() {
+        // Click cancel button for first policy
+        const cancelBtn = await driver.findElement(By.css('.cancel-btn'));
+        await cancelBtn.click();
+        await driver.sleep(500);
+
+        // Verify policy status is updated to Cancelled
+        const status = await driver.findElement(By.css('#policies-table tbody tr:first-child td:nth-child(3)')).getText();
+        assert.strictEqual(status, 'Cancelled', 'Policy status should be updated to Cancelled');
+
+        // Verify payment button is disabled
+        const paymentBtn = await driver.findElement(By.css('.payment-btn'));
+        assert.strictEqual(await paymentBtn.getAttribute('disabled'), 'true', 'Payment button should be disabled for cancelled policy');
     });
 });

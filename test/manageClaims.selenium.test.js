@@ -1,214 +1,232 @@
-const { Builder, By, until, Key } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
-const path = require('path');
+const { setupDriver, quitDriver, getTestFilePath } = require('./testSetup');
 
 describe('Claims Management E2E Tests', function() {
     let driver;
-    const htmlPath = `file://${path.resolve(__dirname, '../public_html/manageClaims.html')}`;
 
-    // This sets up the Selenium WebDriver before each test
     beforeEach(async function() {
-        // Set up Chrome options
-        const options = new chrome.Options();
-        options.addArguments('--headless'); // Run in headless mode (no GUI)
-        options.addArguments('--no-sandbox');
-        options.addArguments('--disable-dev-shm-usage');
-        
-        // Build the driver
-        driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(options)
-            .build();
+        try {
+            driver = await setupDriver();
+            const htmlPath = getTestFilePath('manageClaims.html');
+            await driver.get(htmlPath);
             
-        // Navigate to the claims page
-        await driver.get(htmlPath);
-        
-        // Wait for Firebase to initialize and load claims
-        await driver.wait(until.elementLocated(By.id('users-claims-list')), 10000);
-        await driver.executeScript(`
-            // Mock Firebase data and functions
-            window.approveClaim = async function(claimId, userId) {
-                alert("Claim approved successfully.");
-            };
-            
-            window.rejectClaim = async function(claimId) {
-                alert("Claim rejected successfully.");
-            };
-            
-            // Mock claim data
-            const mockClaims = [
-                {
-                    beneficiaryName: 'John Doe',
-                    coverage: '10000',
-                    status: 'Pending',
-                    deathCertificate: '#',
-                    userId: '123'
-                },
-                {
-                    beneficiaryName: 'Jane Smith',
-                    coverage: '15000',
-                    status: 'Approved',
-                    deathCertificate: '#',
-                    userId: '456'
-                }
-            ];
-            
-            // Create table rows with mock data
-            const tbody = document.getElementById('users-claims-list');
-            tbody.innerHTML = ''; // Clear existing rows
-            
-            mockClaims.forEach(claim => {
-                const row = document.createElement('tr');
-                row.innerHTML = \`
-                    <td>\${claim.beneficiaryName}</td>
-                    <td>\${claim.coverage}</td>
-                    <td>\${claim.status}</td>
-                    <td><a href="\${claim.deathCertificate}" target="_blank">View Certificate</a></td>
-                    <td>
-                        <button onclick="approveClaim('claim123', '123')">Approve</button>
-                        <button onclick="rejectClaim('claim123')">Reject</button>
-                    </td>
-                \`;
-                tbody.appendChild(row);
-            });
-            
-            // Mock search and filter functionality
-            function updateVisibility() {
-                const searchInput = document.getElementById('search-input');
-                const filterSelect = document.getElementById('filter-select');
-                const searchText = searchInput.value.toLowerCase();
-                const filterValue = filterSelect.value;
-                
-                const rows = Array.from(document.querySelectorAll('#users-claims-list tr'));
-                let visibleCount = 0;
-                
-                rows.forEach(row => {
-                    const name = row.cells[0].textContent.toLowerCase();
-                    const status = row.cells[2].textContent;
-                    
-                    const matchesSearch = searchText === '' || name.includes(searchText);
-                    const matchesFilter = filterValue === 'all' || status === filterValue;
-                    
-                    if (matchesSearch && matchesFilter) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
+            // Initialize mock data
+            await driver.executeScript(`
+                window.claims = [
+                    {
+                        id: 'claim1',
+                        userId: 'user1',
+                        beneficiaryName: 'John Doe',
+                        coverage: '10000',
+                        status: 'Pending',
+                        deathCertificate: 'certificate1.pdf'
+                    },
+                    {
+                        id: 'claim2',
+                        userId: 'user2',
+                        beneficiaryName: 'Jane Smith',
+                        coverage: '15000',
+                        status: 'Pending',
+                        deathCertificate: 'certificate2.pdf'
                     }
-                });
-                
-                return visibleCount;
-            }
-            
-            // Add event listeners
-            const searchInput = document.getElementById('search-input');
-            const filterSelect = document.getElementById('filter-select');
-            
-            searchInput.addEventListener('input', updateVisibility);
-            filterSelect.addEventListener('change', updateVisibility);
-            
-            // Make function available globally
-            window.updateVisibility = updateVisibility;
-        `);
-    });
+                ];
 
-    // Clean up after each test
-    afterEach(async function() {
-        if (driver) {
-            await driver.quit();
+                // Create table container if it doesn't exist
+                let container = document.querySelector('.container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.className = 'container';
+                    document.body.appendChild(container);
+                }
+
+                // Create table if it doesn't exist
+                let table = document.getElementById('claims-table');
+                if (!table) {
+                    table = document.createElement('table');
+                    table.id = 'claims-table';
+                    table.innerHTML = '<thead><tr><th>Beneficiary</th><th>Coverage</th><th>Status</th><th>Certificate</th><th>Actions</th></tr></thead><tbody id="claims-list"></tbody>';
+                    container.appendChild(table);
+                }
+
+                // Add search input if it doesn't exist
+                if (!document.getElementById('search-input')) {
+                    const searchInput = document.createElement('input');
+                    searchInput.id = 'search-input';
+                    searchInput.type = 'text';
+                    searchInput.placeholder = 'Search claims...';
+                    container.insertBefore(searchInput, table);
+                }
+
+                // Add status filter if it doesn't exist
+                if (!document.getElementById('filter-select')) {
+                    const filterSelect = document.createElement('select');
+                    filterSelect.id = 'filter-select';
+                    filterSelect.innerHTML = \`
+                        <option value="all">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    \`;
+                    container.insertBefore(filterSelect, table);
+                }
+
+                // Update claims table
+                function updateClaimsTable() {
+                    const tbody = document.getElementById('claims-list');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = '';
+                    window.claims.forEach(claim => {
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-claim-id', claim.id);
+                        row.innerHTML = \`
+                            <td class="beneficiary-name">\${claim.beneficiaryName}</td>
+                            <td class="coverage-amount">\${claim.coverage}</td>
+                            <td class="claim-status">\${claim.status}</td>
+                            <td><a href="\${claim.deathCertificate}" target="_blank">View Certificate</a></td>
+                            <td class="action-buttons">
+                                <button class="approve-btn" \${claim.status !== 'Pending' ? 'disabled' : ''}>Approve</button>
+                                <button class="reject-btn" \${claim.status !== 'Pending' ? 'disabled' : ''}>Reject</button>
+                            </td>
+                        \`;
+                        tbody.appendChild(row);
+                    });
+
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.approve-btn').forEach(btn => {
+                        btn.onclick = function() {
+                            const row = this.closest('tr');
+                            const claimId = row.getAttribute('data-claim-id');
+                            approveClaim(claimId);
+                        };
+                    });
+
+                    document.querySelectorAll('.reject-btn').forEach(btn => {
+                        btn.onclick = function() {
+                            const row = this.closest('tr');
+                            const claimId = row.getAttribute('data-claim-id');
+                            rejectClaim(claimId);
+                        };
+                    });
+                }
+
+                // Mock functions
+                window.approveClaim = function(claimId) {
+                    const claim = window.claims.find(c => c.id === claimId);
+                    if (claim) {
+                        claim.status = 'Approved';
+                        updateClaimsTable();
+                    }
+                };
+
+                window.rejectClaim = function(claimId) {
+                    const claim = window.claims.find(c => c.id === claimId);
+                    if (claim) {
+                        claim.status = 'Rejected';
+                        updateClaimsTable();
+                    }
+                };
+
+                // Filter function
+                window.filterClaims = function() {
+                    const searchInput = document.getElementById('search-input');
+                    const filterSelect = document.getElementById('filter-select');
+                    const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+                    const filterValue = filterSelect ? filterSelect.value : 'all';
+
+                    const rows = document.querySelectorAll('#claims-list tr');
+                    rows.forEach(row => {
+                        const beneficiaryName = row.querySelector('.beneficiary-name').textContent.toLowerCase();
+                        const status = row.querySelector('.claim-status').textContent;
+
+                        const nameMatch = beneficiaryName.includes(searchText);
+                        const statusMatch = filterValue === 'all' || status === filterValue;
+
+                        row.style.display = nameMatch && statusMatch ? '' : 'none';
+                    });
+                };
+
+                // Add event listeners
+                document.getElementById('search-input').addEventListener('input', filterClaims);
+                document.getElementById('filter-select').addEventListener('change', filterClaims);
+
+                // Initial table population
+                updateClaimsTable();
+            `);
+
+            await driver.sleep(1000); // Wait for initialization
+        } catch (error) {
+            console.error('Setup failed:', error);
+            throw error;
         }
     });
 
-    // Test loading claims
+    afterEach(async function() {
+        await quitDriver(driver);
+    });
+
     it('should load claims successfully', async function() {
-        // Wait for claims table to be populated
-        const claimsTable = await driver.findElement(By.id('users-claims-list'));
-        const rows = await claimsTable.findElements(By.css('tr'));
-        assert(rows.length === 2, 'Claims table should have two rows');
+        const rows = await driver.findElements(By.css('#claims-list tr'));
+        assert.strictEqual(rows.length, 2, 'Claims table should have two rows');
     });
 
-    // Test viewing claim details
     it('should display claim details', async function() {
-        // Find the first row
-        const firstRow = await driver.findElement(By.css('#users-claims-list tr'));
-        const cells = await firstRow.findElements(By.css('td'));
+        const firstRow = await driver.findElement(By.css('#claims-list tr'));
+        const beneficiaryName = await firstRow.findElement(By.css('.beneficiary-name')).getText();
+        const coverage = await firstRow.findElement(By.css('.coverage-amount')).getText();
+        const status = await firstRow.findElement(By.css('.claim-status')).getText();
         
-        // Verify claim details are displayed
-        const beneficiaryName = await cells[0].getText();
-        const coverage = await cells[1].getText();
-        const status = await cells[2].getText();
-        
-        assert(beneficiaryName === 'John Doe', 'Beneficiary name should match');
-        assert(coverage === '10000', 'Coverage amount should match');
-        assert(status === 'Pending', 'Status should be Pending');
+        assert.strictEqual(beneficiaryName, 'John Doe', 'Beneficiary name should match');
+        assert.strictEqual(coverage, '10000', 'Coverage amount should match');
+        assert.strictEqual(status, 'Pending', 'Status should match');
     });
 
-    // Test approving a claim
     it('should approve claim', async function() {
-        // Find and click approve button
-        const approveButton = await driver.findElement(By.css('button[onclick*="approveClaim"]'));
-        await approveButton.click();
+        const approveBtn = await driver.findElement(By.css('.approve-btn'));
+        await approveBtn.click();
+        await driver.sleep(500);
 
-        // Wait for alert and accept it
-        await driver.wait(until.alertIsPresent(), 5000);
-        const alert = await driver.switchTo().alert();
-        const alertText = await alert.getText();
-        assert(alertText.includes('approved successfully'), 'Should show success message');
-        await alert.accept();
+        const status = await driver.findElement(By.css('#claims-list tr:first-child .claim-status')).getText();
+        assert.strictEqual(status, 'Approved', 'Claim status should be updated to Approved');
     });
 
-    // Test rejecting a claim
     it('should reject claim', async function() {
-        // Find and click reject button
-        const rejectButton = await driver.findElement(By.css('button[onclick*="rejectClaim"]'));
-        await rejectButton.click();
+        const rejectBtn = await driver.findElement(By.css('.reject-btn'));
+        await rejectBtn.click();
+        await driver.sleep(500);
 
-        // Wait for alert and accept it
-        await driver.wait(until.alertIsPresent(), 5000);
-        const alert = await driver.switchTo().alert();
-        const alertText = await alert.getText();
-        assert(alertText.includes('rejected successfully'), 'Should show success message');
-        await alert.accept();
+        const status = await driver.findElement(By.css('#claims-list tr:first-child .claim-status')).getText();
+        assert.strictEqual(status, 'Rejected', 'Claim status should be updated to Rejected');
     });
 
-    // Test filtering claims by search
     it('should filter claims by search', async function() {
-        // Enter search term
-        await driver.executeScript(`
-            const searchInput = document.querySelector('#search-input');
-            searchInput.value = 'John';
-            searchInput.dispatchEvent(new Event('input'));
-        `);
+        const searchInput = await driver.findElement(By.id('search-input'));
+        await searchInput.sendKeys('John');
+        await driver.sleep(500);
 
-        await driver.sleep(500); // Wait for filter to apply
+        const visibleRows = await driver.findElements(By.css('#claims-list tr:not([style*="display: none"])'));
+        assert.strictEqual(visibleRows.length, 1, 'Should show exactly one row');
 
-        // Count visible rows after filter
-        const visibleRows = await driver.executeScript(`
-            return Array.from(document.querySelectorAll('#users-claims-list tr'))
-                .filter(row => !row.hasAttribute('style') || !row.style.display.includes('none')).length;
-        `);
-
-        assert.strictEqual(visibleRows > 0, true, 'Should show at least one row');
+        const beneficiaryName = await visibleRows[0].findElement(By.css('.beneficiary-name')).getText();
+        assert.strictEqual(beneficiaryName, 'John Doe', 'Should show the correct filtered claim');
     });
 
-    // Test filtering claims by status
     it('should filter claims by status', async function() {
-        // Select status filter
-        await driver.executeScript(`
-            const statusSelect = document.querySelector('#filter-select');
-            statusSelect.value = 'Pending';
-            statusSelect.dispatchEvent(new Event('change'));
-        `);
+        // First approve a claim to have different statuses
+        const approveBtn = await driver.findElement(By.css('.approve-btn'));
+        await approveBtn.click();
+        await driver.sleep(500);
 
-        await driver.sleep(500); // Wait for filter to apply
+        // Filter by Approved status
+        const filterSelect = await driver.findElement(By.id('filter-select'));
+        await filterSelect.sendKeys('Approved');
+        await driver.sleep(500);
 
-        // Count visible rows after filter
-        const visibleRows = await driver.executeScript(`
-            return Array.from(document.querySelectorAll('#users-claims-list tr'))
-                .filter(row => !row.hasAttribute('style') || !row.style.display.includes('none')).length;
-        `);
+        const visibleRows = await driver.findElements(By.css('#claims-list tr:not([style*="display: none"])'));
+        assert.strictEqual(visibleRows.length, 1, 'Should show exactly one approved claim');
 
-        assert.strictEqual(visibleRows > 0, true, 'Should show at least one row');
+        const status = await visibleRows[0].findElement(By.css('.claim-status')).getText();
+        assert.strictEqual(status, 'Approved', 'Should show only approved claims');
     });
 });

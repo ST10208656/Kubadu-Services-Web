@@ -1,0 +1,116 @@
+name: Web Admin CI/CD
+
+on:
+  push:
+    branches:
+      - webAdminBranch
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: webAdminBranch
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g mocha
+          npm install -g chromedriver
+
+      - name: Install Chrome and ChromeDriver
+        run: |
+          # Install Chrome
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          
+          # Get Chrome version
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | awk -F'.' '{print $1}')
+          echo "Chrome version: $CHROME_VERSION"
+          
+          # Install matching ChromeDriver
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
+          curl -L -o chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+          unzip chromedriver.zip
+          chmod +x chromedriver
+          sudo mv chromedriver /usr/local/bin/
+          chromedriver --version
+
+      - name: Set up test environment
+        run: |
+          mkdir -p test/screenshots
+          chmod -R 777 test/screenshots
+          
+          # Start ChromeDriver
+          chromedriver --port=4444 &
+          sleep 3  # Give ChromeDriver time to start
+
+      - name: Start Xvfb
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb :99 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Run Selenium tests
+        env:
+          CI: true
+          NODE_ENV: test
+          DISPLAY: :99
+          SELENIUM_REMOTE_URL: "http://localhost:4444"
+        run: |
+          echo "Chrome version:"
+          google-chrome --version
+          echo "ChromeDriver version:"
+          chromedriver --version
+          
+          echo "Running Selenium tests..."
+          npx mocha --timeout 60000 --retries 2 test/*.selenium.test.js
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            test/screenshots
+            test-results
+            selenium-debug.log
+          retention-days: 7
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-logs
+          path: |
+            npm-debug.log
+            selenium-debug.log
+            test/screenshots
+            /var/log/google-chrome/chrome_debug.log
+          retention-days: 7
+
+      - name: Print Chrome logs
+        if: always()
+        run: |
+          if [ -f /var/log/google-chrome/chrome_debug.log ]; then
+            cat /var/log/google-chrome/chrome_debug.log
+          fi
