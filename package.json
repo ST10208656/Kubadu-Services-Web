@@ -8,11 +8,12 @@
     "test:watch": "mocha --watch --timeout 30000 test/*.selenium.test.js"
   },
   "dependencies": {
-    "selenium-webdriver": "^4.16.0",
-    "chromedriver": "^131.0.0"
+    "chromedriver": "^131.0.0",
+    "selenium-webdriver": "^4.16.0"
   },
   "devDependencies": {
-    "mocha": "^10.2.0",
-    "chai": "^4.3.10"
+    "chai": "^4.3.10",
+    "express": "^4.21.1",
+    "mocha": "^10.2.0"
   }
 }

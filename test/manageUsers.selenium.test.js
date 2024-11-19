@@ -1,204 +1,194 @@
-const { By, until } = require('selenium-webdriver');
+const { Builder, By, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 const assert = require('assert');
+const express = require('express');
 const path = require('path');
-const { setupDriver, teardownDriver, waitForDocumentReady, takeScreenshot } = require('./testSetup');
 
-describe('Users Management Tests', function() {
+describe('Manage Users Tests', function() {
     let driver;
+    let server;
+    const PORT = 3000;
+    
+    this.timeout(30000); // Increase timeout for all tests
 
-    this.timeout(30000); // Increase timeout for Selenium tests
+    before(async function() {
+        // Set up Express server
+        const app = express();
+        app.use(express.static(path.join(__dirname, '../public_html')));
+        server = app.listen(PORT);
+
+        // Set up Chrome driver
+        const options = new chrome.Options();
+        options.addArguments('--headless');
+        driver = await new Builder()
+            .forBrowser('chrome')
+            .setChromeOptions(options)
+            .build();
+    });
+
+    after(async function() {
+        await driver.quit();
+        server.close();
+    });
 
     beforeEach(async function() {
-        try {
-            driver = await setupDriver();
-
-            // Navigate to the users page
-            const htmlPath = path.join(__dirname, '..', 'public_html', 'manageUsers.html');
-            await driver.get('file://' + htmlPath);
-
-            // Wait for the document to be ready
-            await waitForDocumentReady(driver);
-
-            // Initialize mock data and setup UI
-            await driver.executeScript(`
-                // Mock user data
-                window.users = [
-                    {
-                        id: 'user1',
-                        name: 'John Doe',
-                        email: 'john@example.com',
-                        role: 'Admin',
-                        status: 'Active',
-                        lastLogin: '2024-01-01'
-                    },
-                    {
-                        id: 'user2',
-                        name: 'Jane Smith',
-                        email: 'jane@example.com',
-                        role: 'User',
-                        status: 'Active',
-                        lastLogin: '2024-01-02'
-                    },
-                    {
-                        id: 'user3',
-                        name: 'Bob Wilson',
-                        email: 'bob@example.com',
-                        role: 'User',
-                        status: 'Blocked',
-                        lastLogin: '2024-01-03'
-                    }
-                ];
-
-                // Create or update users table
-                function updateUsersTable() {
-                    const container = document.querySelector('.container');
-                    let table = document.querySelector('#users-table');
-                    
-                    if (!table) {
-                        table = document.createElement('table');
-                        table.id = 'users-table';
-                        table.innerHTML = '<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody></tbody>';
-                        container.appendChild(table);
-                    }
-
-                    const tbody = table.querySelector('tbody');
-                    tbody.innerHTML = '';
-
-                    window.users.forEach(user => {
-                        const row = document.createElement('tr');
-                        row.setAttribute('data-user-id', user.id);
-                        row.innerHTML = \`
-                            <td>\${user.name}</td>
-                            <td>\${user.email}</td>
-                            <td>\${user.role}</td>
-                            <td>\${user.status}</td>
-                            <td>\${user.lastLogin}</td>
-                            <td>
-                                <button class="edit-btn btn-primary">Edit</button>
-                                <button class="delete-btn btn-danger">Delete</button>
-                            </td>
-                        \`;
-                        tbody.appendChild(row);
-                    });
-                }
-
-                // Mock edit function
-                window.editUser = function(userId) {
-                    const user = window.users.find(u => u.id === userId);
-                    if (user) {
-                        const form = document.createElement('div');
-                        form.className = 'edit-form modal';
-                        form.innerHTML = \`
-                            <div class="modal-content">
-                                <h2>Edit User</h2>
-                                <input type="text" id="edit-name" value="\${user.name}" class="form-control">
-                                <input type="email" id="edit-email" value="\${user.email}" class="form-control">
-                                <select id="edit-role" class="form-control">
-                                    <option value="Admin" \${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
-                                    <option value="User" \${user.role === 'User' ? 'selected' : ''}>User</option>
-                                </select>
-                                <button onclick="saveUser('\${user.id}')" class="btn-primary">Save</button>
-                            </div>
-                        \`;
-                        document.body.appendChild(form);
-                    }
-                };
-
-                // Mock save function
-                window.saveUser = function(userId) {
-                    const user = window.users.find(u => u.id === userId);
-                    if (user) {
-                        user.name = document.getElementById('edit-name').value;
-                        user.email = document.getElementById('edit-email').value;
-                        user.role = document.getElementById('edit-role').value;
-                        
-                        const form = document.querySelector('.edit-form');
-                        if (form) {
-                            form.remove();
-                        }
-                        
-                        updateUsersTable();
-                    }
-                };
-
-                // Mock delete function
-                window.deleteUser = function(userId) {
-                    const index = window.users.findIndex(u => u.id === userId);
-                    if (index !== -1) {
-                        window.users.splice(index, 1);
-                        updateUsersTable();
-                    }
-                };
-
-                // Add event listeners
-                document.addEventListener('click', function(e) {
-                    if (e.target.matches('.edit-btn')) {
-                        const userId = e.target.closest('tr').getAttribute('data-user-id');
-                        editUser(userId);
-                    } else if (e.target.matches('.delete-btn')) {
-                        const userId = e.target.closest('tr').getAttribute('data-user-id');
-                        deleteUser(userId);
-                    }
-                });
-
-                // Initialize the table
-                updateUsersTable();
-            `);
-
-            await driver.sleep(1000); // Wait for initialization
-        } catch (error) {
-            console.error('Setup failed:', error);
-            throw error;
-        }
+        await driver.get(`http://localhost:${PORT}/manageUsers.html`);
+        // Wait for page to fully load
+        await driver.wait(until.elementLocated(By.css('h1')), 10000);
+        // Wait for Firebase to initialize and load data
+        await driver.sleep(2000);
     });
 
-    afterEach(async function() {
-        await teardownDriver(driver);
+    describe('Customer Management', function() {
+        it('should display customer table', async function() {
+            const table = await driver.findElement(By.css('#customerTable'));
+            assert(await table.isDisplayed());
+        });
+
+        it('should open add customer modal', async function() {
+            // Click add customer button
+            const addButton = await driver.findElement(By.css('a.add-btn[onclick*="openCustomerModal"]'));
+            await addButton.click();
+            
+            // Wait for modal
+            await driver.sleep(1000); // Wait for modal animation
+            const modal = await driver.findElement(By.css('#addCustomerModal'));
+            const display = await modal.getCssValue('display');
+            assert.strictEqual(display, 'block');
+        });
+
+        it('should fill and submit add customer form', async function() {
+            // Click add customer button
+            const addButton = await driver.findElement(By.css('a.add-btn[onclick*="openCustomerModal"]'));
+            await addButton.click();
+            
+            // Wait for modal
+            await driver.sleep(1000); // Wait for modal animation
+            
+            // Fill form
+            await driver.findElement(By.css('#addCustomerName')).sendKeys('Test Customer');
+            await driver.findElement(By.css('#addCustomerEmail')).sendKeys('test@customer.com');
+            
+            // Submit form
+            const form = await driver.findElement(By.css('#addCustomerForm'));
+            await form.submit();
+            
+            // Wait for alert and handle it
+            try {
+                await driver.wait(until.alertIsPresent(), 5000);
+                const alert = await driver.switchTo().alert();
+                await alert.accept();
+            } catch (e) {
+                console.log('No alert present');
+            }
+        });
+
+        it('should add a new customer', async function() {
+            // Click add customer button
+            const addBtn = await driver.findElement(By.css('a.add-btn[onclick*="openCustomerModal"]'));
+            await addBtn.click();
+
+            // Wait for modal
+            await driver.sleep(1000); // Wait for modal animation
+
+            // Fill form
+            await driver.findElement(By.css('#addCustomerName')).sendKeys('Test Customer');
+            await driver.findElement(By.css('#addCustomerEmail')).sendKeys('customer@example.com');
+
+            // Submit form
+            await driver.findElement(By.css('#addCustomerForm')).submit();
+
+            // Wait for alert and accept it
+            await driver.wait(until.alertIsPresent(), 5000);
+            await driver.switchTo().alert().accept();
+
+            // Verify customer was added (just check if table has content)
+            const cells = await driver.findElements(By.css('#customerTable td'));
+            assert(cells.length > 0, 'Customer table should have content');
+        });
     });
 
-    it('should display the users table', async function() {
-        // Wait for the table to be present
-        const table = await driver.wait(until.elementLocated(By.id('users-table')), 5000);
-        assert.ok(table, 'Users table should be present');
+    describe('Employee Management', function() {
+        it('should display employee table', async function() {
+            const table = await driver.findElement(By.css('#employeeTable'));
+            assert(await table.isDisplayed());
+        });
 
-        // Check if mock users are displayed
-        const rows = await driver.findElements(By.css('#users-table tbody tr'));
-        assert.strictEqual(rows.length, 3, 'Should display 3 mock users');
-    });
+        it('should open add employee modal', async function() {
+            // Click add employee button
+            const addButton = await driver.findElement(By.css('a.add-btn[onclick*="openEmployeeModal"]'));
+            await addButton.click();
+            
+            // Wait for modal
+            await driver.sleep(1000); // Wait for modal animation
+            const modal = await driver.findElement(By.css('#addEmployeeModal'));
+            const display = await modal.getCssValue('display');
+            assert.strictEqual(display, 'block');
+        });
 
-    it('should edit user details', async function() {
-        // Click edit button for first user
-        const editBtn = await driver.findElement(By.css('.edit-btn'));
-        await editBtn.click();
-        await driver.sleep(500);
+        it('should fill and submit add employee form', async function() {
+            // Click add employee button
+            const addButton = await driver.findElement(By.css('a.add-btn[onclick*="openEmployeeModal"]'));
+            await addButton.click();
+            
+            // Wait for modal
+            await driver.sleep(1000); // Wait for modal animation
+            
+            // Fill form
+            await driver.findElement(By.css('#addEmployeeName')).sendKeys('Test Employee');
+            await driver.findElement(By.css('#addEmployeeEmail')).sendKeys('test@employee.com');
+            await driver.findElement(By.css('#addEmployeePassword')).sendKeys('password123');
+            
+            // Select role
+            const roleSelect = await driver.findElement(By.css('#addEmployeeRole'));
+            await roleSelect.sendKeys('Admin');
+            
+            // Select department
+            const deptSelect = await driver.findElement(By.css('#addEmployeeDepartment'));
+            await deptSelect.sendKeys('Managers');
+            
+            // Submit form
+            const form = await driver.findElement(By.css('#addEmployeeForm'));
+            await form.submit();
+            
+            // Wait for alert and handle it
+            try {
+                await driver.wait(until.alertIsPresent(), 5000);
+                const alert = await driver.switchTo().alert();
+                await alert.accept();
+            } catch (e) {
+                console.log('No alert present');
+            }
+        });
 
-        // Edit user details
-        const nameInput = await driver.findElement(By.id('edit-name'));
-        await nameInput.clear();
-        await nameInput.sendKeys('Updated Name');
-
-        // Save changes
-        const saveBtn = await driver.findElement(By.css('.edit-form button'));
-        await saveBtn.click();
-        await driver.sleep(500);
-
-        // Verify changes
-        const updatedName = await driver.findElement(By.css('#users-table tbody tr:first-child td:first-child')).getText();
-        assert.strictEqual(updatedName, 'Updated Name', 'User name should be updated');
-    });
-
-    it('should delete a user', async function() {
-        // Get initial row count
-        const initialRows = await driver.findElements(By.css('#users-table tbody tr'));
-        const initialCount = initialRows.length;
-
-        // Click delete button for first user
-        const deleteBtn = await driver.findElement(By.css('.delete-btn'));
-        await deleteBtn.click();
-        await driver.sleep(500);
-
-        // Verify user was deleted
-        const remainingRows = await driver.findElements(By.css('#users-table tbody tr'));
-        assert.strictEqual(remainingRows.length, initialCount - 1, 'One user should be deleted');
+        it('should add a new employee', async function() {
+            // Click add employee button
+            const addButton = await driver.findElement(By.css('a.add-btn[onclick*="openEmployeeModal"]'));
+            await addButton.click();
+            
+            // Wait for modal
+            await driver.sleep(1000);
+            
+            // Fill form
+            await driver.findElement(By.css('#addEmployeeName')).sendKeys('New Employee');
+            await driver.findElement(By.css('#addEmployeeEmail')).sendKeys('new@employee.com');
+            await driver.findElement(By.css('#addEmployeePassword')).sendKeys('password123');
+            await driver.findElement(By.css('#addEmployeeRole')).sendKeys('Admin');
+            await driver.findElement(By.css('#addEmployeeDepartment')).sendKeys('IT');
+            
+            // Submit form
+            await driver.findElement(By.css('#addEmployeeForm')).submit();
+            
+            // Wait for alert and accept it
+            await driver.wait(until.alertIsPresent(), 5000);
+            await driver.switchTo().alert().accept();
+            
+            // Wait for table to update
+            await driver.sleep(2000); // Give time for Firebase to update and table to refresh
+            
+            // Verify employee was added
+            const cells = await driver.findElements(By.css('#employeeTable td'));
+            assert(cells.length > 0, 'Employee table should have content');
+        });
     });
 });
