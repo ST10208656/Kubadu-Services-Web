@@ -5,8 +5,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- A simple string to inform users of the fixed interest rate -->
-    <string name="loan_interest_rate_info">Interest Rate: 15% for all loan amounts</string>
-    <string name="interest_rate_text">Interest Rate: 15%</string>
+    <string name="loan_interest_rate_info">Interest Rate: 15%% for all loan amounts</string>
+    <string name="interest_rate_text">Interest Rate: 15%%</string>
     <string name="confirm_loan_title">Confirm Loan Application</string>
     <string name="confirm_loan_message">You are about to apply for a loan of %1$s. The total repayment amount will be %2$s.</string>
     <string name="loan_request_successful">Loan request for R%s submitted successfully!</string>

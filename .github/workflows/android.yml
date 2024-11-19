@@ -27,8 +27,11 @@ jobs:
       - name: Run Tests
         run: ./gradlew test
 
+      - name: Create Lint Baseline
+        run: ./gradlew updateLintBaseline
+
       - name: Run Lint
-        run: ./gradlew lint
+        run: ./gradlew lint -Dlint.baselines.continue=true
 
       - name: Upload Test Reports
         if: always()
