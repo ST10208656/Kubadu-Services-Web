@@ -95,7 +95,7 @@ jobs:
             cat /var/log/google-chrome/chrome_debug.log
           fi
 
-   publish:
+  publish:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -110,6 +110,11 @@ jobs:
       - name: Install Azure CLI
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+          - name: Azure DevOps Login
+              env:
+                AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+              run: echo $AZURE_DEVOPS_PAT | az devops login
           
       - name: Azure DevOps Artifact Upload
         env:
