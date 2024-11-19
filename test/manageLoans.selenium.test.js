@@ -1,7 +1,7 @@
-const { Builder, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const { By, until } = require('selenium-webdriver');
 const assert = require('assert');
 const path = require('path');
+const { setupDriver, teardownDriver, waitForDocumentReady, takeScreenshot } = require('./testSetup');
 
 describe('Loans Management Tests', function() {
     let driver;
@@ -9,212 +9,203 @@ describe('Loans Management Tests', function() {
     this.timeout(30000); // Increase timeout for Selenium tests
 
     beforeEach(async function() {
-        // Set up Chrome in headless mode
-        let options = new chrome.Options();
-        options.addArguments('--headless');
-        options.addArguments('--no-sandbox');
-        options.addArguments('--disable-dev-shm-usage');
+        try {
+            driver = await setupDriver();
 
-        driver = await new Builder()
-            .forBrowser('chrome')
-            .setChromeOptions(options)
-            .build();
+            // Navigate to the loans page
+            const htmlPath = path.join(__dirname, '..', 'public_html', 'manageLoans.html');
+            await driver.get('file://' + htmlPath);
 
-        // Navigate to the loans page
-        const htmlPath = path.join(__dirname, '..', 'public_html', 'manageLoans.html');
-        await driver.get('file://' + htmlPath);
+            // Wait for the document to be ready
+            await waitForDocumentReady(driver);
 
-        // Wait for the document to be ready
-        await driver.wait(async function() {
-            const readyState = await driver.executeScript('return document.readyState');
-            return readyState === 'complete';
-        }, 5000);
-
-        // Initialize mock data and setup UI
-        await driver.executeScript(`
-            // Mock loan data
-            window.loans = [
-                {
-                    id: 'loan1',
-                    customerName: 'John Doe',
-                    amount: 5000,
-                    status: 'Active',
-                    startDate: '2024-01-01',
-                    endDate: '2024-12-31',
-                    interestRate: 5,
-                    remainingBalance: 4500
-                },
-                {
-                    id: 'loan2',
-                    customerName: 'Jane Smith',
-                    amount: 3000,
-                    status: 'Pending',
-                    startDate: '2024-02-01',
-                    endDate: '2024-08-31',
-                    interestRate: 4.5,
-                    remainingBalance: 3000
-                },
-                {
-                    id: 'loan3',
-                    customerName: 'Bob Wilson',
-                    amount: 2000,
-                    status: 'Completed',
-                    startDate: '2024-01-15',
-                    endDate: '2024-06-15',
-                    interestRate: 4,
-                    remainingBalance: 0
-                }
-            ];
-
-            // Create or update loans table
-            function updateLoansTable() {
-                const container = document.querySelector('.container');
-                let table = document.querySelector('#loans-table');
-                
-                if (!table) {
-                    table = document.createElement('table');
-                    table.id = 'loans-table';
-                    table.innerHTML = '<thead><tr><th>Customer Name</th><th>Amount</th><th>Status</th><th>Start Date</th><th>End Date</th><th>Interest Rate</th><th>Remaining Balance</th><th>Actions</th></tr></thead><tbody></tbody>';
-                    container.appendChild(table);
-                }
-
-                const tbody = table.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                window.loans.forEach(loan => {
-                    const row = document.createElement('tr');
-                    row.setAttribute('data-loan-id', loan.id);
-                    row.innerHTML = \`
-                        <td>\${loan.customerName}</td>
-                        <td>$\${loan.amount}</td>
-                        <td>\${loan.status}</td>
-                        <td>\${loan.startDate}</td>
-                        <td>\${loan.endDate}</td>
-                        <td>\${loan.interestRate}%</td>
-                        <td>$\${loan.remainingBalance}</td>
-                        <td>
-                            <button class="edit-btn btn-primary">Edit</button>
-                            <button class="payment-btn btn-success" \${loan.status === 'Completed' ? 'disabled' : ''}>Make Payment</button>
-                            <button class="delete-btn btn-danger" \${loan.status !== 'Pending' ? 'disabled' : ''}>Delete</button>
-                        </td>
-                    \`;
-                    tbody.appendChild(row);
-                });
-            }
-
-            // Mock edit function
-            window.editLoan = function(loanId) {
-                const loan = window.loans.find(l => l.id === loanId);
-                if (loan) {
-                    const form = document.createElement('div');
-                    form.className = 'edit-form modal';
-                    form.innerHTML = \`
-                        <div class="modal-content">
-                            <h2>Edit Loan</h2>
-                            <input type="text" id="edit-customer" value="\${loan.customerName}" class="form-control">
-                            <input type="number" id="edit-amount" value="\${loan.amount}" class="form-control">
-                            <select id="edit-status" class="form-control">
-                                <option value="Active" \${loan.status === 'Active' ? 'selected' : ''}>Active</option>
-                                <option value="Pending" \${loan.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Completed" \${loan.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                            </select>
-                            <button onclick="saveLoan('\${loan.id}')" class="btn-primary">Save</button>
-                        </div>
-                    \`;
-                    document.body.appendChild(form);
-                }
-            };
-
-            // Mock save function
-            window.saveLoan = function(loanId) {
-                const loan = window.loans.find(l => l.id === loanId);
-                if (loan) {
-                    loan.customerName = document.getElementById('edit-customer').value;
-                    loan.amount = parseFloat(document.getElementById('edit-amount').value);
-                    loan.status = document.getElementById('edit-status').value;
-                    
-                    const form = document.querySelector('.edit-form');
-                    if (form) {
-                        form.remove();
+            // Initialize mock data and setup UI
+            await driver.executeScript(`
+                // Mock loan data
+                window.loans = [
+                    {
+                        id: 'loan1',
+                        customerName: 'John Doe',
+                        amount: 5000,
+                        status: 'Active',
+                        startDate: '2024-01-01',
+                        endDate: '2024-12-31',
+                        interestRate: 5,
+                        remainingBalance: 4500
+                    },
+                    {
+                        id: 'loan2',
+                        customerName: 'Jane Smith',
+                        amount: 3000,
+                        status: 'Pending',
+                        startDate: '2024-02-01',
+                        endDate: '2024-08-31',
+                        interestRate: 4.5,
+                        remainingBalance: 3000
+                    },
+                    {
+                        id: 'loan3',
+                        customerName: 'Bob Wilson',
+                        amount: 2000,
+                        status: 'Completed',
+                        startDate: '2024-01-15',
+                        endDate: '2024-06-15',
+                        interestRate: 4,
+                        remainingBalance: 0
                     }
+                ];
+
+                // Create or update loans table
+                function updateLoansTable() {
+                    const container = document.querySelector('.container');
+                    let table = document.querySelector('#loans-table');
                     
-                    updateLoansTable();
-                }
-            };
+                    if (!table) {
+                        table = document.createElement('table');
+                        table.id = 'loans-table';
+                        table.innerHTML = '<thead><tr><th>Customer Name</th><th>Amount</th><th>Status</th><th>Start Date</th><th>End Date</th><th>Interest Rate</th><th>Remaining Balance</th><th>Actions</th></tr></thead><tbody></tbody>';
+                        container.appendChild(table);
+                    }
 
-            // Mock payment function
-            window.makePayment = function(loanId) {
-                const loan = window.loans.find(l => l.id === loanId);
-                if (loan && loan.status === 'Active') {
-                    const form = document.createElement('div');
-                    form.className = 'payment-form modal';
-                    form.innerHTML = \`
-                        <div class="modal-content">
-                            <h2>Make Payment</h2>
-                            <p>Remaining Balance: $\${loan.remainingBalance}</p>
-                            <input type="number" id="payment-amount" placeholder="Enter payment amount" class="form-control">
-                            <button onclick="processPayment('\${loan.id}')" class="btn-success">Submit Payment</button>
-                        </div>
-                    \`;
-                    document.body.appendChild(form);
-                }
-            };
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = '';
 
-            // Mock process payment function
-            window.processPayment = function(loanId) {
-                const loan = window.loans.find(l => l.id === loanId);
-                if (loan) {
-                    const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
-                    if (paymentAmount > 0 && paymentAmount <= loan.remainingBalance) {
-                        loan.remainingBalance -= paymentAmount;
-                        if (loan.remainingBalance === 0) {
-                            loan.status = 'Completed';
-                        }
+                    window.loans.forEach(loan => {
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-loan-id', loan.id);
+                        row.innerHTML = \`
+                            <td>\${loan.customerName}</td>
+                            <td>$\${loan.amount}</td>
+                            <td>\${loan.status}</td>
+                            <td>\${loan.startDate}</td>
+                            <td>\${loan.endDate}</td>
+                            <td>\${loan.interestRate}%</td>
+                            <td>$\${loan.remainingBalance}</td>
+                            <td>
+                                <button class="edit-btn btn-primary">Edit</button>
+                                <button class="payment-btn btn-success" \${loan.status === 'Completed' ? 'disabled' : ''}>Make Payment</button>
+                                <button class="delete-btn btn-danger" \${loan.status !== 'Pending' ? 'disabled' : ''}>Delete</button>
+                            </td>
+                        \`;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                // Mock edit function
+                window.editLoan = function(loanId) {
+                    const loan = window.loans.find(l => l.id === loanId);
+                    if (loan) {
+                        const form = document.createElement('div');
+                        form.className = 'edit-form modal';
+                        form.innerHTML = \`
+                            <div class="modal-content">
+                                <h2>Edit Loan</h2>
+                                <input type="text" id="edit-customer" value="\${loan.customerName}" class="form-control">
+                                <input type="number" id="edit-amount" value="\${loan.amount}" class="form-control">
+                                <select id="edit-status" class="form-control">
+                                    <option value="Active" \${loan.status === 'Active' ? 'selected' : ''}>Active</option>
+                                    <option value="Pending" \${loan.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="Completed" \${loan.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                </select>
+                                <button onclick="saveLoan('\${loan.id}')" class="btn-primary">Save</button>
+                            </div>
+                        \`;
+                        document.body.appendChild(form);
+                    }
+                };
+
+                // Mock save function
+                window.saveLoan = function(loanId) {
+                    const loan = window.loans.find(l => l.id === loanId);
+                    if (loan) {
+                        loan.customerName = document.getElementById('edit-customer').value;
+                        loan.amount = parseFloat(document.getElementById('edit-amount').value);
+                        loan.status = document.getElementById('edit-status').value;
                         
-                        const form = document.querySelector('.payment-form');
+                        const form = document.querySelector('.edit-form');
                         if (form) {
                             form.remove();
                         }
                         
                         updateLoansTable();
                     }
-                }
-            };
+                };
 
-            // Mock delete function
-            window.deleteLoan = function(loanId) {
-                const index = window.loans.findIndex(l => l.id === loanId);
-                if (index !== -1 && window.loans[index].status === 'Pending') {
-                    window.loans.splice(index, 1);
-                    updateLoansTable();
-                }
-            };
+                // Mock payment function
+                window.makePayment = function(loanId) {
+                    const loan = window.loans.find(l => l.id === loanId);
+                    if (loan && loan.status === 'Active') {
+                        const form = document.createElement('div');
+                        form.className = 'payment-form modal';
+                        form.innerHTML = \`
+                            <div class="modal-content">
+                                <h2>Make Payment</h2>
+                                <p>Remaining Balance: $\${loan.remainingBalance}</p>
+                                <input type="number" id="payment-amount" placeholder="Enter payment amount" class="form-control">
+                                <button onclick="processPayment('\${loan.id}')" class="btn-success">Submit Payment</button>
+                            </div>
+                        \`;
+                        document.body.appendChild(form);
+                    }
+                };
 
-            // Add event listeners
-            document.addEventListener('click', function(e) {
-                if (e.target.matches('.edit-btn')) {
-                    const loanId = e.target.closest('tr').getAttribute('data-loan-id');
-                    editLoan(loanId);
-                } else if (e.target.matches('.payment-btn')) {
-                    const loanId = e.target.closest('tr').getAttribute('data-loan-id');
-                    makePayment(loanId);
-                } else if (e.target.matches('.delete-btn')) {
-                    const loanId = e.target.closest('tr').getAttribute('data-loan-id');
-                    deleteLoan(loanId);
-                }
-            });
+                // Mock process payment function
+                window.processPayment = function(loanId) {
+                    const loan = window.loans.find(l => l.id === loanId);
+                    if (loan) {
+                        const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
+                        if (paymentAmount > 0 && paymentAmount <= loan.remainingBalance) {
+                            loan.remainingBalance -= paymentAmount;
+                            if (loan.remainingBalance === 0) {
+                                loan.status = 'Completed';
+                            }
+                            
+                            const form = document.querySelector('.payment-form');
+                            if (form) {
+                                form.remove();
+                            }
+                            
+                            updateLoansTable();
+                        }
+                    }
+                };
 
-            // Initialize the table
-            updateLoansTable();
-        `);
+                // Mock delete function
+                window.deleteLoan = function(loanId) {
+                    const index = window.loans.findIndex(l => l.id === loanId);
+                    if (index !== -1 && window.loans[index].status === 'Pending') {
+                        window.loans.splice(index, 1);
+                        updateLoansTable();
+                    }
+                };
 
-        await driver.sleep(1000); // Wait for initialization
+                // Add event listeners
+                document.addEventListener('click', function(e) {
+                    if (e.target.matches('.edit-btn')) {
+                        const loanId = e.target.closest('tr').getAttribute('data-loan-id');
+                        editLoan(loanId);
+                    } else if (e.target.matches('.payment-btn')) {
+                        const loanId = e.target.closest('tr').getAttribute('data-loan-id');
+                        makePayment(loanId);
+                    } else if (e.target.matches('.delete-btn')) {
+                        const loanId = e.target.closest('tr').getAttribute('data-loan-id');
+                        deleteLoan(loanId);
+                    }
+                });
+
+                // Initialize the table
+                updateLoansTable();
+            `);
+
+            await driver.sleep(1000); // Wait for initialization
+        } catch (error) {
+            console.error('Setup failed:', error);
+            throw error;
+        }
     });
 
     afterEach(async function() {
-        if (driver) {
-            await driver.quit();
-        }
+        await teardownDriver(driver);
     });
 
     it('should display the loans table', async function() {
