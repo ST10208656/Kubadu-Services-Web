@@ -109,7 +109,7 @@ jobs:
   deploy:
     needs: test
     environment:
-      name: github-pages
+      name: admin-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
@@ -117,16 +117,23 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: webAdminBranch
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: './public_html'
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          preview: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: [test, deploy]
