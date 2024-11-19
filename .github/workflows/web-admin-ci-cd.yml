@@ -14,8 +14,11 @@ permissions:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "admin-pages"
+  cancel-in-progress: true
+
+env:
+  BASE_PATH: '/admin'
 
 jobs:
   test:
@@ -106,35 +109,49 @@ jobs:
             cat /var/log/google-chrome/chrome_debug.log
           fi
 
-  deploy:
+  build:
     needs: test
-    environment:
-      name: admin-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: webAdminBranch
-          
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          enablement: true
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build with base path
+        run: |
+          # Add any build commands here if needed
+          echo "Building admin site with base path: ${{ env.BASE_PATH }}"
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './public_html'
+          path: ./public_html
           
+  deploy:
+    needs: build
+    environment:
+      name: admin-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          preview: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+          path: ./public_html
+          
   publish:
     needs: [test, deploy]
     runs-on: ubuntu-latest
