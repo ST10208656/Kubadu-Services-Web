@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  deployments: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
@@ -64,8 +65,12 @@ jobs:
 
   deploy:
     needs: test
+    permissions:
+      pages: write
+      id-token: write
+      deployments: write
     environment:
-      name: github-pages
+      name: production
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
@@ -80,6 +85,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: [test, deploy]
