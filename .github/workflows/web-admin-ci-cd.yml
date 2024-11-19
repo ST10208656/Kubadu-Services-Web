@@ -106,6 +106,14 @@ jobs:
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Prepare artifact directory
+        run: |
+          mkdir -p artifact
+          cp -r artifacts/test-results/* artifact/ || true
+          cp -r artifacts/test-logs/* artifact/ || true
         
       - name: Install Azure CLI
         run: |
@@ -125,6 +133,10 @@ jobs:
           # Configure Azure DevOps CLI
           az devops configure --defaults organization="$AZURE_DEVOPS_ORG" project="$AZURE_DEVOPS_PROJECT"
           
+          # List contents of artifact directory
+          echo "Contents of artifact directory:"
+          ls -la artifact/
+          
           # Create and publish artifact
           az artifacts universal publish \
             --organization "$AZURE_DEVOPS_ORG" \
@@ -132,6 +144,6 @@ jobs:
             --scope project \
             --feed "WebAdminTests" \
             --name "selenium-test-results" \
-            --version "$GITHUB_RUN_NUMBER" \
+            --version "$GITHUB_RUN_NUMBER.0.0" \
             --path artifact \
             --description "Selenium Test Results from GitHub Actions Run #$GITHUB_RUN_NUMBER"
