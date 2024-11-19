@@ -23,6 +23,45 @@ describe('Funeral Policies Management E2E Tests', function() {
         
         // Mock Firebase functions and data
         await driver.executeScript(function() {
+            // Mock Firebase functions
+            window.addDoc = async function(collection, data) {
+                const tbody = document.querySelector('#policies-list tbody');
+                const row = document.createElement('tr');
+                const id = 'policy' + (document.querySelectorAll('#policies-list tbody tr').length + 1);
+                row.setAttribute('data-policy-id', id);
+                
+                const cells = [
+                    { text: data.policyType },
+                    { text: data.coverage },
+                    { text: 'R' + parseFloat(data.payment).toFixed(2) },
+                    { text: 'Active' },
+                    {
+                        html: '<button class="edit-btn" data-id="' + id + '">Edit</button>' +
+                              '<button class="delete-btn" data-id="' + id + '">Delete</button>'
+                    }
+                ];
+                
+                cells.forEach(cell => {
+                    const td = document.createElement('td');
+                    if (cell.html) {
+                        td.innerHTML = cell.html;
+                    } else {
+                        td.textContent = cell.text;
+                    }
+                    row.appendChild(td);
+                });
+                
+                tbody.appendChild(row);
+                return { id };
+            };
+
+            // Mock other Firebase functions
+            window.collection = function() { return {}; };
+            window.doc = function() { return {}; };
+            window.deleteDoc = async function() { return {}; };
+            window.updateDoc = async function() { return {}; };
+            window.getDocs = async function() { return { docs: [] }; };
+
             // Mock data
             const mockPolicies = [
                 {
@@ -48,14 +87,12 @@ describe('Funeral Policies Management E2E Tests', function() {
                 }
             ];
 
-            // Populate policies table
+            // Create and populate table
             let policiesList = document.getElementById('policies-list');
             if (!policiesList) {
-                // Create table if it doesn't exist
                 const table = document.createElement('table');
                 table.id = 'policies-list';
                 
-                // Create table header
                 const thead = document.createElement('thead');
                 const headerRow = document.createElement('tr');
                 ['Policy Name', 'Coverage', 'Payment', 'Status', 'Actions'].forEach(text => {
@@ -66,11 +103,9 @@ describe('Funeral Policies Management E2E Tests', function() {
                 thead.appendChild(headerRow);
                 table.appendChild(thead);
                 
-                // Create table body
                 const tbody = document.createElement('tbody');
                 table.appendChild(tbody);
                 
-                // Find the main container or create one
                 let container = document.querySelector('.container');
                 if (!container) {
                     container = document.createElement('div');
@@ -78,54 +113,49 @@ describe('Funeral Policies Management E2E Tests', function() {
                     document.body.appendChild(container);
                 }
                 
-                // Add the table to the container
                 container.appendChild(table);
                 policiesList = tbody;
             }
-            
-            // Create mock search and filter elements if they don't exist
-            if (!document.getElementById('search-input')) {
-                const searchInput = document.createElement('input');
-                searchInput.id = 'search-input';
-                searchInput.type = 'text';
-                searchInput.placeholder = 'Search policies...';
-                document.querySelector('.container').insertBefore(searchInput, policiesList.parentElement);
-            }
-            
-            if (!document.getElementById('status-filter')) {
-                const statusFilter = document.createElement('select');
-                statusFilter.id = 'status-filter';
-                const options = [
-                    { value: 'all', text: 'All Statuses' },
-                    { value: 'Active', text: 'Active' },
-                    { value: 'Inactive', text: 'Inactive' }
-                ];
-                options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.value;
-                    option.textContent = opt.text;
-                    statusFilter.appendChild(option);
-                });
-                document.querySelector('.container').insertBefore(statusFilter, policiesList.parentElement);
-            }
-            
-            // Create add policy form if it doesn't exist
+
+            // Create form if it doesn't exist
             if (!document.getElementById('add-policy-form')) {
                 const form = document.createElement('form');
                 form.id = 'add-policy-form';
                 form.className = 'add-policy-form';
                 
                 const inputs = [
-                    { type: 'text', id: 'policy-type', placeholder: 'Policy Name' },
-                    { type: 'text', id: 'coverage', placeholder: 'Coverage Amount' },
-                    { type: 'number', id: 'payment', placeholder: 'Monthly Payment', step: '0.01' }
+                    { type: 'text', id: 'policy-type', placeholder: 'Policy Name', required: true },
+                    { type: 'text', id: 'coverage', placeholder: 'Coverage Amount', required: true },
+                    { type: 'number', id: 'payment', placeholder: 'Monthly Payment', step: '0.01', required: true }
                 ];
                 
                 inputs.forEach(input => {
                     const inputElement = document.createElement('input');
                     Object.assign(inputElement, input);
-                    inputElement.required = true;
                     form.appendChild(inputElement);
+                });
+
+                // Add checkboxes
+                const checkboxes = [
+                    { id: 'require-id', label: 'National ID/Passport' },
+                    { id: 'require-proof-address', label: 'Proof of Address' },
+                    { id: 'require-income', label: 'Proof of Income' },
+                    { id: 'require-bank-statement', label: 'Bank Statement' }
+                ];
+
+                checkboxes.forEach(checkbox => {
+                    const div = document.createElement('div');
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.id = checkbox.id;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = checkbox.label;
+                    
+                    div.appendChild(input);
+                    div.appendChild(label);
+                    form.appendChild(div);
                 });
                 
                 const submitButton = document.createElement('button');
@@ -136,7 +166,24 @@ describe('Funeral Policies Management E2E Tests', function() {
                 document.querySelector('.container').insertBefore(form, policiesList.parentElement);
             }
 
-            // Populate policies table
+            // Add form submit handler
+            document.getElementById('add-policy-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await window.addDoc({}, {
+                    policyType: document.getElementById('policy-type').value,
+                    coverage: document.getElementById('coverage').value,
+                    payment: document.getElementById('payment').value,
+                    requirements: {
+                        requireId: document.getElementById('require-id').checked,
+                        requireProofAddress: document.getElementById('require-proof-address').checked,
+                        requireIncome: document.getElementById('require-income').checked,
+                        requireBankStatement: document.getElementById('require-bank-statement').checked
+                    }
+                });
+                this.reset();
+            });
+
+            // Populate initial policies
             mockPolicies.forEach(policy => {
                 const row = document.createElement('tr');
                 row.setAttribute('data-policy-id', policy.id);
@@ -151,7 +198,7 @@ describe('Funeral Policies Management E2E Tests', function() {
                     }
                 ];
                 
-                cells.forEach((cell, index) => {
+                cells.forEach(cell => {
                     const td = document.createElement('td');
                     if (cell.html) {
                         td.innerHTML = cell.html;
@@ -162,61 +209,6 @@ describe('Funeral Policies Management E2E Tests', function() {
                 });
                 
                 policiesList.appendChild(row);
-            });
-
-            // Add event listeners
-            document.getElementById('add-policy-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('policy-type').value;
-                const coverage = document.getElementById('coverage').value;
-                const payment = document.getElementById('payment').value;
-                
-                const row = document.createElement('tr');
-                const id = 'policy' + (document.querySelectorAll('#policies-list tr').length + 1);
-                row.setAttribute('data-policy-id', id);
-                
-                const cells = [
-                    { text: name },
-                    { text: coverage },
-                    { text: 'R' + parseFloat(payment).toFixed(2) },
-                    { text: 'Active' },
-                    {
-                        html: '<button class="edit-btn" data-id="' + id + '">Edit</button>' +
-                              '<button class="delete-btn" data-id="' + id + '">Delete</button>'
-                    }
-                ];
-                
-                cells.forEach((cell, index) => {
-                    const td = document.createElement('td');
-                    if (cell.html) {
-                        td.innerHTML = cell.html;
-                    } else {
-                        td.textContent = cell.text;
-                    }
-                    row.appendChild(td);
-                });
-                
-                document.querySelector('#policies-list tbody').appendChild(row);
-                this.reset();
-            });
-
-            // Add search functionality
-            document.getElementById('search-input').addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                document.querySelectorAll('#policies-list tbody tr').forEach(row => {
-                    const policyName = row.cells[0].textContent.toLowerCase();
-                    row.style.display = policyName.includes(searchTerm) ? '' : 'none';
-                });
-            });
-
-            // Add status filter functionality
-            document.getElementById('status-filter').addEventListener('change', function() {
-                const selectedStatus = this.value;
-                document.querySelectorAll('#policies-list tbody tr').forEach(row => {
-                    const status = row.cells[3].textContent;
-                    row.style.display = (selectedStatus === 'all' || status === selectedStatus) ? '' : 'none';
-                });
             });
         });
 
@@ -242,16 +234,22 @@ describe('Funeral Policies Management E2E Tests', function() {
 
     // Test adding a new policy
     it('should add new policy correctly', async function() {
-        // Fill out the form directly
+        // Fill out the form
         await driver.findElement(By.id('policy-type')).sendKeys('Test Policy');
         await driver.findElement(By.id('coverage')).sendKeys('R25,000');
         await driver.findElement(By.id('payment')).sendKeys('200');
         
+        // Check required checkboxes
+        await driver.findElement(By.id('require-id')).click();
+        await driver.findElement(By.id('require-proof-address')).click();
+        await driver.findElement(By.id('require-income')).click();
+        await driver.findElement(By.id('require-bank-statement')).click();
+        
         // Submit the form
-        const form = await driver.findElement(By.id('add-policy-form'));
-        await form.submit();
+        const submitButton = await driver.findElement(By.css('#add-policy-form button[type="submit"]'));
+        await submitButton.click();
 
-        await driver.sleep(1000); // Wait for the new policy to be added
+        await driver.sleep(1500); // Wait for the new policy to be added
 
         // Verify the new policy details
         const rows = await driver.findElements(By.css('#policies-list tbody tr'));
