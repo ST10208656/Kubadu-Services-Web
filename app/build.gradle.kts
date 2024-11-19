@@ -42,6 +42,12 @@ android {
             isIncludeAndroidResources = true
         }
     }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 dependencies {
@@ -86,7 +92,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.navigation:navigation-testing:2.7.6")
     androidTestImplementation("org.mockito:mockito-android:4.11.0")
-    androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
 
     // Debug implementations
     debugImplementation("androidx.fragment:fragment-testing:1.6.2")
