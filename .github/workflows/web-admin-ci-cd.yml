@@ -132,6 +132,6 @@ jobs:
             --scope project \
             --feed "WebAdminTests" \
             --name "selenium-test-results" \
-            --version "$GITHUB_RUN_NUMBER" \
+            --version 5.0.0 \
             --path artifact \
             --description "Selenium Test Results from GitHub Actions Run #$GITHUB_RUN_NUMBER"
