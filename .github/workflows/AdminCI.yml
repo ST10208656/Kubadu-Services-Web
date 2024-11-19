@@ -94,3 +94,9 @@ jobs:
           if [ -f /var/log/google-chrome/chrome_debug.log ]; then
             cat /var/log/google-chrome/chrome_debug.log
           fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public_html  # Specify your custom directory here
