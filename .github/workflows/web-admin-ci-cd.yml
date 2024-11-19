@@ -95,10 +95,15 @@ jobs:
             cat /var/log/google-chrome/chrome_debug.log
           fi
 
-  publish:
+   publish:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: webAdminBranch
+
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
         
@@ -112,13 +117,23 @@ jobs:
           AZURE_DEVOPS_ORG: ${{ secrets.AZURE_DEVOPS_ORG }}
           AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT }}
         run: |
-          # Create artifact directory
+          # Create required directories
           mkdir -p artifact
+          mkdir -p test/screenshots
+          mkdir -p test-logs
           
-          # Copy test results and logs
-          cp -r test-results/* artifact/ || true
-          cp -r test-logs/* artifact/ || true
-          cp -r test/screenshots/* artifact/ || true
+          # Copy test results and logs (with error handling)
+          if [ -d "test-results" ]; then
+            cp -r test-results/* artifact/ || true
+          fi
+          
+          if [ -d "test-logs" ]; then
+            cp -r test-logs/* artifact/ || true
+          fi
+          
+          if [ -d "test/screenshots" ]; then
+            cp -r test/screenshots/* artifact/ || true
+          fi
           
           # Create artifact metadata
           echo "Build Number: $GITHUB_RUN_NUMBER" > artifact/build-info.txt
@@ -128,12 +143,13 @@ jobs:
           # Install Azure DevOps extension
           az extension add --name azure-devops
           
+          # Login to Azure DevOps
+          echo "$AZURE_DEVOPS_PAT" | az devops login --organization "$AZURE_DEVOPS_ORG"
+          
           # Configure Azure DevOps CLI
-          echo "##[command]az devops configure --defaults organization=$AZURE_DEVOPS_ORG project=$AZURE_DEVOPS_PROJECT"
           az devops configure --defaults organization="$AZURE_DEVOPS_ORG" project="$AZURE_DEVOPS_PROJECT"
           
           # Create and publish artifact
-          echo "##[command]az artifacts universal publish"
           az artifacts universal publish \
             --organization "$AZURE_DEVOPS_ORG" \
             --project "$AZURE_DEVOPS_PROJECT" \
